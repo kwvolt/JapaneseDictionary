@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">JapaneseDictionary</string>
+    <string name="search">Search:</string>
+    <string name="testing_testing_123">testing testing 123</string>
+    <string name="search_title" />
+    <string name="action_settings">Settings</string>
+    <string name="generic_label">%1$s:</string>
+    <string name="generic_add_button">Add %1$s</string>
+    <string name="confirm_button">Confirm</string>
+    <string name="deleteButtonDescription">delete the item</string>
+</resources>

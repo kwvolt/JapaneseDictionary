@@ -1,0 +1,29 @@
+/**
+    DICTIONARY SECTION
+*/
+CREATE TABLE dictionary_entry_section (
+    id INTEGER NOT NULL PRIMARY KEY ,
+    dictionary_entry_id INTEGER NOT NULL,
+    meaning TEXT NOT NULL,
+    CONSTRAINT FK_dict_entry_section__dict_entry FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry (id)
+);
+
+insertDictionaryEntrySection {
+    INSERT INTO dictionary_entry_section (dictionary_entry_id, meaning) VALUES (?, ?);
+    SELECT last_insert_rowid();
+}
+
+selectDictionaryEntrySectionId:
+SELECT id FROM dictionary_entry_section WHERE dictionary_entry_id = ? AND meaning = ?;
+
+selectDictionaryEntrySection:
+SELECT dictionary_entry_id, meaning FROM dictionary_entry_section WHERE id = ?;
+
+selectAllDictionaryEntrySectionByEntry:
+SELECT id, meaning FROM dictionary_entry_section WHERE dictionary_entry_id = ?;
+
+deleteDictionaryEntrySection:
+DELETE FROM dictionary_entry_section WHERE id = ?;
+
+updateDictionaryEntrySectionMeaning:
+UPDATE dictionary_entry_section SET meaning = ? WHERE id = ?;

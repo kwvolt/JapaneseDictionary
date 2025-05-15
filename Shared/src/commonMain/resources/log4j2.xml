@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <!-- Appenders: define where logs should be written (console, file, etc.) -->
+    <Appenders>
+        <!-- Console appender -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout>
+                <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} %M - %msg%n</Pattern>
+            </PatternLayout>
+        </Console>
+
+        <!-- File appender -->
+        <File name="File" fileName="logs/app_logs.log">
+            <PatternLayout>
+                <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} %M - %msg%n</Pattern>
+            </PatternLayout>
+        </File>
+    </Appenders>
+
+    <!-- Loggers: define the log level and the appenders used for different loggers -->
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Root>
+
+        <!-- Optional: Specific logger for your package -->
+        <Logger name="com.example" level="debug" additivity="false">
+            <AppenderRef ref="File"/>
+        </Logger>
+    </Loggers>
+</Configuration>

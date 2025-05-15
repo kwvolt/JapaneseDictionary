@@ -1,0 +1,13 @@
+/**
+    DICTIONARY LINK CONJUGATION TEMPLATE
+*/
+CREATE TABLE  dictionary_entry_lk_conjugation_template(
+    dictionary_entry_id INTEGER,
+    conjugation_template_id INTEGER,
+    CONSTRAINT PK_dictionary_lk_conjugation_template PRIMARY KEY (dictionary_entry_id, conjugation_template_id),
+    CONSTRAINT FK_dictionary_lk_conjugation_template_to_dictionary FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry (id),
+    CONSTRAINT FK_dictionary_lk_conjugation_template_to_conjugation_template FOREIGN KEY (conjugation_template_id) REFERENCES conjugation_template (id)
+);
+
+linkDictionaryEntry_With_ConjugationTemplate:
+INSERT INTO dictionary_entry_lk_conjugation_template (dictionary_entry_id, conjugation_template_id) VALUES (?, ?);

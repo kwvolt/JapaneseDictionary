@@ -1,0 +1,77 @@
+[versions]
+agp = "8.5.2"
+androidDriver = "2.0.2"
+apacheLog4jSlf4jImpl = "2.12.4"
+gradlePlugin = "2.0.0"
+kotlin = "1.9.0"
+coreKtx = "1.13.1"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+appcompat = "1.7.0"
+kotlinxCollectionsImmutable = "0.3.8"
+kotlinxCollectionsImmutableVersion = "0.3.7"
+kotlinxCoroutinesTest = "1.7.3"
+kotlinxCoroutinesTestVersion = "1.7.0"
+lifecycleViewmodelKtx = "2.8.7"
+log4jApi = "2.14.1"
+log4jApiVersion = "2.20.0"
+log4jCore = "2.14.1"
+log4jCoreVersion = "2.20.0"
+log4jSlf4j2Impl = "2.20.0"
+material = "1.12.0"
+runtime = "2.0.2"
+runtimeVersion = "1.8.1"
+slf4jApi = "1.7.36"
+slf4jApiVersion = "2.0.9"
+slf4jLog4j12 = "1.7.32"
+sqliteDriver = "2.0.2"
+sqliteJdbc = "3.39.4.0"
+jetbrainsKotlinJvm = "1.9.0"
+runtimeAndroid = "1.8.1"
+sqliteJdbcVersion = "3.41.2.1"
+
+[libraries]
+android-driver = { module = "com.squareup.sqldelight:android-driver", version.ref = "gradlePlugin" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version = "1.16.0" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version = "2.9.0" }
+androidx-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "runtimeVersion" }
+apache-log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "apacheLog4jSlf4jImpl" }
+com-squareup-sqldelight-android-driver = { module = "com.squareup.sqldelight:android-driver" }
+com-squareup-sqldelight-android-driver2 = { module = "com.squareup.sqldelight:android-driver" }
+coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "androidDriver" }
+gradle-plugin = { module = "com.squareup.sqldelight:gradle-plugin", version.ref = "gradlePlugin" }
+jdbc-driver = { module = "com.squareup.sqldelight:jdbc-driver", version.ref = "gradlePlugin" }
+jetbrains-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTestVersion" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
+kotlinx-collections-immutable-v037 = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutableVersion" }
+kotlinx-coroutines-test-v173 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4jApi" }
+log4j-api-v2200 = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4jApiVersion" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4jCore" }
+log4j-core-v2200 = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4jCoreVersion" }
+log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4jSlf4j2Impl" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+runtime = { module = "com.squareup.sqldelight:runtime", version.ref = "gradlePlugin" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4jApi" }
+slf4j-api-v209 = { module = "org.slf4j:slf4j-api", version.ref = "slf4jApiVersion" }
+slf4j-log4j12 = { module = "org.slf4j:slf4j-log4j12", version.ref = "slf4jLog4j12" }
+sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "androidDriver" }
+sqldelight-coroutines-extensions = { module = "com.squareup.sqldelight:coroutines-extensions" }
+sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "runtime" }
+sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqliteDriver" }
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqliteJdbc" }
+sqlite-jdbc-v34121 = { module = "org.xerial:sqlite-jdbc", version.ref = "sqliteJdbcVersion" }
+squareup-android-driver = { module = "com.squareup.sqldelight:android-driver" }
+squareup-coroutines-extensions = { module = "com.squareup.sqldelight:coroutines-extensions" }
+androidx-runtime-android = { group = "androidx.compose.runtime", name = "runtime-android", version.ref = "runtimeAndroid" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+

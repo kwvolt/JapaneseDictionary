@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Header Style from Material Design Typography -->
+    <style name="TextAppearance.AppCompat.Headline1">
+        <item name="android:textSize">30sp</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Sub-header Style from Material Design Typography -->
+    <style name="TextAppearance.AppCompat.Subhead">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@android:color/darker_gray</item>
+    </style>
+</resources>

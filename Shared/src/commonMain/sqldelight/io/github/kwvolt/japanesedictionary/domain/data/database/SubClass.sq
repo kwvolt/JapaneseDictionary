@@ -1,0 +1,53 @@
+/**
+    SUB CLASS
+*/
+CREATE TABLE sub_class(
+    id INTEGER NOT NULL PRIMARY KEY,
+    id_name TEXT NOT NULL,
+    display_text TEXT NOT NULL,
+    CONSTRAINT CK_LEN_sub_class__id_name CHECK (LENGTH(id_name) <= 50),
+    CONSTRAINT UQIDX_sub_class__id_name UNIQUE(id_name)
+);
+
+insertSubClassLinkToMainClass {
+    INSERT OR IGNORE INTO sub_class (id_name, display_text)
+    VALUES (:idName, :displayText);
+    INSERT INTO word_class (main_class_id, sub_class_id)
+    VALUES (
+        :mainClassId,
+        (SELECT id FROM sub_class WHERE id_name = :idName AND display_text = :displayText LIMIT 1)
+    );
+    SELECT id FROM sub_class WHERE id_name = :idName AND display_text = :displayText LIMIT 1;
+}
+
+selectAllSubClassByMainClassId:
+SELECT sub_class.id, sub_class.id_name, sub_class.display_text
+FROM sub_class
+INNER JOIN word_class ON sub_class.id = word_class.sub_class_id
+WHERE word_class.main_class_id = ?;
+
+insertSubClass{
+    INSERT INTO sub_class (id_name, display_text) VALUES (?, ?);
+    SELECT last_insert_rowid();
+}
+
+selectSubClassId:
+SELECT id FROM sub_class WHERE id_name = ?;
+
+selectSubClassById:
+SELECT id_name, display_text FROM sub_class WHERE id = ?;
+
+selectSubClassByIdName:
+SELECT id, display_text FROM sub_class WHERE id_name = ?;
+
+updateSubClassIdName:
+UPDATE sub_class SET id_name = ? WHERE id = ?;
+
+updateSubClassDisplayText:
+UPDATE sub_class SET display_text = ? WHERE id = ?;
+
+deleteSubClassByIdName:
+DELETE FROM sub_class WHERE id_name = ?;
+
+deleteSubClassById:
+DELETE FROM sub_class WHERE id = ?;

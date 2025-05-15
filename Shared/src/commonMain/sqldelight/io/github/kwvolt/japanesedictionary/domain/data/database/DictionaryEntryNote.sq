@@ -1,0 +1,27 @@
+/**
+    DICTIONARY ENTRY NOTE
+*/
+CREATE TABLE dictionary_entry_note (
+    id INTEGER NOT NULL PRIMARY KEY,
+    dictionary_entry_id INTEGER NOT NULL,
+    note_description TEXT NOT NULL,
+    CONSTRAINT FK_dict_section_note__dict_section FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry (id),
+    CONSTRAINT UQIDX_dict_entry_note__dict_entry_id__note_description UNIQUE(dictionary_entry_id, note_description)
+);
+
+insertDictionaryEntryNote {
+    INSERT INTO dictionary_entry_note (dictionary_entry_id, note_description) VALUES (?, ?);
+    SELECT last_insert_rowid();
+}
+
+selectDictionaryEntryNoteById:
+SELECT note_description FROM dictionary_entry_note WHERE id = ?;
+
+selectDictionaryEntryNoteByEntry:
+SELECT id, note_description FROM dictionary_entry_note WHERE dictionary_entry_id = ?;
+
+updateDictionaryEntryNote:
+UPDATE dictionary_entry_note SET note_description = ? WHERE id = ?;
+
+deleteDictionaryEntryNote:
+DELETE FROM dictionary_entry_note WHERE id = ?;

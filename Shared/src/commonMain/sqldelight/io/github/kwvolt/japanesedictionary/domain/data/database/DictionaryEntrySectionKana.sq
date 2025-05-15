@@ -1,0 +1,28 @@
+/**
+    Kana
+*/
+CREATE TABLE kana (
+    id INTEGER NOT NULL PRIMARY KEY,
+    dictionary_entry_section_id INTEGER NOT NULL,
+    wordText TEXT NOT NULL,
+    CONSTRAINT FK_kana__dict_entry_section FOREIGN KEY (dictionary_entry_section_id) REFERENCES dictionary_entry_section(id),
+    CONSTRAINT UQIDX_kana__dict_entry_section_id__wordText UNIQUE(dictionary_entry_section_id, wordText)
+);
+
+insertDictionaryEntrySectionKana {
+    INSERT INTO kana (dictionary_entry_section_id, wordText) VALUES (?, ?);
+    SELECT last_insert_rowid();
+}
+
+selectDictionaryEntrySectionKanaId:
+SELECT id FROM kana WHERE dictionary_entry_section_id = ? AND wordText = ?;
+
+selectDictionaryEntrySectionKanaByEntry:
+SELECT id, wordText FROM kana WHERE dictionary_entry_section_id = ?;
+
+updateDictionaryEntrySectionKana:
+UPDATE kana SET wordText = ? WHERE id = ?;
+
+deleteDictionaryEntrySectionKana:
+DELETE FROM kana WHERE id = ?;
+

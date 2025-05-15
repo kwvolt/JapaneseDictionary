@@ -1,0 +1,39 @@
+/**
+    MAIN CLASS
+*/
+CREATE TABLE main_class(
+    id INTEGER NOT NULL PRIMARY KEY,
+    id_name TEXT NOT NULL,
+    display_text TEXT NOT NULL,
+    CONSTRAINT CK_LEN_main_class__id_name CHECK (LENGTH(id_name) <= 50),
+    CONSTRAINT UQIDX_main_class__id_name UNIQUE(id_name)
+);
+
+insertMainClass{
+    INSERT INTO main_class (id_name, display_text) VALUES (?, ?);
+    SELECT last_insert_rowid();
+}
+
+selectMainClassId:
+SELECT id FROM main_class WHERE id_name = ?;
+
+selectMainClassById:
+SELECT id_name, display_text FROM main_class WHERE id = ?;
+
+selectMainClassByIdName:
+SELECT id, display_text FROM main_class WHERE id_name = ?;
+
+selectAllMainClass:
+SELECT id, id_name, display_text FROM main_class;
+
+updateMainClassIdName:
+UPDATE main_class SET id_name = ? WHERE id = ?;
+
+updateMainClassDisplayText:
+UPDATE main_class SET display_text = ? WHERE id = ?;
+
+deleteMainClassByIdName:
+DELETE FROM main_class WHERE id_name = ?;
+
+deleteMainClassById:
+DELETE FROM main_class WHERE id = ?;

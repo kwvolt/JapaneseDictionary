@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@color/teal_200">
+
+    <TextView
+        android:id="@+id/addUpdateLabel"
+        style="@style/TextAppearance.AppCompat.Headline1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_vertical"
+        android:text=""
+        tools:text="Temp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/addUpdateEditTextDelete"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:visibility="gone"
+        app:icon="@android:drawable/ic_delete"
+        app:iconGravity="textTop"
+        android:layout_gravity="end"
+        tools:visibility="visible"
+        android:contentDescription="@string/deleteButtonDescription"
+        android:background="@android:color/transparent" />
+
+</FrameLayout>

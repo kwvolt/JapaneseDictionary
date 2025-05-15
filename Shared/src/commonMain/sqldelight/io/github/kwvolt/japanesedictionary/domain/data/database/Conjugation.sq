@@ -1,0 +1,153 @@
+/**
+    CONJUGTION PATTERN
+*/
+CREATE TABLE conjugation_pattern(
+    id INTEGER,
+    id_name TEXT NOT NULL,
+    CONSTRAINT PK_conjugation_pattern PRIMARY KEY (id),
+    CONSTRAINT CK_LEN_conjugation_pattern_get_id_name CHECK (LENGTH(id_name) <= 50)
+);
+CREATE UNIQUE INDEX UQIDX_conjugation_pattern_get_id_name ON conjugation_pattern(id_name);
+
+insertConjugationPattern:
+INSERT INTO conjugation_pattern (id_name) VALUES (?);
+
+getConjugationPatternId:
+SELECT id FROM conjugation_pattern WHERE id_name = ?;
+
+/**
+    CONJUGTION PERFORM ACTION
+*/
+CREATE TABLE conjugation_perform_action(
+    id INTEGER,
+    id_name TEXT NOT NULL,
+    CONSTRAINT PK_conjugation_perform_action PRIMARY KEY (id),
+    CONSTRAINT CK_LEN_conjugation_perform_action_get_id_name CHECK (LENGTH(id_name) <= 50)
+);
+CREATE UNIQUE INDEX UQIDX_conjugation_perform_action_get_id_name ON conjugation_perform_action(id_name);
+
+insertConjugationPerformAction:
+INSERT INTO conjugation_perform_action (id_name) VALUES (?);
+
+getConjugationPerformAction:
+SELECT id FROM conjugation_perform_action WHERE id_name = ?;
+
+/**
+    VERB SUFFIX SWAP
+*/
+CREATE TABLE verb_suffix_swap(
+    id INTEGER,
+    original TEXT NOT NULL,
+    replacement TEXT NOT NULL,
+    CONSTRAINT PK_verb_suffix_swap PRIMARY KEY (id),
+    CONSTRAINT CK_LEN_verb_suffix_swap_get_original CHECK (LENGTH(original) <= 1),
+    CONSTRAINT CK_LEN_verb_suffix_swap_get_replacement CHECK (LENGTH(replacement) <= 1)
+);
+CREATE UNIQUE INDEX UQIDX_verb_suffix_swap_get_original_and_replacement ON verb_suffix_swap(original, replacement);
+
+insertVerbSuffixSwap:
+INSERT INTO verb_suffix_swap (original, replacement) VALUES (?, ?);
+
+getVerbSuffixSwap:
+SELECT id FROM verb_suffix_swap WHERE original = ? AND replacement = ?;
+
+/**
+    CONJUGTION SUFFIX
+*/
+CREATE TABLE conjugation_suffix (
+    id INTEGER,
+    id_name TEXT,
+    change_base_text TEXT,
+    suffix_text TEXT,
+    is_short_form INTEGER NOT NULL,
+    CONSTRAINT PK_conjugation_suffix PRIMARY KEY (id),
+    CONSTRAINT CK_BOOL_is_short_from CHECK (is_short_form IN (0, 1))
+);
+CREATE UNIQUE INDEX UQIDX_conjugation_suffix_get_id_name ON conjugation_suffix(id_name);
+
+insertConjugationSuffix:
+INSERT INTO conjugation_suffix (id_name, change_base_text, suffix_text, is_short_form) VALUES (?, ?, ?, ?);
+
+getConjugationSuffixId:
+SELECT id FROM conjugation_suffix WHERE id_name = ?;
+
+/**
+    CONJUGTION
+*/
+CREATE TABLE conjugation(
+    id INTEGER,
+    conjugation_pattern_id INTEGER NOT NULL,
+    conjugation_perform_action_id INTEGER NOT NULL,
+    conjugation_suffix_id INTEGER NOT NULL,
+    CONSTRAINT PK_conjugation PRIMARY KEY (id),
+    CONSTRAINT FK_conjugation_to_conjugation_pattern FOREIGN KEY (conjugation_pattern_id) REFERENCES conjugation_pattern (id),
+    CONSTRAINT FK_conjugation_to_conjugation_perform_action FOREIGN KEY (conjugation_perform_action_id) REFERENCES conjugation_perform_action (id),
+    CONSTRAINT FK_conjugation_to_conjugation_suffix FOREIGN KEY (conjugation_suffix_id) REFERENCES conjugation_suffix (id)
+);
+
+insertConjugation:
+INSERT INTO conjugation (conjugation_pattern_id, conjugation_perform_action_id, conjugation_suffix_id) VALUES (?, ?, ?);
+
+getConjugationId:
+SELECT id FROM conjugation WHERE conjugation_suffix_id = ? AND conjugation_perform_action_id = ? AND conjugation_suffix_id = ?;
+
+/**
+    VERB SUFFIX SWAP LINK CONJUGATION
+*/
+CREATE TABLE verb_suffix_swap_lk_conjugation(
+        conjugation_id INTEGER,
+        verb_suffix_swap_id INTEGER,
+        CONSTRAINT PK_verb_suffix_swap_lk_conjugation PRIMARY KEY (conjugation_id, verb_suffix_swap_id),
+        CONSTRAINT FK_verb_suffix_swap_lk_conjugation_to_conjugation FOREIGN KEY (conjugation_id) REFERENCES conjugation (id),
+        CONSTRAINT FK_verb_suffix_swap_lk_conjugation_to_verb_suffix_swap FOREIGN KEY (verb_suffix_swap_id) REFERENCES verb_suffix_swap (id)
+);
+
+linkVerbSuffixSwap_With_Conjugation:
+INSERT INTO verb_suffix_swap_lk_conjugation (conjugation_id, verb_suffix_swap_id) VALUES (?,?);
+
+/**
+    CONJUGTION TEMPLATE
+*/
+CREATE TABLE conjugation_template(
+    id INTEGER,
+    id_name TEXT NOT NULL,
+    CONSTRAINT PK_conjugation_template PRIMARY KEY (id),
+    CONSTRAINT UQ_conjugation_template_get_id_name UNIQUE (id_name)
+);
+
+insertConjugationTemplate:
+INSERT INTO conjugation_template (id_name) VALUES (?);
+
+getConjugationTemplateId:
+SELECT id  FROM conjugation_template WHERE id_name = ?;
+
+/**
+    CONJUGTION TEMPLATE NOTE
+*/
+CREATE TABLE conjugation_template_note(
+    id INTEGER,
+    conjugation_template_id INTEGER NOT NULL,
+    note_description TEXT NOT NULL,
+    CONSTRAINT PK_conjugation_template_note PRIMARY KEY (id),
+    CONSTRAINT FK_conjugation_template_note_to_conjugation_template FOREIGN KEY (conjugation_template_id) REFERENCES conjugation_template (id)
+);
+CREATE UNIQUE INDEX UQIDX_conjugation_template_note_get_conjugation_template_id_and_note_description ON conjugation_template_note(conjugation_template_id, note_description);
+
+insertConjugationTemplateNote:
+INSERT INTO conjugation_template_note (conjugation_template_id, note_description) VALUES (?, ?);
+
+getConjugationTemplateNoteId:
+SELECT id FROM conjugation_template_note WHERE conjugation_template_id = ? AND note_description = ?;
+
+/**
+    CONJUGTION LINK CONJUGATION TEMPLATE
+*/
+CREATE TABLE conjugation_lk_conjugation_template(
+        conjugation_id INTEGER,
+        conjugation_template_id INTEGER,
+        CONSTRAINT PK_conjugation_lk_conjugation_template PRIMARY KEY (conjugation_id, conjugation_template_id),
+        CONSTRAINT FK_conjugation_lk_conjugation_template_to_conjugation FOREIGN KEY (conjugation_id) REFERENCES conjugation (id),
+        CONSTRAINT FK_conjugation_lk_conjugation_template_to_conjugation_template FOREIGN KEY (conjugation_template_id) REFERENCES conjugation_template (id)
+);
+linkConjugation_With_ConjugationTemplate:
+INSERT INTO conjugation_lk_conjugation_template (conjugation_id, conjugation_template_id) VALUES (?, ?);
