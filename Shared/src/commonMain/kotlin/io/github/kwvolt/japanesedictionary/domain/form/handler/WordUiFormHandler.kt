@@ -13,7 +13,7 @@ import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelType
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.StaticLabelItem
 
 class WordUiFormHandler: UiFormHandlerInterface {
-    override fun createUIList(wordEntryFormData: WordEntryFormData, formStateManager: FormStateManager): List<BaseItem> {
+    override fun createUIList(wordEntryFormData: WordEntryFormData, formSectionManager: FormSectionManager): List<BaseItem> {
         val list: MutableList<BaseItem> = mutableListOf()
 
         // Add WordClass, Primary Text Input, and Entry Notes
@@ -30,7 +30,7 @@ class WordUiFormHandler: UiFormHandlerInterface {
 
         // Add the sections
         wordEntryFormData.wordSectionMap.forEach { section ->
-            val sectionItems = createSectionItems(section.key, section.value, formStateManager)
+            val sectionItems = createSectionItems(section.key, section.value, formSectionManager)
             list.addAll(sectionItems)
         }
 
@@ -39,29 +39,28 @@ class WordUiFormHandler: UiFormHandlerInterface {
         return list
     }
 
-    override fun createSectionItems(sectionKey: Int, section: WordSectionFormData, formStateManager: FormStateManager): List<BaseItem> {
+    override fun createSectionItems(sectionKey: Int, section: WordSectionFormData, formSectionManager: FormSectionManager): List<BaseItem> {
         val sectionList: MutableList<BaseItem> = mutableListOf()
 
         // Section Header
-        val entryLabelItem = EntryLabelItem(itemProperties = ItemSectionProperties(section = sectionKey))
+        val entryLabelItem = EntryLabelItem(itemProperties = ItemSectionProperties(sectionId = sectionKey))
         sectionList.add(entryLabelItem)
 
         // English and Kana Inputs
-        sectionList.add(EntryLabelItem("English", LabelType.SUB_HEADER, itemProperties = ItemSectionProperties(section = sectionKey)))
+        sectionList.add(StaticLabelItem("English", LabelType.SUB_HEADER, itemProperties = ItemSectionProperties(sectionId = sectionKey)))
         sectionList.add(section.meaningInput)
-        sectionList.add(EntryLabelItem("Kana", LabelType.SUB_HEADER, itemProperties = ItemSectionProperties(section = sectionKey)))
+        sectionList.add(StaticLabelItem("Kana", LabelType.SUB_HEADER, itemProperties = ItemSectionProperties(sectionId= sectionKey)))
         sectionList.addAll(section.getKanaInputMapAsList())
-        sectionList.add(ItemButtonItem("Add Kana", ButtonAction.AddChild(InputTextType.KANA, entryLabelItem), itemProperties = ItemSectionProperties(section = sectionKey)))
+        sectionList.add(ItemButtonItem("Add Kana", ButtonAction.AddChild(InputTextType.KANA, entryLabelItem), itemProperties = ItemSectionProperties(sectionId= sectionKey)))
 
         // Component Note Inputs
-        sectionList.add(EntryLabelItem("Specific Description", LabelType.SUB_HEADER, itemProperties = ItemSectionProperties()))
+        sectionList.add(StaticLabelItem("Specific Description", LabelType.SUB_HEADER, itemProperties = ItemSectionProperties()))
         sectionList.addAll(section.getComponentNoteInputMapAsList())
-        sectionList.add(ItemButtonItem("Description", ButtonAction.AddChild(InputTextType.SECTION_NOTE_DESCRIPTION, entryLabelItem), itemProperties = ItemSectionProperties(section = sectionKey)))
+        sectionList.add(ItemButtonItem("Description", ButtonAction.AddChild(InputTextType.SECTION_NOTE_DESCRIPTION, entryLabelItem), itemProperties = ItemSectionProperties(sectionId = sectionKey)))
 
         // Update entryChildrenCountMap
-        formStateManager.setEntryChildrenCount(entryLabelItem.itemProperties.getIdentifier(),  sectionList.size - 1)
+        formSectionManager.addSectionToMap(entryLabelItem.itemProperties.getSectionIndex(),  sectionList)
 
         return sectionList
     }
-
 }

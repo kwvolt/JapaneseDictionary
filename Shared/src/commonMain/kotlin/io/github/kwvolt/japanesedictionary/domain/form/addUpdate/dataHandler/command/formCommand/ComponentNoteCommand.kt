@@ -3,7 +3,6 @@ package io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.co
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordSectionFormData
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordEntryFormData
-import org.intellij.lang.annotations.Identifier
 
 class AddSectionNoteItemCommand(
     wordEntryFormData: WordEntryFormData,
@@ -27,7 +26,7 @@ class UpdateSectionNoteItemCommand(
     }
 }
 
-class RemoveSecondNoteItemCommand(
+class RemoveSectionNoteItemCommand(
     wordEntryFormData: WordEntryFormData,
     sectionIndex: Int,
     private val sectionNoteIdentifier: String

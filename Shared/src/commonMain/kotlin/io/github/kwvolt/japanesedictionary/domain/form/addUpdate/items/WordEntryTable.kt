@@ -1,4 +1,4 @@
-package io.github.kwvolt.japanesedictionary.domain.service
+package io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items
 
 enum class WordEntryTable(private val value: String ): TableId {
     DICTIONARY_ENTRY(value = "DICTIONARY_ENTRY"),
@@ -6,6 +6,7 @@ enum class WordEntryTable(private val value: String ): TableId {
     DICTIONARY_SECTION(value = "DICTIONARY_SECTION"),
     DICTIONARY_SECTION_NOTE(value = "DICTIONARY_SECTION_NOTE"),
     DICTIONARY_SECTION_KANA(value = "DICTIONARY_SECTION_KANA"),
+    WORD_CLASS(value = "WORD_CLASS"),
     UI(value = "UI");
 
     override fun toString(): String = value

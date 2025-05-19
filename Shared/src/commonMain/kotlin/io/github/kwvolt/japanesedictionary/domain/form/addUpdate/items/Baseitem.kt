@@ -30,11 +30,12 @@ data class StaticLabelItem(
 
 data class EntryLabelItem(
     override val name: String = "",
+    val sectionCount: Int = 0,
     override val labelType: LabelType = LabelType.HEADER,
     override val itemProperties: ItemSectionProperties
 ) : LabelItem(name, labelType, itemProperties) {
     override fun getDisplayText(): String {
-        return "$name: ${itemProperties.getId()}"
+        return "$name: $sectionCount"
     }
 }
 

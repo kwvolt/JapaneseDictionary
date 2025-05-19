@@ -15,7 +15,6 @@ interface WordClassRepositoryInterface {
 
     suspend fun updateWordClassMainClassIdByWordClassId(wordClassId: Long, mainClassId: Long): DatabaseResult<Unit>
 
-
     suspend fun updateWordClassSubClassIdByWordClassId(wordClassId: Long, subClassId: Long):DatabaseResult<Unit>
 
 
@@ -29,3 +28,5 @@ interface WordClassRepositoryInterface {
 
 data class WordClassIdContainer(val wordClassId: Long, val mainClassId: Long, val subClassId: Long){
 }
+
+abstract class WordChildClassContainer(open val id: Long, open val idName: String, open val displayText: String)

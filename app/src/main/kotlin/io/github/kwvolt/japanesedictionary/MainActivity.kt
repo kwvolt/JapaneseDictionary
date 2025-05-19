@@ -3,9 +3,6 @@ package io.github.kwvolt.japanesedictionary
 import android.os.Bundle
 import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import io.github.kwvolt.japanesedictionary.presentation.addupdate.AddUpdateAdapter
 import io.github.kwvolt.japanesedictionary.ui.addUpdate.AddUpdateRecyclerViewFragment
 
 

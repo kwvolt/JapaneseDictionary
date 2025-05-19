@@ -5,7 +5,7 @@ CREATE TABLE dictionary_entry_note (
     id INTEGER NOT NULL PRIMARY KEY,
     dictionary_entry_id INTEGER NOT NULL,
     note_description TEXT NOT NULL,
-    CONSTRAINT FK_dict_section_note__dict_section FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry (id),
+    CONSTRAINT FK_dict_section_note__dict_section FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry (id) ON DELETE CASCADE,
     CONSTRAINT UQIDX_dict_entry_note__dict_entry_id__note_description UNIQUE(dictionary_entry_id, note_description)
 );
 

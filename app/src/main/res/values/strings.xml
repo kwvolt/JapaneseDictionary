@@ -8,4 +8,5 @@
     <string name="generic_add_button">Add %1$s</string>
     <string name="confirm_button">Confirm</string>
     <string name="deleteButtonDescription">delete the item</string>
+    <string name="confirm">Confirm</string>
 </resources>

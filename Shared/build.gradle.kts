@@ -40,6 +40,15 @@ kotlin {
                 implementation(libs.log4j.slf4j2.impl)
             }
         }
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.junit.jupiter.api)
+                runtimeOnly(libs.junit.jupiter.engine)
+                implementation(libs.sqlite.jdbc)
+                implementation(libs.sqlite.driver)
+                implementation(libs.kotlinx.coroutines.test.v173)
+            }
+        }
     }
 }
 
@@ -69,4 +78,8 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }

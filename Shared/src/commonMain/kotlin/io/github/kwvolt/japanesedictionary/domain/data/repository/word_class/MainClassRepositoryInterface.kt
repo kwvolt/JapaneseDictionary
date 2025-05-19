@@ -24,7 +24,7 @@ interface MainClassRepositoryInterface {
 }
 
 data class MainClassContainer(
-    val id: Long,
-    val idName: String,
-    val displayText: String
-)
+    override val id: Long,
+    override val idName: String,
+    override val displayText: String
+): WordChildClassContainer(id, idName, displayText)

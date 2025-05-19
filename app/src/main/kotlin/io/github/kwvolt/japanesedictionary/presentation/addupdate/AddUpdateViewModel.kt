@@ -4,150 +4,140 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.kwvolt.japanesedictionary.domain.data.repository.dictionary_entry.EntryRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.entry_component.ComponentRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.MainClassContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.SubClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.WordClassRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ButtonAction
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.EntryLabelItem
-import io.github.kwvolt.japanesedictionary.domain.form.FormStateManager
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelType
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.NamedItem
-import io.github.kwvolt.japanesedictionary.domain.form.UiFormHandlerInterface
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassItem
-import io.github.kwvolt.japanesedictionary.domain.form.WordUiFormHandler
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordSectionFormData
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.FormCommandManager
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.AddComponentNoteItemCommand
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.AddEntryNoteItemCommand
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.AddKanaItemCommand
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.AddSectionCommand
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.FormCommand
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.RemoveSectionCommand
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.UpdateComponentNoteItemCommand
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.UpdateMeaningItemCommand
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.UpdateEntryNoteItemCommand
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.UpdateKanaItemCommand
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.UpdatePrimaryTextCommand
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.UpdateWordClassCommand
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.GenericItemProperties
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemProperties
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemSectionProperties
+import io.github.kwvolt.japanesedictionary.domain.form.handler.FormCommandManager
+import io.github.kwvolt.japanesedictionary.domain.form.handler.FormSectionManager
+import io.github.kwvolt.japanesedictionary.domain.form.handler.UiFormHandlerInterface
+import io.github.kwvolt.japanesedictionary.domain.form.handler.WordFormHandler
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordEntryTable
+import io.github.kwvolt.japanesedictionary.domain.service.WordFormService
 import kotlinx.coroutines.launch
 
 class AddUpdateViewModel(
-    private val wordClassRepository: WordClassRepositoryInterface,
-    private val entryRepository: EntryRepositoryInterface? = null,
-    private val componentRepository: ComponentRepositoryInterface? = null,
-    private val wordFormService: WordFormService
+    private val wordFormService: WordFormService,
 ): ViewModel() {
 
-    // handles managing the number of items in a sections and how many sections exists
-    private val formStateManager: FormStateManager = FormStateManager()
-    private lateinit var dataHandler: FormCommandManager
-    private val wordUiFormHandler: UiFormHandlerInterface = WordUiFormHandler()
+    // handles managing data
+    private lateinit var wordFormHandler: WordFormHandler
 
     // word class variables
-    private var mainClassData: List<MainClassContainer> = listOf()
-    private var subClassMapData: MutableMap<MainClassContainer, List<SubClassContainer>> = mutableMapOf()
+    private lateinit var mainClassData: List<MainClassContainer>
+    private lateinit var subClassMapData: Map<Long, List<SubClassContainer>>
 
-    // Main item list
-    private val _formItems: MutableLiveData<List<BaseItem>> = MutableLiveData(listOf())
-    val formItems: LiveData<List<BaseItem>> get() = _formItems
+    // used to delete values during update that was removed from Form
+    private val deleteFromDatabaseList: List<GenericItemProperties> = listOf()
 
-    //private val _uiState: MutableLiveData<UiState<WordFormData>> = MutableLiveData()
-    //val uiState: LiveData<UiState<WordFormData>> get() = _uiState
+    // Main   item list
+    private val _uiState: MutableLiveData<UiState<List<BaseItem>>> = MutableLiveData()
+    val uiState: LiveData<UiState<List<BaseItem>>> get() = _uiState
 
     fun loadWordClassSpinner(){
         viewModelScope.launch {
-            mainClassData = wordClassRepository.selectAllMainClass()
-            mainClassData.forEach { main ->
-                val subList: List<SubClassContainer> = wordClassRepository.selectAllSubClassByMainClassId(main.id)
-                subClassMapData[main] = subList
+            _uiState.value = UiState.Loading
+            val result = wordFormService.getMainClassList().flatMap { main ->
+                mainClassData = main
+                wordFormService.getSubClassMap(mainClassData).flatMap { subMap ->
+                    subClassMapData = subMap
+                    DatabaseResult.Success(Unit)
+                }
+            }
+            when (result) {
+                is DatabaseResult.Success -> Unit
+                is DatabaseResult.InvalidInput -> _uiState.postValue(UiState.ValidationError("Invalid input"))
+                is DatabaseResult.UnknownError -> _uiState.postValue(UiState.UnknownError(result.exception, result.message ?: "Unknown error"))
+                DatabaseResult.NotFound -> _uiState.postValue(UiState.UnknownError(Exception(), "Data not found"))
             }
         }
-
     }
 
-    fun loadItems() {
-        val list = wordUiFormHandler.createUIList(dataHandler.wordEntryFormData, formStateManager)
-        formStateManager.incrementEntryCount()
-        _formItems.postValue(list) // Update the LiveData
-    }
+    fun loadItems(dictionaryEntryId: Long, formSectionManager: FormSectionManager, wordUiFormHandler: UiFormHandlerInterface) {
+        _uiState.value = UiState.Loading
+        viewModelScope.launch {
+            val result = wordFormService.getWordFormData(dictionaryEntryId, formSectionManager).flatMap { data ->
+                val handler = FormCommandManager(data)
+                wordFormHandler = WordFormHandler(handler, formSectionManager, wordUiFormHandler)
+                val formList = wordFormHandler.createInitialForm()
+                _uiState.postValue(UiState.Success(formList))
+                DatabaseResult.Success(Unit)
+            }
 
-    private fun createSectionList(): List<BaseItem>{
-        val currentEntryCount: Int = formStateManager.getCurrentEntryCount()
-        val command: FormCommand = AddSectionCommand(dataHandler.wordEntryFormData, currentEntryCount)
-        dataHandler.executeCommand(command)
-        val wordSectionFormData: WordSectionFormData? = dataHandler.wordEntryFormData.wordSectionMap.toMap()[currentEntryCount]
-        var list: List<BaseItem> = listOf()
-        if (wordSectionFormData != null) {
-            list = wordUiFormHandler.createSectionItems(currentEntryCount, wordSectionFormData, formStateManager)
+            if (result is DatabaseResult.UnknownError) {
+                _uiState.postValue(UiState.UnknownError(result.exception, result.message ?: ""))
+            }
         }
-        return list
     }
 
-    private fun modifyItemList(action: (MutableList<BaseItem>) -> Unit) {
-        val currentList = (_formItems.value ?: mutableListOf()).toMutableList()
+    fun loadItems(formSectionManager: FormSectionManager, wordUiFormHandler: UiFormHandlerInterface) {
+        _uiState.value = UiState.Loading
+        val subClassList: List<SubClassContainer> = subClassMapData[mainClassData[0].id] ?: emptyList()
+        val wordClassItem: WordClassItem = WordClassItem(0, 0, subClassList, ItemProperties(
+            WordEntryTable.WORD_CLASS))
+        val wordEntryFormData: WordEntryFormData = WordEntryFormData.buildDefault(wordClassItem, formSectionManager)
+        val dataHandler = FormCommandManager(wordEntryFormData)
+        wordFormHandler = WordFormHandler(dataHandler, formSectionManager, wordUiFormHandler)
+        val list = wordFormHandler.createInitialForm()
+        _uiState.postValue(UiState.Success(list))
+    }
+
+    fun upsertValuesIntoDB(){
+        _uiState.value = UiState.Loading
+        viewModelScope.launch {
+            wordFormService.upsertWordEntryFormDataIntoDatabase(wordFormHandler.getWordEntryFormData())
+        }
+    }
+
+    private fun withList(action: (MutableList<BaseItem>) -> Unit) {
+        val currentList = (uiState.value as? UiState.Success)?.data?.toMutableList() ?: return
         action(currentList)
-        _formItems.postValue(currentList)
+        _uiState.postValue(UiState.Success(currentList))
     }
 
-    fun addItemAtPosition(item: BaseItem, position: Int) {
-        modifyItemList { it.add(position, item) }
+    private fun addItemAtPosition(item: BaseItem, position: Int) {
+        withList { it.add(position, item) }
     }
 
-    fun removeItemAtPosition(position: Int) {
-        modifyItemList { it.removeAt(position) }
+    private fun removeItemAtPosition(position: Int) {
+        withList { it.removeAt(position) }
     }
 
-    fun updateItemAtPosition(item: BaseItem, position: Int) {
-        modifyItemList { it[position] = item }
+    private fun updateItemAtPosition(item: BaseItem, position: Int) {
+        withList { it[position] = item }
     }
 
-    fun entryRemoveItems(entryLabelItem: EntryLabelItem, position: Int){
-        val currentList: MutableList<BaseItem> = (_formItems.value ?: mutableListOf<BaseItem>()).toMutableList()
-        val countMap: Map<String, Int> = formStateManager.getEntryChildrenCountMap()
-        val childrenCount = countMap[entryLabelItem.itemProperties.getIdentifier()]?: 0
-        formStateManager.removeIdFromChildrenCountMap(entryLabelItem.itemProperties.getIdentifier())
-        formStateManager.setCurrentEntryCount(entryLabelItem.itemProperties.section)
-        currentList.subList(position, position + 1 + childrenCount).clear()
-        val command: FormCommand = RemoveSectionCommand(dataHandler.wordEntryFormData, entryLabelItem.itemProperties.section)
-        dataHandler.executeCommand(command)
-        _formItems.postValue(currentList)
-
+    // section
+    fun addSectionClicked(position: Int) {
+        val newItems = wordFormHandler.createNewSection()
+        withList { it.addAll(position, newItems) }
     }
 
-    fun addItemEntryClicked(position: Int){
-        val currentList: MutableList<BaseItem> = (_formItems.value ?: mutableListOf()).toMutableList()
-        currentList.addAll(position, createSectionList())
-        _formItems.postValue(currentList) // Update the LiveData
-    }
-
-    // Base Text, Primary Text, Kana, english, dictionaryEntry Note. component Entry Note
-    fun updateInputTextValue(inputTextItem: InputTextItem, textValue: String, position: Int) {
-        val updatedItem = inputTextItem.copy(inputTextValue = textValue)
-        val formCommand: FormCommand = createUpdateFormCommand(inputTextItem, updatedItem)
-        dataHandler.executeCommand(formCommand)
-        updateItemAtPosition(updatedItem, position)
-    }
-
-    fun getInputTextValue(inputTextItem: InputTextItem): String {
-        return inputTextItem.inputTextValue
+    fun removeSectionClicked(entryLabelItem: EntryLabelItem, position: Int) {
+        val updated = wordFormHandler.removeSection(
+            (uiState.value as? UiState.Success)?.data.orEmpty(),
+            entryLabelItem.itemProperties.getSectionIndex(),
+            entryLabelItem.sectionCount,
+            position
+        )
+        _uiState.postValue(UiState.Success(updated))
     }
 
     // Word Class
     fun updateMainClassId(wordClassItem: WordClassItem, selectionPosition: Int, position: Int): Boolean{
         val selectedMainClass: MainClassContainer = mainClassData[selectionPosition]
-        if( wordClassItem.chosenMainClassId != selectedMainClass.id) {
-            val subClassList: List<SubClassContainer> = subClassMapData[selectedMainClass] ?: emptyList()
+        if(wordClassItem.chosenMainClassId != selectedMainClass.id) {
+            val subClassList: List<SubClassContainer> = subClassMapData[selectedMainClass.id] ?: emptyList()
             val updateWordClassItem: WordClassItem = wordClassItem.copy(chosenMainClassId = selectedMainClass.id, currentSubClassData = subClassList)
-            val command = UpdateWordClassCommand(dataHandler.wordEntryFormData, updateWordClassItem)
-            dataHandler.executeCommand(command)
+            wordFormHandler.updateWordClassId(updateWordClassItem)
             updateItemAtPosition(updateWordClassItem, position)
             return true
         }
@@ -157,8 +147,7 @@ class AddUpdateViewModel(
     fun updateSubClassId(wordClassItem: WordClassItem, selectedPosition: Int, position: Int){
         val subClassId: Long = wordClassItem.currentSubClassData[selectedPosition].id
         val updateWordClassItem: WordClassItem = wordClassItem.copy(chosenSubClassId = subClassId)
-        val command = UpdateWordClassCommand(dataHandler.wordEntryFormData, updateWordClassItem)
-        dataHandler.executeCommand(command)
+        wordFormHandler.updateWordClassId(updateWordClassItem)
         updateItemAtPosition(updateWordClassItem, position)
     }
 
@@ -182,68 +171,44 @@ class AddUpdateViewModel(
         return wordClassItem.currentSubClassData
     }
 
+    // TextInput
     fun addTextItemClicked(action: ButtonAction.AddItem, position: Int){
         val inputTextType = action.inputType
         val inputTextItem = InputTextItem(inputTextType, itemProperties = ItemProperties())
-        val command: FormCommand = createAddFormCommand(inputTextItem)
-        dataHandler.executeCommand(command)
+        wordFormHandler.addItemCommand(inputTextItem)
         addItemAtPosition(inputTextItem, position)
     }
 
     fun addChildTextItemClicked(action: ButtonAction.AddChild, position: Int){
         val inputTextType = action.inputTextType
         val parent: EntryLabelItem = action.entryLabelItem
-        formStateManager.incrementChildrenCount(parent.itemProperties.getIdentifier())
-        val inputTextItem = InputTextItem(inputTextType, itemProperties = ItemSectionProperties(section = parent.itemProperties.section))
-        val command: FormCommand = createAddFormCommand(inputTextItem)
-        dataHandler.executeCommand(command)
+        val inputTextItem = InputTextItem(inputTextType, itemProperties = ItemSectionProperties(getSectionIndex = parent.itemProperties.getSectionIndex()))
+        wordFormHandler.addItemCommand(inputTextItem)
         addItemAtPosition(inputTextItem, position)
     }
 
-    fun getInputTextType(inputTextItem: InputTextItem): InputTextType {
-        return inputTextItem.inputTextType
+    //Primary Text, Kana, Meaning, Dictionary Entry Note. Section Entry Note
+    fun updateInputTextValue(inputTextItem: InputTextItem, textValue: String, position: Int) {
+        val updatedItem = inputTextItem.copy(inputTextValue = textValue)
+        wordFormHandler.updateItemCommand(inputTextItem,  textValue)
+        updateItemAtPosition(updatedItem, position)
     }
 
+    fun removeTextItemClicked(inputTextItem: InputTextItem, position: Int){
+        wordFormHandler.removeItemCommand(inputTextItem)
+        removeItemAtPosition(position)
+    }
+
+    // util
     fun updateEntryIndexIfNeeded(entryLabelItem: EntryLabelItem, position: Int){
-        val currentSectionCount = formStateManager.getCurrentEntryCount()
-        if(currentSectionCount < entryLabelItem.itemProperties.section){
-            val itemProp: ItemSectionProperties = entryLabelItem.itemProperties
-            val updateEntryLabelItem: EntryLabelItem = entryLabelItem.copy(itemProperties = ItemSectionProperties(itemProp.getTableId(), itemProp.getId(), currentSectionCount))
-            formStateManager.incrementEntryCount()
-            updateItemAtPosition(updateEntryLabelItem, position)
-        }
+        val updatedItem = wordFormHandler.updateEntryIndexIfNeeded(entryLabelItem)
+        if (updatedItem != null) updateItemAtPosition(updatedItem, position)
     }
+}
 
-    fun getWidgetName(namedItem: NamedItem): String {
-        return namedItem.getDisplayText()
-    }
-
-    fun getLabelType (labelItem: LabelItem): LabelType {
-        return labelItem.labelType
-    }
-
-    private fun createUpdateFormCommand(originalItem: InputTextItem, updatedItem: InputTextItem): FormCommand {
-        val section = (originalItem.itemProperties as? ItemSectionProperties)?.section() ?: -1
-        val data = dataHandler.wordEntryFormData
-
-        return when (originalItem.inputTextType) {
-            InputTextType.PRIMARY_TEXT -> UpdatePrimaryTextCommand(data, updatedItem)
-            InputTextType.MEANING -> UpdateMeaningItemCommand(data, section, updatedItem)
-            InputTextType.KANA -> UpdateKanaItemCommand(data, section, updatedItem)
-            InputTextType.ENTRY_NOTE_DESCRIPTION -> UpdateEntryNoteItemCommand(data, updatedItem)
-            InputTextType.SECTION_NOTE_DESCRIPTION -> UpdateComponentNoteItemCommand(data, section, updatedItem)
-        }
-    }
-
-    private fun createAddFormCommand(textItem: InputTextItem): FormCommand {
-        val section = (textItem.itemProperties as? ItemSectionProperties)?.section() ?: -1
-        val data = dataHandler.wordEntryFormData
-
-        return when (textItem.inputTextType) {
-            InputTextType.KANA -> AddKanaItemCommand(data, section, textItem)
-            InputTextType.ENTRY_NOTE_DESCRIPTION -> AddEntryNoteItemCommand(data, textItem)
-            InputTextType.SECTION_NOTE_DESCRIPTION -> AddComponentNoteItemCommand(data, section, textItem)
-            else -> throw IllegalStateException("Illegal InputTextType ${textItem::class.java} was passed")
-        }
-    }
+sealed class UiState<out T>{
+    data class Success<T>(val data: T): UiState<T>()
+    data object Loading: UiState<Nothing>()
+    data class ValidationError(val error: String) : UiState<Nothing>()
+    data class UnknownError(val exception: Throwable, val message: String) : UiState<Nothing>()
 }

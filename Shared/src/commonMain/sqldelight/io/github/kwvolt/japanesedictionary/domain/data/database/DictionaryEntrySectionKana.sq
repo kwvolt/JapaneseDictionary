@@ -5,7 +5,7 @@ CREATE TABLE kana (
     id INTEGER NOT NULL PRIMARY KEY,
     dictionary_entry_section_id INTEGER NOT NULL,
     wordText TEXT NOT NULL,
-    CONSTRAINT FK_kana__dict_entry_section FOREIGN KEY (dictionary_entry_section_id) REFERENCES dictionary_entry_section(id),
+    CONSTRAINT FK_kana__dict_entry_section FOREIGN KEY (dictionary_entry_section_id) REFERENCES dictionary_entry_section(id) ON DELETE CASCADE,
     CONSTRAINT UQIDX_kana__dict_entry_section_id__wordText UNIQUE(dictionary_entry_section_id, wordText)
 );
 

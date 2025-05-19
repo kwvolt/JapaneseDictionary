@@ -21,18 +21,22 @@ abstract class DatabaseHandlerBase {
         items: Collection<T>,
         batchSize: Int = 10,
         maxConcurrent: Int = 5,
-        task: suspend (T) -> Unit
-    ) {
+        task: suspend (T) -> DatabaseResult<Unit>
+    ): DatabaseResult<Unit>  {
         val batches = items.chunked(batchSize)
         val semaphore = Semaphore(maxConcurrent)
-        coroutineScope {
+        return coroutineScope {
             batches.forEach { batch ->
                 batch.map {
                     semaphore.withPermit {
                         async { task(it) }
                     }
-                }.awaitAll()
+                }.also {
+                    // Wait for all tasks in this batch to complete
+                    it.awaitAll()
+                }
             }
+            return@coroutineScope DatabaseResult.Success(Unit)
         }
     }
 
@@ -40,18 +44,22 @@ abstract class DatabaseHandlerBase {
         items: Map<T, R>,
         batchSize: Int = 10,
         maxConcurrent: Int = 5,
-        task: suspend (Map.Entry<T, R>) -> Unit
-    ) {
+        task: suspend (Map.Entry<T, R>) -> DatabaseResult<Unit>
+    ): DatabaseResult<Unit> {
         val batches = items.chunkedMap(batchSize)
         val semaphore = Semaphore(maxConcurrent)
-        coroutineScope {
+        return coroutineScope {
             batches.forEach { batch ->
                 batch.map {
                     semaphore.withPermit {
                         async { task(it) }
                     }
-                }.awaitAll()
+                }.also {
+                    // Wait for all tasks in this batch to complete
+                    it.awaitAll()
+                }
             }
+            return@coroutineScope DatabaseResult.Success(Unit)
         }
     }
 
@@ -91,7 +99,7 @@ abstract class DatabaseHandlerBase {
     }
 
     // Method to perform a transaction
-    abstract suspend fun <T> performTransaction(block: suspend () -> T): DatabaseResult<T>
+    abstract suspend fun <T> performTransaction(block: suspend () -> DatabaseResult<T>): DatabaseResult<T>
 
     // Method to close the database connection
     abstract fun close()

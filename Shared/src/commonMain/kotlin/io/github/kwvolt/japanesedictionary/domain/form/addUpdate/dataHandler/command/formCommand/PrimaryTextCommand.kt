@@ -2,6 +2,7 @@ package io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.co
 
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordSectionFormData
 
 class UpdatePrimaryTextCommand(
     private val wordEntryFormData: WordEntryFormData,

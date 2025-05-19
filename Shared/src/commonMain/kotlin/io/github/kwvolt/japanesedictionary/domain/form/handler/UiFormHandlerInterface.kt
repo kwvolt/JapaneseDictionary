@@ -5,7 +5,7 @@ import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordE
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
 
 interface UiFormHandlerInterface {
-    fun createUIList(wordEntryFormData: WordEntryFormData, formStateManager: FormStateManager): List<BaseItem>
+    fun createUIList(wordEntryFormData: WordEntryFormData, formSectionManager: FormSectionManager): List<BaseItem>
 
-    fun createSectionItems(sectionKey: Int, section: WordSectionFormData, formStateManager: FormStateManager): List<BaseItem>
+    fun createSectionItems(sectionKey: Int, section: WordSectionFormData, formSectionManager: FormSectionManager): List<BaseItem>
 }

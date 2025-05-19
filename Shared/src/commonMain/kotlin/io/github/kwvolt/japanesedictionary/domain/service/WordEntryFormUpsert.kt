@@ -13,10 +13,9 @@ import io.github.kwvolt.japanesedictionary.domain.data.validation.validJapanese
 import io.github.kwvolt.japanesedictionary.domain.data.validation.validKana
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordEntryFormData
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordSectionFormData
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordEntryTable
 
-class WordEntryFormInsert(
+class WordEntryFormUpsert(
     private val dbHandler: DatabaseHandlerBase,
     private val entryRepository: EntryRepositoryInterface,
     private val entryNoteRepository: EntryNoteRepositoryInterface,
@@ -57,26 +56,24 @@ class WordEntryFormInsert(
             }
 
             // Upsert dictionary entry notes
-            for (entryNote in wordEntryFormData.entryNoteInputMap.values) {
+
+            val entryNotes = wordEntryFormData.entryNoteInputMap.values
+            val entryNoteResult = dbHandler.processBatch(entryNotes){ entryNote ->
                 val noteId = entryNote.itemProperties.getId()
                 val noteTableId = entryNote.itemProperties.getTableId()
                 val noteText = entryNote.inputTextValue
 
-                val result = if (noteTableId == WordEntryTable.UI.toString()) {
-                    entryNoteRepository.insertDictionaryEntryNote(dictionaryEntryId, noteText)
+                if (noteTableId == WordEntryTable.UI.toString()) {
+                    entryNoteRepository.insertDictionaryEntryNote(dictionaryEntryId, noteText).flatMap { DatabaseResult.Success(Unit) }
                 } else {
                     entryNoteRepository.updateDictionaryEntryNote(noteId, noteText)
                 }
-
-                if (result.isFailure) return@performTransaction result.mapErrorTo<Long, Unit>()
             }
-
-            // Upsert sections
-            for (sectionData in wordEntryFormData.wordSectionMap.values) {
-                val result = upsertWordEntrySectionFormData(dictionaryEntryId, sectionData)
-                if (result.isFailure) return@performTransaction result.mapErrorTo<Long, Unit>()
+            if (entryNoteResult.isFailure) {
+                return@performTransaction entryNoteResult.mapErrorTo<Unit, Unit>()
             }
-        }.flatMap { DatabaseResult.Success(Unit) }
+            DatabaseResult.Success(Unit)
+        }
     }
 
     private suspend fun upsertWordEntrySectionFormData(
@@ -100,42 +97,47 @@ class WordEntryFormInsert(
             else -> return dictionaryEntrySectionIdResult.mapErrorTo<Long, Unit>()
         }
 
-        for (kanaItem in wordSectionFormData.kanaInputMap.values) {
+        val kanaItems = wordSectionFormData.kanaInputMap.values
+        val kanaResult = dbHandler.processBatch(kanaItems){ kanaItem ->
             val kanaId = kanaItem.itemProperties.getId()
             val kanaTableId = kanaItem.itemProperties.getIdentifier()
             val kanaText = kanaItem.inputTextValue
 
-            val kanaResult = if (kanaTableId == WordEntryTable.UI.toString()) {
+            if (kanaTableId == WordEntryTable.UI.toString()) {
                 upsertDictionaryEntryKana(kanaText) {
                     entrySectionKanaRepository.insertDictionaryEntrySectionKana(kanaId, kanaText)
-                }
+                }.flatMap {  DatabaseResult.Success(Unit) }
             } else {
                 upsertDictionaryEntryKana(kanaText){
-                    entrySectionKanaRepository.updateDictionaryEntrySectionKana(kanaId, kanaText).flatMap { DatabaseResult.Success(kanaId) }
+                    entrySectionKanaRepository.updateDictionaryEntrySectionKana(kanaId, kanaText)
                 }
             }
-
-            if (kanaResult.isFailure) return kanaResult.mapErrorTo<Long, Unit>()
+        }
+        if (kanaResult.isFailure) {
+            return kanaResult.mapErrorTo<Unit, Unit>()
         }
 
-        for (noteItem in wordSectionFormData.sectionNoteInputMap.values) {
-            val noteId = noteItem.itemProperties.getId()
-            val noteTableId = noteItem.itemProperties.getTableId()
-            val noteText = noteItem.inputTextValue
+        val sectionNoteItems = wordSectionFormData.sectionNoteInputMap.values
+        val sectionNoteResult = dbHandler.processBatch(sectionNoteItems){  sectionNoteItem ->
+            val noteId =  sectionNoteItem.itemProperties.getId()
+            val noteTableId =  sectionNoteItem.itemProperties.getTableId()
+            val noteText =  sectionNoteItem.inputTextValue
 
-            val noteResult = if (noteTableId == WordEntryTable.UI.toString()) {
-                entrySectionNoteRepository.insertDictionaryEntrySectionNote(dictionaryEntrySectionId, noteText)
+            if (noteTableId == WordEntryTable.UI.toString()) {
+                entrySectionNoteRepository.insertDictionaryEntrySectionNote(dictionaryEntrySectionId, noteText).flatMap { DatabaseResult.Success(Unit) }
             } else {
                 entrySectionNoteRepository.updateDictionaryEntrySectionNote(noteId, noteText)
             }
+        }
 
-            if (noteResult.isFailure) return noteResult.mapErrorTo<Long, Unit>()
+        if (sectionNoteResult.isFailure) {
+            return sectionNoteResult.mapErrorTo<Unit, Unit>()
         }
 
         return DatabaseResult.Success(Unit)
     }
 
-    private suspend fun upsertDictionaryEntry(primaryText: String, block: suspend() -> DatabaseResult<Long>): DatabaseResult<Long>{
+    private suspend fun <T>upsertDictionaryEntry(primaryText: String, block: suspend() -> DatabaseResult<T>): DatabaseResult<T>{
         return if(validJapanese(primaryText)){
             block()
         }
@@ -144,7 +146,7 @@ class WordEntryFormInsert(
         }
     }
 
-    private suspend fun upsertDictionaryEntryKana(wordText: String, block: suspend() -> DatabaseResult<Long>): DatabaseResult<Long>{
+    private suspend fun <T>upsertDictionaryEntryKana(wordText: String, block: suspend() -> DatabaseResult<T>): DatabaseResult<T>{
         return if(validKana(wordText)){
             block()
         }

@@ -5,7 +5,7 @@ CREATE TABLE dictionary_entry_section (
     id INTEGER NOT NULL PRIMARY KEY ,
     dictionary_entry_id INTEGER NOT NULL,
     meaning TEXT NOT NULL,
-    CONSTRAINT FK_dict_entry_section__dict_entry FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry (id)
+    CONSTRAINT FK_dict_entry_section__dict_entry FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry (id) ON DELETE CASCADE
 );
 
 insertDictionaryEntrySection {

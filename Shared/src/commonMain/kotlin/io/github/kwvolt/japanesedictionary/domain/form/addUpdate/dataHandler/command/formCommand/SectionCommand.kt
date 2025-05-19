@@ -18,14 +18,14 @@ class AddSectionCommand(
 
     override fun execute(): WordEntryFormData {
         // Create the new section
-        val newMEANING = InputTextItem(InputTextType.MEANING, "", ItemSectionProperties(section = sectionIndex))
-        val newKana = InputTextItem(InputTextType.KANA, "", ItemSectionProperties(section = sectionIndex))
-        val newComponentNote = InputTextItem(InputTextType.SECTION_NOTE_DESCRIPTION, "", ItemSectionProperties(section = sectionIndex))
+        val newMEANING = InputTextItem(InputTextType.MEANING, "", ItemSectionProperties(sectionId = sectionIndex))
+        val newKana = InputTextItem(InputTextType.KANA, "", ItemSectionProperties(sectionId = sectionIndex))
+        val newComponentNote = InputTextItem(InputTextType.SECTION_NOTE_DESCRIPTION, "", ItemSectionProperties(sectionId = sectionIndex))
 
         val newSection = WordSectionFormData(
             newMEANING,
-            persistentMapOf(newKana.itemProperties.getId() to newKana),
-            persistentMapOf(newComponentNote.itemProperties.getId() to newComponentNote)
+            persistentMapOf(newKana.itemProperties.getIdentifier() to newKana),
+            persistentMapOf(newComponentNote.itemProperties.getIdentifier() to newComponentNote)
         )
 
         // Start with the original map

@@ -1,24 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/teal_200"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/addUpdateList"
+    <!-- Main content -->
+    <LinearLayout
+        android:id="@+id/contentLayout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@color/design_default_color_background"
-        android:padding="10dp"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/teal_200"
+        android:padding="16dp">
 
-    <Button
-        android:id="@+id/addUpdateLayoutConfirmButton"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/addUpdateList"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/design_default_color_background"
+            android:padding="10dp"/>
+
+        <Button
+            android:id="@+id/addUpdateLayoutConfirmButton"
+            android:layout_width="match_parent"
+            android:layout_height="53dp"
+            android:text="@string/confirm" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/loadingBackground"
         android:layout_width="match_parent"
-        android:layout_height="53dp" />
+        android:layout_height="match_parent"
+        android:background="#88000000"
+        android:elevation="10dp"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
-</LinearLayout>
+    <!-- Loading overlay -->
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="254dp"
+        android:layout_height="312dp"
+        android:layout_gravity="center"
+        android:elevation="10dp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+</FrameLayout>

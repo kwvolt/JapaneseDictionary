@@ -12,7 +12,7 @@ class AddKanaItemCommand(
 ) : UpdateComponentSectionCommand(wordEntryFormData, sectionIndex) {
 
     override fun transform(section: WordSectionFormData): WordSectionFormData {
-        return section.copy(kanaInputMap = section.kanaInputMap.put(newKanaItem.itemProperties.getId(), newKanaItem))
+        return section.copy(kanaInputMap = section.kanaInputMap.put(newKanaItem.itemProperties.getIdentifier(), newKanaItem))
     }
 }
 
@@ -23,14 +23,14 @@ class UpdateKanaItemCommand(
 ) : UpdateComponentSectionCommand(wordEntryFormData, sectionIndex) {
 
     override fun transform(section: WordSectionFormData): WordSectionFormData {
-        return section.copy(kanaInputMap = section.kanaInputMap.put(newKanaItem.itemProperties.getId(), newKanaItem))
+        return section.copy(kanaInputMap = section.kanaInputMap.put(newKanaItem.itemProperties.getIdentifier(), newKanaItem))
     }
 }
 
 class RemoveKanaItemCommand(
     wordEntryFormData: WordEntryFormData,
     sectionIndex: Int,
-    private val kanaId: Long
+    private val kanaId: String
 ) : UpdateComponentSectionCommand(wordEntryFormData, sectionIndex) {
     override fun transform(section: WordSectionFormData): WordSectionFormData {
         return section.copy(kanaInputMap = section.kanaInputMap.remove(kanaId))

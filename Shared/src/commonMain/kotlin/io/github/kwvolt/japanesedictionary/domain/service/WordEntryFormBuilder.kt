@@ -1,5 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.service
 
+import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.repository.dictionaryentry.DictionaryEntryContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.dictionaryentry.EntryNoteRepositoryInterface
@@ -22,18 +23,19 @@ import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputText
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemProperties
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemSectionProperties
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassItem
-import io.github.kwvolt.japanesedictionary.domain.form.handler.FormStateManager
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordEntryTable
+import io.github.kwvolt.japanesedictionary.domain.form.handler.FormSectionManager
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.time.withTimeout
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.sync.withPermit
 
 class WordEntryFormBuilder(
+    private val dbHandler: DatabaseHandlerBase,
     private val entryRepository: EntryRepositoryInterface,
     private val entryNoteRepository: EntryNoteRepositoryInterface,
     private val entrySectionRepository: EntrySectionRepositoryInterface,
@@ -47,13 +49,13 @@ class WordEntryFormBuilder(
 
     suspend fun createWordFormData(
         dictionaryEntryId: Long,
-        formStateManager: FormStateManager
+        formSectionManager: FormSectionManager
     ): DatabaseResult<WordEntryFormData> = coroutineScope {
 
         // Run DB calls concurrently
         val dictionaryEntryDeferred = async { withTimeout(5000) { semaphore.withPermit { entryRepository.selectDictionaryEntry(dictionaryEntryId) }} }
         val entryNotesDeferred = async { withTimeout(5000) { semaphore.withPermit { fetchEntryNotes(dictionaryEntryId) }} }
-        val entrySectionsDeferred = async { withTimeout(5000) { semaphore.withPermit { fetchEntrySections(dictionaryEntryId, formStateManager) }}}
+        val entrySectionsDeferred = async { withTimeout(5000) { semaphore.withPermit { fetchEntrySections(dictionaryEntryId, formSectionManager) }}}
 
         // Await results
         val dictionaryEntryResult = dictionaryEntryDeferred.await()
@@ -90,14 +92,14 @@ class WordEntryFormBuilder(
             InputTextItem(
                 InputTextType.ENTRY_NOTE_DESCRIPTION,
                 container.note,
-                ItemProperties("DictionaryEntryNote", id = container.id)
+                ItemProperties(WordEntryTable.DICTIONARY_ENTRY_NOTE, id = container.id)
             )
         }
     }
 
     private suspend fun fetchEntrySections(
         dictionaryEntryId: Long,
-        formStateManager: FormStateManager
+        formSectionManager: FormSectionManager,
     ): DatabaseResult<PersistentMap<Int, WordSectionFormData>> {
         val sectionListResult: DatabaseResult<List<DictionaryEntrySectionContainer>> = entrySectionRepository.selectAllDictionaryEntrySectionByEntry(dictionaryEntryId)
 
@@ -109,16 +111,13 @@ class WordEntryFormBuilder(
         val resultMap: MutableMap<Int, WordSectionFormData> = mutableMapOf()
 
         for (container in sectionList) {
-            formStateManager.incrementEntryCount()
-            val section: Int = formStateManager.getCurrentEntryCount()
-
+            val section = formSectionManager.getThenIncrementEntrySectionId()
             val sectionDataResult: DatabaseResult<WordSectionFormData> = createWordSectionFormData(container.id, container.meaning, section)
 
             val sectionData: WordSectionFormData  = when (sectionDataResult) {
                 is DatabaseResult.Success -> sectionDataResult.value
                 else -> return sectionDataResult.mapErrorTo<WordSectionFormData, PersistentMap<Int, WordSectionFormData>>()
             }
-
             resultMap[section] = sectionData
         }
 
@@ -137,7 +136,7 @@ class WordEntryFormBuilder(
                         wordClassResult.mainClassId,
                         wordClassResult.subClassId,
                         subClassResult,
-                        ItemProperties(tableId = "WordClass", id = wordClassResult.wordClassId)
+                        ItemProperties(tableId = WordEntryTable.WORD_CLASS, id = wordClassResult.wordClassId)
                     )
                 )
             }
@@ -153,7 +152,7 @@ class WordEntryFormBuilder(
         val primaryTextItem = InputTextItem(
             InputTextType.PRIMARY_TEXT,
             dictionaryEntryResult.primaryText,
-            ItemProperties(tableId = "DictionaryEntry", id = dictionaryEntryResult.id)
+            ItemProperties(tableId = WordEntryTable.DICTIONARY_ENTRY, id = dictionaryEntryResult.id)
         )
 
         return DatabaseResult.Success(
@@ -174,7 +173,7 @@ class WordEntryFormBuilder(
         val meaningItem = InputTextItem(
             InputTextType.MEANING,
             meaning,
-            ItemSectionProperties("DictionaryEntrySection", id = dictionaryEntrySectionId, section = section)
+            ItemSectionProperties(WordEntryTable.DICTIONARY_SECTION, id = dictionaryEntrySectionId, sectionId = section)
         )
 
         val kanaDeferred:  Deferred<DatabaseResult<PersistentMap<String, InputTextItem>>> = async {
@@ -217,7 +216,7 @@ class WordEntryFormBuilder(
             InputTextItem(
                 InputTextType.ENTRY_NOTE_DESCRIPTION,
                 container.wordText,
-                ItemSectionProperties("DictionaryEntrySectionNote", id = container.id, section = section)
+                ItemSectionProperties(WordEntryTable.DICTIONARY_SECTION_KANA, id = container.id, sectionId = section)
             )
         }
     }
@@ -229,7 +228,7 @@ class WordEntryFormBuilder(
             InputTextItem(
                 InputTextType.SECTION_NOTE_DESCRIPTION,
                 container.note,
-                ItemSectionProperties("DictionaryEntrySectionNote", id = container.id, section = section)
+                ItemSectionProperties(WordEntryTable.DICTIONARY_SECTION_NOTE, id = container.id, sectionId = section)
             )
         }
 
