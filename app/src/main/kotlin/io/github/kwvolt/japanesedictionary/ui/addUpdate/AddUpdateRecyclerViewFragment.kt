@@ -1,41 +1,39 @@
 package io.github.kwvolt.japanesedictionary.ui.addUpdate
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.SubClassContainer
+import androidx.lifecycle.Lifecycle
+import com.google.android.material.snackbar.Snackbar
+import io.github.kwvolt.japanesedictionary.DatabaseProvider
 import io.github.kwvolt.japanesedictionary.databinding.AddUpdateLayoutBinding
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.AddUpdateViewModel
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.AddUpdateAdapter
-import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.AddUpdateViewModelCallBack
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ButtonAction
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.EntryLabelItem
-import io.github.kwvolt.japanesedictionary.presentation.addupdate.FakeAddUpdateViewModelFactory
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelType
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.NamedItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassItem
-import io.github.kwvolt.japanesedictionary.domain.form.handler.FormSectionManager
-import io.github.kwvolt.japanesedictionary.domain.form.handler.WordUiFormHandler
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormSectionManager
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.WordUiFormHandler
+import io.github.kwvolt.japanesedictionary.presentation.addupdate.AddUpdateViewModelFactory
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.UiState
-import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.viewholder.ButtonCallBack
-import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.viewholder.EditTextCallBack
-import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.viewholder.LabelTextCallBack
-import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.viewholder.WordClassCallBack
+import androidx.core.view.isVisible
+import io.github.kwvolt.japanesedictionary.R
+import androidx.navigation.fragment.findNavController
 
 class AddUpdateRecyclerViewFragment: Fragment() {
     private lateinit var addUpdateViewModel: AddUpdateViewModel
     private var _binding: AddUpdateLayoutBinding? = null
     private val binding: AddUpdateLayoutBinding get() = _binding ?: throw IllegalStateException("Binding is null")
+    private var undoMenuItem: MenuItem? = null
+    private var redoMenuItem: MenuItem? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,7 +48,8 @@ class AddUpdateRecyclerViewFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val viewModelFactory = FakeAddUpdateViewModelFactory()
+        val application = requireActivity().application
+        val viewModelFactory = AddUpdateViewModelFactory(application, DatabaseProvider(application))
         addUpdateViewModel = ViewModelProvider(this, viewModelFactory)[AddUpdateViewModel::class.java]
 
 
@@ -59,138 +58,106 @@ class AddUpdateRecyclerViewFragment: Fragment() {
         val labelTextListener = InitLabelTextCallBack(addUpdateViewModel)
         val buttonListener = InitButtonCallBack(addUpdateViewModel)
 
-        val addUpdateAdapter: AddUpdateAdapter = AddUpdateAdapter(wordClassListener, labelTextListener,editTextListener, buttonListener)
-
+        val addUpdateAdapter = AddUpdateAdapter(wordClassListener, labelTextListener,editTextListener, buttonListener)
 
         binding.addUpdateList.layoutManager = LinearLayoutManager(this.context)
         binding.addUpdateList.adapter = addUpdateAdapter
 
+        val wordUiFormHandler =  WordUiFormHandler()
+        val formSectionManager = FormSectionManager()
+        //addUpdateViewModel.loadWordClassSpinner()
+        addUpdateViewModel.loadItems(formSectionManager, wordUiFormHandler)
+
         addUpdateViewModel.uiState.observe(viewLifecycleOwner) { uiState ->
             when (uiState) {
                 UiState.Loading -> {
-                    binding.loadingBackground.animate().alpha(1f).setDuration(200).start()
-                    binding.loadingBackground.visibility = View.VISIBLE
+                    binding.loadingBackground.apply {
+                        animate().alpha(1f).setDuration(200).start()
+                        visibility = View.VISIBLE
+                    }
                     binding.loadingProgressBar.visibility = View.VISIBLE
                 }
-                is UiState.Success -> addUpdateAdapter.submitList(uiState.data)
-                is UiState.UnknownError -> {
-                    binding.loadingBackground.animate().alpha(1f).setDuration(200).start()
-                    binding.loadingBackground.visibility = View.GONE
-                    binding.loadingProgressBar.visibility = View.GONE
-                    // TODO: show error
+                is UiState.Success -> {
+                    if(binding.loadingProgressBar.isVisible){
+                        binding.loadingBackground.apply {
+                            animate().alpha(1f).setDuration(200).start()
+                            visibility = View.GONE
+                        }
+                        binding.loadingProgressBar.visibility = View.GONE
+                    }
+                    addUpdateAdapter.submitList(uiState.data)
                 }
 
-                is UiState.ValidationError -> TODO()
+                is UiState.UnknownError -> {
+                    binding.loadingBackground.apply {
+                        animate().alpha(1f).setDuration(200).start()
+                        visibility = View.VISIBLE
+                    }
+                    binding.loadingProgressBar.visibility = View.VISIBLE
+                    // Show a user-friendly error message
+                    Snackbar.make(binding.root, "An error occurred. Please try again.", Snackbar.LENGTH_SHORT).show()
+                }
+                is UiState.ValidationError -> {
+                    // Handle validation errors (e.g., display a Toast or Snackbar)
+                    Snackbar.make(binding.root, "Validation error occurred.", Snackbar.LENGTH_SHORT).show()
+                }
             }
         }
 
+        val toolbar = binding.formMenu
+        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
 
-        val wordUiFormHandler =  WordUiFormHandler()
-        val formSectionManager = FormSectionManager()
-        addUpdateViewModel.loadWordClassSpinner()
-        addUpdateViewModel.loadItems(formSectionManager, wordUiFormHandler)
+        toolbar.setNavigationOnClickListener {
+            if (!findNavController().navigateUp()) {
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+        }
 
         // Set up UI components like buttons or text views
         val confirmButton: Button = binding.addUpdateLayoutConfirmButton
         confirmButton.setOnClickListener {
             addUpdateViewModel.upsertValuesIntoDB()
+
        }
+
+        // Set up the menu
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.upsert_form_menu, menu)
+                undoMenuItem = menu.findItem(R.id.action_undo)
+                redoMenuItem = menu.findItem(R.id.action_redo)
+
+                undoMenuItem?.isEnabled = false
+                redoMenuItem?.isEnabled = false
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    // added guards to prevent initial misfire
+                    R.id.action_redo -> {
+                        addUpdateViewModel.redo()
+                        true
+                    }
+                    R.id.action_undo -> {
+                        addUpdateViewModel.undo()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        addUpdateViewModel.canUndo.observe(viewLifecycleOwner) { canUndo ->
+            undoMenuItem?.isEnabled = canUndo
+        }
+
+        addUpdateViewModel.canRedo.observe(viewLifecycleOwner) { canRedo ->
+            redoMenuItem?.isEnabled = canRedo
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         // Clean up the binding when the view is destroyed to prevent memory leaks
         _binding = null
-    }
-
-    class InitWordClassCallBack(private val addUpdateViewModel: AddUpdateViewModel): WordClassCallBack {
-
-        override fun updateMainClassId(
-            wordClassItem: WordClassItem,
-            selectionPosition: Int,
-            position: Int
-        ): Boolean {
-            return addUpdateViewModel.updateMainClassId(wordClassItem, selectionPosition, position)
-        }
-
-        override fun updateSubClassId(
-            wordClassItem: WordClassItem,
-            selectionPosition: Int,
-            position: Int
-        ) {
-            addUpdateViewModel.updateSubClassId(wordClassItem, selectionPosition, position)
-        }
-
-        override fun getMainClassListIndex(wordClassItem: WordClassItem): Int {
-            return addUpdateViewModel.getMainClassListIndex(wordClassItem)
-        }
-
-        override fun getSubClassListIndex(wordClassItem: WordClassItem): Int {
-            return addUpdateViewModel.getSubClassListIndex(wordClassItem)
-        }
-
-        override fun getMainClasList(): List<MainClassContainer> {
-            return addUpdateViewModel.getMainClassList()
-        }
-
-        override fun getSubClassList(wordClassItem: WordClassItem): List<SubClassContainer> {
-            return addUpdateViewModel.getSubClassList(wordClassItem)
-        }
-    }
-
-    class InitEditTextCallBack(private val addUpdateViewModel: AddUpdateViewModel):EditTextCallBack{
-        override fun updateInputTextValue(
-            inputTextItem: InputTextItem,
-            inputText: String,
-            position: Int
-        ) {
-            addUpdateViewModel.updateInputTextValue(inputTextItem, inputText, position)
-        }
-
-        override fun removeItemAtPosition(inputTextItem: InputTextItem, position: Int) {
-            addUpdateViewModel.removeTextItemClicked(inputTextItem, position)
-        }
-
-        override fun getInputTextValue(inputTextItem: InputTextItem): String {
-            return  inputTextItem.inputTextValue
-        }
-
-        override fun getInputTextType(inputTextItem: InputTextItem): InputTextType {
-            return inputTextItem.inputTextType
-        }
-
-    }
-
-    class InitLabelTextCallBack(private val addUpdateViewModel: AddUpdateViewModel): LabelTextCallBack{
-        override fun entryRemoveItems(entryLabelItem: EntryLabelItem, position: Int) {
-            addUpdateViewModel.removeSectionClicked(entryLabelItem, position)
-        }
-
-        override fun updateEntryIndexIfNeeded(entryLabelItem: EntryLabelItem, position: Int) {
-            addUpdateViewModel.updateEntryIndexIfNeeded(entryLabelItem, position)
-        }
-
-        override fun getLabelType(labelItem: LabelItem): LabelType {
-            return labelItem.labelType
-        }
-
-        override fun getWidgetName(namedItem: NamedItem): String {
-            return namedItem.getDisplayText()
-        }
-
-    }
-
-    class InitButtonCallBack(private val addUpdateViewModel: AddUpdateViewModel): ButtonCallBack{
-        override fun buttonClickedHandler(button: ButtonAction, position: Int) {
-            when (button){
-                is ButtonAction.AddChild -> addUpdateViewModel.addChildTextItemClicked(button, position)
-                is ButtonAction.AddItem -> addUpdateViewModel.addTextItemClicked(button, position)
-                is ButtonAction.AddSection -> addUpdateViewModel.addSectionClicked(position)
-            }
-        }
-
-        override fun getWidgetName(namedItem: NamedItem): String {
-            return namedItem.getDisplayText()
-        }
     }
 }

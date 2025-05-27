@@ -1,32 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:background="@color/teal_200">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/addUpdateLabel"
+            style="@style/TextAppearance.AppCompat.Headline1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_vertical"
+            android:text=""
+            tools:text="Temp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/addUpdateEditTextDelete"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="end"
+            android:visibility="gone"
+            app:icon="@drawable/delete"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/deleteButtonDescription"
+            tools:visibility="visible" />
+    </FrameLayout>
 
     <TextView
-        android:id="@+id/addUpdateLabel"
-        style="@style/TextAppearance.AppCompat.Headline1"
+        android:id="@+id/addUpdateLabelError"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center_vertical"
-        android:text=""
-        tools:text="Temp" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/addUpdateEditTextDelete"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:textColor="@android:color/holo_red_dark"
         android:visibility="gone"
-        app:icon="@android:drawable/ic_delete"
-        app:iconGravity="textTop"
-        android:layout_gravity="end"
-        tools:visibility="visible"
-        android:contentDescription="@string/deleteButtonDescription"
-        android:background="@android:color/transparent" />
-
-</FrameLayout>
+        tools:text="Label is required"
+        tools:visibility="visible" />
+</LinearLayout>

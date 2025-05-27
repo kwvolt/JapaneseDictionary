@@ -21,7 +21,7 @@ data class ItemProperties(private val tableId: TableId = WordEntryTable.UI, priv
     }
 }
 
-data class ItemSectionProperties(private val tableId: TableId = WordEntryTable.UI, private val id: Long = generateNewItemId(), val sectionId: Int = -1):
+data class ItemSectionProperties(private val tableId: TableId = WordEntryTable.UI, private val id: Long = generateNewItemId(), private val sectionId: Int = -1):
     GenericItemProperties, GenericSectionProperties {
     override fun getIdentifier(): String {
         return "${tableId.asString()}-$id-$sectionId"

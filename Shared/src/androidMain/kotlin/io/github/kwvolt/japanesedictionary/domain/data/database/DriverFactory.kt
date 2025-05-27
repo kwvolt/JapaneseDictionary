@@ -4,11 +4,14 @@ import android.content.Context
 import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
-import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 
 actual class DriverFactory(private val context: Context) {
     actual fun createTestDriver(): SqlDriver {
-        val driver: SqlDriver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        val driver: SqlDriver = AndroidSqliteDriver(
+            schema = DictionaryDB.Schema.synchronous(),
+            context = context.applicationContext,
+            name = null // <- null creates in-memory database
+        )
         DictionaryDB.Schema.create(driver)
         return driver
     }

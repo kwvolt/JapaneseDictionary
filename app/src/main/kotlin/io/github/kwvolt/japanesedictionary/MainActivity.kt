@@ -7,7 +7,6 @@ import io.github.kwvolt.japanesedictionary.ui.addUpdate.AddUpdateRecyclerViewFra
 
 
 class MainActivity : AppCompatActivity(){
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -19,12 +18,5 @@ class MainActivity : AppCompatActivity(){
                 .replace(R.id.fragment_container, fragment)  // Add the fragment to the container
                 .commit()  // Commit the transaction
         }
-    }
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.testing, menu)
-
-        return true
-
-
     }
 }

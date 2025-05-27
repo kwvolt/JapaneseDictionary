@@ -8,10 +8,8 @@ CREATE TABLE dictionary_entry(
     is_bookmarked INTEGER NOT NULL DEFAULT FALSE,
     CONSTRAINT FK_dict_entry__word_class FOREIGN KEY (word_class_id) REFERENCES word_class (id),
     CONSTRAINT CK_BOOL_dict_entry__is_bookmarked CHECK (is_bookmarked IN (0, 1)),
-    CONSTRAINT UQIDX_dict_entry_primary_text UNIQUE(primary_text)
+    CONSTRAINT UQIDX_dict_entry_primary_text UNIQUE(word_class_id, primary_text)
 );
-CREATE UNIQUE INDEX UQIDX_dict_entry_primary_text ON dictionary_entry(primary_text);
-
 insertDictionaryEntry{
     INSERT INTO dictionary_entry (word_class_id, primary_text) VALUES (?, ?);
     SELECT last_insert_rowid();

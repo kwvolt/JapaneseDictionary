@@ -1,5 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.data.database
 
+import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.ValidationKey
 import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationType
 
 /**
@@ -31,6 +32,8 @@ sealed class DatabaseResult<out T> {
      */
     data class InvalidInput(val invalidType: ValidationType) : DatabaseResult<Nothing>()
 
+    data class InvalidInputMap(val errors: Map<ValidationKey, List<InvalidInput>>) : DatabaseResult<Nothing>()
+
     /**
      * Represents an unknown error that occurred during the database operation.
      *
@@ -53,6 +56,7 @@ sealed class DatabaseResult<out T> {
         is NotFound -> NotFound
         is InvalidInput -> this
         is UnknownError -> this
+        is InvalidInputMap -> this
     }
 
     fun <A, B> mapErrorTo(): DatabaseResult<B> = when (this) {
@@ -60,5 +64,6 @@ sealed class DatabaseResult<out T> {
         is NotFound -> NotFound
         is InvalidInput -> this
         is UnknownError -> this
+        is InvalidInputMap -> this
     }
 }

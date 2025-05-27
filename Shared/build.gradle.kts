@@ -63,7 +63,7 @@ sqldelight {
 
 android {
     namespace = "io.github.kwvolt.japanesedictionary.Shared"
-    compileSdk = 31
+    compileSdk = 35
     defaultConfig {
         minSdk = 31
     }

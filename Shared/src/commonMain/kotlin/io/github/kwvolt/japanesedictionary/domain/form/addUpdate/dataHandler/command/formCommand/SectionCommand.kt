@@ -18,30 +18,16 @@ class AddSectionCommand(
 
     override fun execute(): WordEntryFormData {
         // Create the new section
-        val newMEANING = InputTextItem(InputTextType.MEANING, "", ItemSectionProperties(sectionId = sectionIndex))
+        val newMeaning = InputTextItem(InputTextType.MEANING, "", ItemSectionProperties(sectionId = sectionIndex))
         val newKana = InputTextItem(InputTextType.KANA, "", ItemSectionProperties(sectionId = sectionIndex))
         val newComponentNote = InputTextItem(InputTextType.SECTION_NOTE_DESCRIPTION, "", ItemSectionProperties(sectionId = sectionIndex))
 
         val newSection = WordSectionFormData(
-            newMEANING,
+            newMeaning,
             persistentMapOf(newKana.itemProperties.getIdentifier() to newKana),
             persistentMapOf(newComponentNote.itemProperties.getIdentifier() to newComponentNote)
         )
-
-        // Start with the original map
-        var updatedMap = originalSectionMap
-
-        // Shift sections at and after sectionIndex one position up
-        val maxIndex = originalSectionMap.keys.maxOrNull() ?: -1
-        for (i in maxIndex downTo sectionIndex) {
-            val section = updatedMap[i]
-            if (section != null) {
-                updatedMap = updatedMap.put(i + 1, section).remove(i)
-            }
-        }
-
-        // Insert the new section
-        updatedMap = updatedMap.put(sectionIndex, newSection)
+        val updatedMap = originalSectionMap.put(sectionIndex, newSection)
 
         return wordEntryFormData.copy(wordSectionMap = updatedMap)
     }
@@ -59,16 +45,7 @@ class RemoveSectionCommand(
     private val originalSectionMap: PersistentMap<Int, WordSectionFormData> = wordEntryFormData.wordSectionMap
 
     override fun execute(): WordEntryFormData {
-        var updatedMap = originalSectionMap.remove(sectionIndex)
-
-        val maxIndex = originalSectionMap.keys.maxOrNull() ?: -1
-        for (i in sectionIndex + 1..maxIndex) {
-            val section = updatedMap[i]
-            if (section != null) {
-                updatedMap = updatedMap.put(i - 1, section).remove(i)
-            }
-        }
-
+        val updatedMap = originalSectionMap.remove(sectionIndex)
         return wordEntryFormData.copy(wordSectionMap = updatedMap)
     }
 

@@ -8,10 +8,9 @@ class AddEntryNoteItemCommand(
     private val newEntryNoteItem: InputTextItem
 ) : FormCommand {
 
-    private var noteId: String = ""
+    private val noteId: String = newEntryNoteItem.itemProperties.getIdentifier()
 
     override fun execute(): WordEntryFormData {
-        noteId = newEntryNoteItem.itemProperties.getIdentifier()
         val updatedMap = wordEntryFormData.entryNoteInputMap.put(noteId, newEntryNoteItem)
         return wordEntryFormData.copy(entryNoteInputMap = updatedMap)
     }

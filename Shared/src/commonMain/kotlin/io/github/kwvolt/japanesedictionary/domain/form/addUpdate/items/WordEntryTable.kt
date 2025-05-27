@@ -11,13 +11,14 @@ enum class WordEntryTable(private val value: String ): TableId {
 
     override fun toString(): String = value
 
-    companion object {
-        fun fromValue(value: String): WordEntryTable? =
-            entries.find { it.value == value }
-    }
-
     override fun asString(): String {
         return value
+    }
+
+    companion object {
+        fun fromValue(value: String): WordEntryTable? {
+            return entries.find { it.asString().equals(value, ignoreCase = true) }
+        }
     }
 }
 

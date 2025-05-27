@@ -2,8 +2,7 @@ package io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items
 
 import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.SubClassContainer
 
-sealed class BaseItem(open val itemProperties: GenericItemProperties) {
-}
+abstract class BaseItem(open val itemProperties: GenericItemProperties)
 
 interface DisplayLabelText{
     fun getDisplayText(): String
@@ -29,13 +28,13 @@ data class StaticLabelItem(
 ) : LabelItem(name, labelType, itemProperties)
 
 data class EntryLabelItem(
-    override val name: String = "",
+    override val name: String = "Section",
     val sectionCount: Int = 0,
     override val labelType: LabelType = LabelType.HEADER,
-    override val itemProperties: ItemSectionProperties
+    override val itemProperties: ItemSectionProperties,
 ) : LabelItem(name, labelType, itemProperties) {
     override fun getDisplayText(): String {
-        return "$name: $sectionCount"
+        return "$name $sectionCount"
     }
 }
 
@@ -67,9 +66,28 @@ data class WordClassItem(
 data class InputTextItem(
     val inputTextType: InputTextType,
     val inputTextValue: String = "",
-    override val itemProperties: GenericItemProperties,
-) : BaseItem(itemProperties){
+    override val itemProperties: GenericItemProperties
+) : BaseItem(itemProperties)
+
+sealed class FormUIItem(itemProperties: GenericItemProperties) : BaseItem(itemProperties) {
+    abstract val errorMessage: ErrorMessage
 }
+
+data class InputTextFormUIItem(
+    val inputTextItem: InputTextItem,
+    override val errorMessage: ErrorMessage = ErrorMessage(),
+) : FormUIItem(inputTextItem.itemProperties)
+
+data class WordClassFormUIItem(
+    val wordClassItem: WordClassItem,
+    override val errorMessage: ErrorMessage = ErrorMessage()
+) : FormUIItem(wordClassItem.itemProperties)
+
+data class StaticLabelFormUIItem(
+    val staticLabelItem: StaticLabelItem,
+    override val errorMessage: ErrorMessage = ErrorMessage()
+) : FormUIItem(staticLabelItem.itemProperties)
+
 
 // Enums to indicate type of input item
 enum class InputTextType {
@@ -84,3 +102,5 @@ enum class LabelType{
     HEADER,
     SUB_HEADER
 }
+
+data class ErrorMessage(val errorMessage: String? = null, val isDirty: Boolean = false)

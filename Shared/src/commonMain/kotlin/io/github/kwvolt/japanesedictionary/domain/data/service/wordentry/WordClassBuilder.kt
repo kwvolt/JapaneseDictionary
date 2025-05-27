@@ -1,4 +1,4 @@
-package io.github.kwvolt.japanesedictionary.domain.service
+package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.MainClassContainer

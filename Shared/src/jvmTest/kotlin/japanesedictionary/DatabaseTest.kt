@@ -1,7 +1,6 @@
 package japanesedictionary
 
 import app.cash.sqldelight.async.coroutines.awaitAsList
-import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import app.cash.sqldelight.db.SqlDriver
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandler
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
@@ -10,14 +9,12 @@ import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.Mai
 import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.MainClassRepository
 import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.SubClassRepository
 import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.WordClassRepository
-import io.github.kwvolt.japanesedictionary.domain.service.WordClassBuilder
-import io.github.kwvolt.japanesedictionary.domain.service.WordClassUpsert
-import kotlinx.coroutines.coroutineScope
+import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordClassBuilder
+import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordClassUpsert
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -54,101 +51,75 @@ class DatabaseTester {
     }
 
     suspend fun createWordClass(){
-        println("hello")
-
         val result = databaseHandler.performTransaction {
-            // particle
-            println(databaseHandler.queries.wordClassQueries.initializeWordClass("PARTICLE", "Particle").awaitAsOneOrNull())
-            // adverb
-            val adverb = databaseHandler.queries.wordClassQueries.initializeWordClass("ADVERB", "Adverb").awaitAsOneOrNull()
-            val adverbMap = mapOf(
-                "MANNER" to "Manner",
-                "TIME" to "Time",
-                "FREQUENCY" to "Frequency",
-                "DEGREE" to "Degree",
-                "PLACE" to "Place",
-                "NEGATIVE" to "Negative"
+            val particle = wordClassUpsert.initializeWordClass("PARTICLE", "Particle")
+            if(particle.isFailure) { return@performTransaction particle.mapErrorTo<Unit, Unit>() }
+
+
+            val adverb = wordClassUpsert.initializeWordClassWithSubClasses(
+                "ADVERB", "Adverb", mapOf(
+                    "MANNER" to "Manner",
+                    "TIME" to "Time",
+                    "FREQUENCY" to "Frequency",
+                    "DEGREE" to "Degree",
+                    "PLACE" to "Place",
+                    "NEGATIVE" to "Negative"
+                )
             )
-            if(adverb != null) {
-                for ((idName, displayText) in adverbMap.entries) {
-                    databaseHandler.queries.subClassQueries.insertSubClassLinkToMainClass(
-                        idName,
-                        displayText,
-                        adverb
-                    ).awaitAsOneOrNull()
-                }
-            }
+            if(adverb.isFailure) { return@performTransaction adverb.mapErrorTo<Unit, Unit>() }
 
-            databaseHandler.queries.wordClassQueries.initializeWordClass("ADJECTIVAL_NOUN", "Adjectival Noun").awaitAsOneOrNull()
+            val adjectivalNoun = wordClassUpsert.initializeWordClass("ADJECTIVAL_NOUN", "Adjectival Noun")
+            if(adjectivalNoun.isFailure) { return@performTransaction adjectivalNoun.mapErrorTo<Unit, Unit>() }
 
-            databaseHandler.queries.wordClassQueries.initializeWordClass("CONJUNCTION", "Conjunction").awaitAsOneOrNull()
+            val conjunction = wordClassUpsert.initializeWordClass("CONJUNCTION", "Conjunction")
+            if(conjunction.isFailure) { return@performTransaction conjunction.mapErrorTo<Unit, Unit>() }
 
-            databaseHandler.queries.wordClassQueries.initializeWordClass("INTERJECTION","Interjection").awaitAsOneOrNull()
+            val interjection = wordClassUpsert.initializeWordClass("INTERJECTION", "Interjection")
+            if(interjection.isFailure) { return@performTransaction interjection.mapErrorTo<Unit, Unit>() }
 
-            databaseHandler.queries.wordClassQueries.initializeWordClass("NUMBER", "Number").awaitAsOneOrNull()
+            val number = wordClassUpsert.initializeWordClass("NUMBER", "Number")
+            if(number.isFailure) { return@performTransaction number.mapErrorTo<Unit, Unit>() }
 
-            // pronoun
-            val pronoun = databaseHandler.queries.wordClassQueries.initializeWordClass("PRONOUN", "Pronoun").awaitAsOneOrNull()
-            val pronounMap = mapOf(
-                "PERSONAL" to "Personal",
-                "DEMONSTRATIVE" to "Demonstrative",
-                "INTERROGATIVE" to "Interrogative"
+            val pronoun = wordClassUpsert.initializeWordClassWithSubClasses(
+                "PRONOUN", "Pronoun", mapOf(
+                    "PERSONAL" to "Personal",
+                    "DEMONSTRATIVE" to "Demonstrative",
+                    "INTERROGATIVE" to "Interrogative"
+                )
             )
-            if(pronoun != null) {
-                for ((idName, displayText) in pronounMap.entries) {
-                    databaseHandler.queries.subClassQueries.insertSubClassLinkToMainClass(
-                        idName,
-                        displayText,
-                        pronoun
-                    ).awaitAsOneOrNull()
-                }
+            if(pronoun.isFailure){
+                return@performTransaction pronoun.mapErrorTo<Unit, Unit>()
             }
 
-            // noun
-            val noun = databaseHandler.queries.wordClassQueries.initializeWordClass("NOUN", "Noun").awaitAsOneOrNull()
-            val nounMap = mapOf(
-                "COMMON" to "Common",
-                "PROPER" to "Proper",
-                "COLLECTIVE" to "Collective",
-                "ABSTRACT" to "Abstract"
+            val noun = wordClassUpsert.initializeWordClassWithSubClasses(
+                "NOUN", "Noun", mapOf(
+                    "COMMON" to "Common",
+                    "PROPER" to "Proper",
+                    "COLLECTIVE" to "Collective",
+                    "ABSTRACT" to "Abstract"
+                )
             )
-            if(noun != null) {
-                for ((idName, displayText) in nounMap.entries) {
-                    databaseHandler.queries.subClassQueries.insertSubClassLinkToMainClass(
-                        idName,
-                        displayText,
-                        noun
-                    ).awaitAsOneOrNull()
-                }
+            if(noun.isFailure){
+                return@performTransaction noun.mapErrorTo<Unit, Unit>()
             }
 
-            // verb
-            val verb  = databaseHandler.queries.wordClassQueries.initializeWordClass("VERB", "Verb").awaitAsOneOrNull()
-            val verbMap = mapOf("RU_VERB" to "る", "U_VERB" to "う", "IRREGULAR" to "Irregular")
-            if(verb != null) {
-                for ((idName, displayText) in verbMap.entries) {
-                    databaseHandler.queries.subClassQueries.insertSubClassLinkToMainClass(
-                        idName,
-                        displayText,
-                        verb
-                    ).awaitAsOneOrNull()
-                }
+            val verb = wordClassUpsert.initializeWordClassWithSubClasses(
+                "VERB",
+                "Verb",
+                mapOf("RU_VERB" to "る", "U_VERB" to "う", "IRREGULAR" to "Irregular")
+            )
+            if(verb.isFailure){
+                return@performTransaction verb.mapErrorTo<Unit, Unit>()
             }
 
-            val adjective  = databaseHandler.queries.wordClassQueries.initializeWordClass("ADJECTIVE", "Adjective").awaitAsOneOrNull()
-            val adjectiveMap = mapOf("I_ADJECTIVE" to "い", "NA_ADJECTIVE" to "な", "IRREGULAR" to "Irregular")
-            if(adjective != null) {
-                for ((idName, displayText) in adjectiveMap.entries) {
-                    println(idName + displayText)
-                    databaseHandler.queries.subClassQueries.insertSubClassLinkToMainClass(
-                        idName,
-                        displayText,
-                        adjective
-                    ).awaitAsOneOrNull()
-                }
+            val adjective = wordClassUpsert.initializeWordClassWithSubClasses(
+                "ADJECTIVE",
+                "Adjective",
+                mapOf("I_ADJECTIVE" to "い", "NA_ADJECTIVE" to "な", "IRREGULAR" to "Irregular")
+            )
+            if(adjective.isFailure){
+                return@performTransaction adjective.mapErrorTo<Unit, Unit>()
             }
-
-
             DatabaseResult.Success(Unit)
         }
 
@@ -156,7 +127,7 @@ class DatabaseTester {
             println(result::class.java)
         }
 
-        val mainlist: DatabaseResult<List<MainClassContainer>> = MainClassRepository( databaseHandler, databaseHandler.queries.mainClassQueries).selectAllMainClass()
+        val mainlist: DatabaseResult<List<MainClassContainer>> = wordClassBuilder.getMainClassList()
 
         if(mainlist.isFailure){
             println(mainlist::class.java)

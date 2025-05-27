@@ -1,4 +1,4 @@
-package io.github.kwvolt.japanesedictionary.domain.form.handler
+package io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler
 
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
 
@@ -11,21 +11,12 @@ class FormSectionManager {
         entryChildrenCountMap.remove(sectionId)
     }
 
-    fun addSection(sectionId: Int, list: List<BaseItem>){
-        entryChildrenCountMap[sectionId] = list.size-1
-        entrySectionId += 1
-    }
-
     fun addSectionToMap(sectionId: Int, list: List<BaseItem>){
         entryChildrenCountMap[sectionId] = list.size-1
     }
 
     fun incrementCurrentSectionCount(){
         currentSectionCount += 1
-    }
-
-    fun decrementCurrentSectionCount(){
-        currentSectionCount -= 1
     }
 
     fun getThenIncrementEntrySectionId(): Int{
@@ -43,30 +34,13 @@ class FormSectionManager {
 
     fun getEntrySectionId(): Int = entrySectionId
 
-    // Updates the entryChildrenCountMap for a given entry
-    fun setEntryChildrenCount(sectionId: Int, count: Int) {
-        if(entryChildrenCountMap.containsKey(sectionId)){
-            entryChildrenCountMap[sectionId] = count
-        }
-    }
 
     fun incrementChildrenCount(sectionId: Int){
         val childCount: Int =   entryChildrenCountMap[sectionId] ?: 0
         entryChildrenCountMap[sectionId] = childCount + 1
     }
 
-    fun decrementChildrenCount(sectionId: Int){
-        val childCount: Int =   entryChildrenCountMap[sectionId] ?: 0
-        entryChildrenCountMap[sectionId] = childCount - 1
-    }
-
     fun getChildrenCount(sectionId: Int): Int{
         return entryChildrenCountMap[sectionId] ?: 0
-    }
-
-    fun clear(){
-        currentSectionCount = 1
-        entrySectionId = 0
-        entryChildrenCountMap.clear()
     }
 }

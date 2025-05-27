@@ -6,13 +6,20 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <EditText
-        android:id="@+id/addUpdateEditText"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/addUpdateEditTextLayout"
         android:layout_width="0dp"
-        android:layout_height="74dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:ems="10"
-        android:inputType="text" />
+        app:errorEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/addUpdateEditText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ems="10"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/addUpdateEditTextDelete"
@@ -20,9 +27,7 @@
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:visibility="gone"
-        app:icon="@android:drawable/ic_delete"
+        app:icon="@drawable/delete"
         app:iconGravity="textTop"
         tools:visibility="visible" />
-
-
 </LinearLayout>

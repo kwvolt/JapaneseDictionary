@@ -9,15 +9,16 @@ import io.github.kwvolt.japanesedictionary.domain.data.database.DriverFactory
 
 class AppContainer(context: Context) {
     val databaseHandler: DatabaseHandler by lazy {
-        val driver = DriverFactory(context).createDriver()
+        val driver = DriverFactory(context).createTestDriver()
         DatabaseHandler(driver)
     }
 }
 
-class MyApp : Application() {
-    lateinit var container: AppContainer
+class MainApplication : Application() {
+    val container: AppContainer  by lazy {
+        AppContainer(this)
+    }
     override fun onCreate() {
         super.onCreate()
-        container = AppContainer(this)
     }
 }

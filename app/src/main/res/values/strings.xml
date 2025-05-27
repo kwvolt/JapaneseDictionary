@@ -9,4 +9,9 @@
     <string name="confirm_button">Confirm</string>
     <string name="deleteButtonDescription">delete the item</string>
     <string name="confirm">Confirm</string>
+    <string name="main_class">Main Class:</string>
+    <string name="sub_class">Sub Class:</string>
+    <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
+    <string name="preview">preview</string>
 </resources>

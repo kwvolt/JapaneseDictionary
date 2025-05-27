@@ -1,4 +1,4 @@
-package io.github.kwvolt.japanesedictionary.domain.service
+package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
@@ -24,7 +24,7 @@ import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemPrope
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemSectionProperties
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordEntryTable
-import io.github.kwvolt.japanesedictionary.domain.form.handler.FormSectionManager
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormSectionManager
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.Deferred

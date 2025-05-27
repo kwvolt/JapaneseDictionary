@@ -5,6 +5,8 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import io.github.kwvolt.japanesedictionary.databinding.EditTextItemBinding
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ErrorMessage
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextFormUIItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextType
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.AddUpdateViewHolder
@@ -14,12 +16,15 @@ interface EditTextCallBack{
     fun removeItemAtPosition(inputTextItem: InputTextItem, position: Int)
     fun getInputTextValue(inputTextItem: InputTextItem): String
     fun getInputTextType(inputTextItem: InputTextItem): InputTextType
+    fun getHasError(errorMessage: ErrorMessage): Boolean
+    fun getErrorMessage(errorMessage: ErrorMessage): String
 }
 
 class EditTextViewHolder(private val binding: EditTextItemBinding, private val callBack: EditTextCallBack) : AddUpdateViewHolder(binding.root) {
 
     override fun bind(baseItem: BaseItem) {
-        val inputTextItem: InputTextItem = baseItem as? InputTextItem ?: return
+        val inputTextFormUIItem: InputTextFormUIItem = baseItem as? InputTextFormUIItem ?: return
+        val inputTextItem: InputTextItem = inputTextFormUIItem.inputTextItem
         val inputTextType: InputTextType = callBack.getInputTextType(inputTextItem)
 
         // Configure EditText based on inputTextType
@@ -33,6 +38,9 @@ class EditTextViewHolder(private val binding: EditTextItemBinding, private val c
 
         // Configure delete button visibility and click behavior
         configureDeleteButton(inputTextItem, inputTextType)
+
+        // set Error if validation already happened
+        checkAndSetError(inputTextFormUIItem.errorMessage)
     }
 
     private fun setupFocusListener(inputTextItem: InputTextItem) {
@@ -49,7 +57,7 @@ class EditTextViewHolder(private val binding: EditTextItemBinding, private val c
         val textValue = callBack.getInputTextValue(inputTextItem)
         val currentText = binding.addUpdateEditText.text.toString()
         if (currentText != textValue) {
-            binding.addUpdateEditText.setText(textValue)  // Update text if different
+            binding.addUpdateEditText.setText(textValue)
         }
     }
 
@@ -81,6 +89,15 @@ class EditTextViewHolder(private val binding: EditTextItemBinding, private val c
         binding.addUpdateEditTextDelete.apply {
             visibility = deleteButtonVisibility
             setOnClickListener { callBack.removeItemAtPosition(inputTextItem, adapterPosition) }
+        }
+    }
+
+    private fun checkAndSetError(errorMessage: ErrorMessage){
+        if(callBack.getHasError(errorMessage)){
+            val message: String = callBack.getErrorMessage(errorMessage)
+            if(message.isNotBlank()){
+                binding.addUpdateEditTextLayout.error = message
+            }
         }
     }
 

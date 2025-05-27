@@ -11,7 +11,12 @@ class AddSectionNoteItemCommand(
 ) : UpdateComponentSectionCommand(wordEntryFormData, sectionIndex) {
 
     override fun transform(section: WordSectionFormData): WordSectionFormData {
-        return section.copy(sectionNoteInputMap = section.sectionNoteInputMap.put(newComponentNoteItem.itemProperties.getIdentifier(), newComponentNoteItem))
+        return section.copy(
+            sectionNoteInputMap = section.sectionNoteInputMap.put(
+                newComponentNoteItem.itemProperties.getIdentifier(),
+                newComponentNoteItem
+            )
+        )
     }
 }
 
@@ -22,7 +27,12 @@ class UpdateSectionNoteItemCommand(
 ) : UpdateComponentSectionCommand(wordEntryFormData, sectionIndex) {
 
     override fun transform(section: WordSectionFormData): WordSectionFormData {
-        return section.copy(sectionNoteInputMap = section.sectionNoteInputMap.put(newComponentNoteItem.itemProperties.getIdentifier(), newComponentNoteItem))
+        return section.copy(
+            sectionNoteInputMap = section.sectionNoteInputMap.put(
+                newComponentNoteItem.itemProperties.getIdentifier(),
+                newComponentNoteItem
+            )
+        )
     }
 }
 
