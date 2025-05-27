@@ -1,5 +1,6 @@
 *.iml
 .gradle
+/.idea/compiler.xml
 /.idea/other.xml
 /.idea/sqlandroid.xml
 /.idea/deploymentTargetSelector.xml
