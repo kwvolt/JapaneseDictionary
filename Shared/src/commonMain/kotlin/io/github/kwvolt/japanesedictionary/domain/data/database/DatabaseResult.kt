@@ -1,8 +1,5 @@
 package io.github.kwvolt.japanesedictionary.domain.data.database
 
-import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.ValidationKey
-import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationType
-
 /**
  * Represents the result of a database operation.
  *
@@ -25,14 +22,6 @@ sealed class DatabaseResult<out T> {
      */
     data object NotFound : DatabaseResult<Nothing>()
 
-    /**
-     * Indicates that the input provided to the database operation was invalid.
-     *
-     * @property invalidType The type of validation that failed.
-     */
-    data class InvalidInput(val invalidType: ValidationType) : DatabaseResult<Nothing>()
-
-    data class InvalidInputMap(val errors: Map<ValidationKey, List<InvalidInput>>) : DatabaseResult<Nothing>()
 
     /**
      * Represents an unknown error that occurred during the database operation.
@@ -54,16 +43,12 @@ sealed class DatabaseResult<out T> {
     inline fun <R> flatMap(transform: (T) -> DatabaseResult<R>): DatabaseResult<R> = when (this) {
         is Success -> transform(value)
         is NotFound -> NotFound
-        is InvalidInput -> this
         is UnknownError -> this
-        is InvalidInputMap -> this
     }
 
     fun <A, B> mapErrorTo(): DatabaseResult<B> = when (this) {
         is Success -> throw IllegalStateException("mapErrorTo called on Success")
         is NotFound -> NotFound
-        is InvalidInput -> this
         is UnknownError -> this
-        is InvalidInputMap -> this
     }
 }

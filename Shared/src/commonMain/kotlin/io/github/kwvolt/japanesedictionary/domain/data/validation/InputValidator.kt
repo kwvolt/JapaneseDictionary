@@ -1,5 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.data.validation
 
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
 
 
@@ -23,3 +24,7 @@ fun validateNotEmpty(text:String): Boolean{
 }
 
 fun validateMaxLength(text: String, max: Int): Boolean = text.length <= max
+
+fun validateNoDuplicate(text: String, textList: List<BaseItem>){
+
+}

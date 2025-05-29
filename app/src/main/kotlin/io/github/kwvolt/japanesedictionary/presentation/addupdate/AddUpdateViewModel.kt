@@ -22,12 +22,20 @@ import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.UiFormH
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.WordFormHandler
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordEntryTable
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordFormService
+import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationKey
+import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationResult
 import io.github.kwvolt.japanesedictionary.domain.data.validation.formatValidationTypeToMessage
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ErrorMessage
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.UndoRedoStateListener
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.FormKeys
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.FormUIItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextFormUIItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextType
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemValidation.FormItemValidator
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemValidation.InputTextFormValidator
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemValidation.StaticLabelFormValidator
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemValidation.WordClassFormValidator
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelType
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.StaticLabelFormUIItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassFormUIItem
 import kotlinx.coroutines.launch
@@ -262,31 +270,60 @@ class AddUpdateViewModel(
         removeItemAtPosition(position)
     }
 
-    private fun revalidateDirtyFieldsAfterUndoRedo(currentItems: List<BaseItem>) {
+    private suspend fun revalidateDirtyFieldsAfterUndoRedo(currentItems: List<BaseItem>) {
         val updatedErrors = mutableMapOf<ValidationKey, ErrorMessage>()
+        val formData = wordFormHandler.getWordEntryFormData()
 
-        for (item in currentItems) {
-            if(item is FormUIItem){
-                var existingError: ErrorMessage? = null
-                when(item){
-                    is InputTextFormUIItem, is WordClassFormUIItem -> existingError = errorMessage[ValidationKey.DataItem(item.itemProperties.getIdentifier())]
-                    is StaticLabelFormUIItem ->  existingError = errorMessage[ValidationKey.FormItem(FormKeys.kanaLabel(item.staticLabelItem.itemProperties.getId()))]
+        val uiItems = currentItems.asSequence()
+            .filterIsInstance<FormUIItem>()
+            .filter { uiItem ->
+                when (uiItem) {
+                    is InputTextFormUIItem ->
+                        errorMessage.containsKey(ValidationKey.DataItem(uiItem.inputTextItem.itemProperties.getIdentifier()))
+                    is StaticLabelFormUIItem -> {
+                        val props = uiItem.itemProperties as ItemSectionProperties
+                        errorMessage.containsKey(ValidationKey.FormItem(FormKeys.kanaLabel(props.getSectionIndex())))
+                    }
+                    is WordClassFormUIItem ->
+                        errorMessage.containsKey(ValidationKey.DataItem(uiItem.wordClassItem.itemProperties.getIdentifier()))
+                }
+            }.toList()
+
+        for (uiItem in uiItems) {
+            val validator = when (uiItem) {
+                is InputTextFormUIItem -> {
+                    val validator = InputTextFormValidator(wordFormService)
+                    validator.validate(uiItem, formData)
+                }
+                is StaticLabelFormUIItem -> {
+                    val validator = StaticLabelFormValidator(wordFormService)
+                    validator.validate(uiItem, formData)
+                }
+                is WordClassFormUIItem -> {
+                    val validator = WordClassFormValidator(wordFormService)
+                    validator.validate(uiItem, formData)
                 }
             }
 
-            val existingError = errorMessage[key] ?: continue
-
-            if (!existingError.isDirty) continue // Only revalidate dirty fields
-
-            if (!isItemValid(item)) {
-                updatedErrors[key] = ErrorMessage("This field is required", isDirty = true)
-            } else {
-                // If valid, remove from error map
-                errorMessage.remove(key)
+            val (key, result) = validator
+            when (result){
+                is ValidationResult.InvalidInput -> {
+                    val error = result.error
+                    updatedErrors[key] = ErrorMessage(errorMessage = formatValidationTypeToMessage(error), isDirty = true)
+                }
+                is ValidationResult.Success ->{
+                    errorMessage.remove(key)
+                }
+                is ValidationResult.UnknownError -> {
+                    val exception = result.exception
+                    val message = result.message
+                    if (exception != null && message != null) {
+                        _uiState.postValue(UiState.UnknownError(exception, message))
+                    }
+                }
+                else -> continue
             }
         }
-
-        // Apply any new errors found
         errorMessage.putAll(updatedErrors)
     }
 }
