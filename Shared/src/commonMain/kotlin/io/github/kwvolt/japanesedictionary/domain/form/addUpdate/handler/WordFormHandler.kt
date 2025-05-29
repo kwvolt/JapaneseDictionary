@@ -1,6 +1,5 @@
 package io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler
-
-import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.ValidationKey
+import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationKey
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.AddSectionNoteItemCommand
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.AddEntryNoteItemCommand
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.AddKanaItemCommand

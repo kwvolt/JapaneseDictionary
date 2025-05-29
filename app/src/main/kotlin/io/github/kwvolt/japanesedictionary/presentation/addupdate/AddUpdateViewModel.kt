@@ -149,14 +149,20 @@ class AddUpdateViewModel(
     fun redo(){
         val list = wordFormHandler.redo()
         if(list.isNotEmpty()) {
-            _uiState.postValue(UiState.Success(list))
+            viewModelScope.launch {
+                val newList = revalidateDirtyFieldsAfterUndoRedo(list)
+                _uiState.postValue(UiState.Success(newList))
+            }
         }
     }
 
     fun undo(){
         val list = wordFormHandler.undo()
         if(list.isNotEmpty()) {
-            _uiState.postValue(UiState.Success(list))
+            viewModelScope.launch {
+                val newList = revalidateDirtyFieldsAfterUndoRedo(list)
+                _uiState.postValue(UiState.Success(newList))
+            }
         }
     }
 
@@ -270,48 +276,46 @@ class AddUpdateViewModel(
         removeItemAtPosition(position)
     }
 
-    private suspend fun revalidateDirtyFieldsAfterUndoRedo(currentItems: List<BaseItem>) {
+    private suspend fun revalidateDirtyFieldsAfterUndoRedo(currentItems: List<BaseItem>): List<BaseItem> {
         val updatedErrors = mutableMapOf<ValidationKey, ErrorMessage>()
         val formData = wordFormHandler.getWordEntryFormData()
+        val newList = currentItems.toMutableList()
 
-        val uiItems = currentItems.asSequence()
-            .filterIsInstance<FormUIItem>()
-            .filter { uiItem ->
-                when (uiItem) {
-                    is InputTextFormUIItem ->
-                        errorMessage.containsKey(ValidationKey.DataItem(uiItem.inputTextItem.itemProperties.getIdentifier()))
+        val dirtyItemsWithIndices = currentItems.asSequence()
+            .mapIndexedNotNull { index, item ->
+                val validationKey = when (item) {
+                    is InputTextFormUIItem -> ValidationKey.DataItem(item.inputTextItem.itemProperties.getIdentifier())
                     is StaticLabelFormUIItem -> {
-                        val props = uiItem.itemProperties as ItemSectionProperties
-                        errorMessage.containsKey(ValidationKey.FormItem(FormKeys.kanaLabel(props.getSectionIndex())))
+                        val props = item.itemProperties as? ItemSectionProperties
+                        props?.let { ValidationKey.FormItem(FormKeys.kanaLabel(it.getSectionIndex())) }
                     }
-                    is WordClassFormUIItem ->
-                        errorMessage.containsKey(ValidationKey.DataItem(uiItem.wordClassItem.itemProperties.getIdentifier()))
+                    is WordClassFormUIItem -> ValidationKey.DataItem(item.wordClassItem.itemProperties.getIdentifier())
+                    else -> null
                 }
-            }.toList()
+                if (validationKey != null && errorMessage.containsKey(validationKey)) {
+                    index to (item as FormUIItem)
+                } else {
+                    null
+                }
+            }.toMap()
 
-        for (uiItem in uiItems) {
-            val validator = when (uiItem) {
-                is InputTextFormUIItem -> {
-                    val validator = InputTextFormValidator(wordFormService)
-                    validator.validate(uiItem, formData)
-                }
-                is StaticLabelFormUIItem -> {
-                    val validator = StaticLabelFormValidator(wordFormService)
-                    validator.validate(uiItem, formData)
-                }
-                is WordClassFormUIItem -> {
-                    val validator = WordClassFormValidator(wordFormService)
-                    validator.validate(uiItem, formData)
-                }
+        for ((index, uiItem) in dirtyItemsWithIndices) {
+            val (key, result) = when (uiItem) {
+                is InputTextFormUIItem -> InputTextFormValidator(wordFormService).validate(uiItem, formData)
+                is StaticLabelFormUIItem -> StaticLabelFormValidator(wordFormService).validate(uiItem, formData)
+                is WordClassFormUIItem -> WordClassFormValidator(wordFormService).validate(uiItem, formData)
             }
 
-            val (key, result) = validator
-            when (result){
+            when (result) {
                 is ValidationResult.InvalidInput -> {
-                    val error = result.error
-                    updatedErrors[key] = ErrorMessage(errorMessage = formatValidationTypeToMessage(error), isDirty = true)
+                    val newError = ErrorMessage(
+                        errorMessage = formatValidationTypeToMessage(result.error),
+                        isDirty = true
+                    )
+                    updatedErrors[key] = newError
+                    newList[index] = uiItem.withErrorMessage(newError)
                 }
-                is ValidationResult.Success ->{
+                is ValidationResult.Success -> {
                     errorMessage.remove(key)
                 }
                 is ValidationResult.UnknownError -> {
@@ -324,7 +328,9 @@ class AddUpdateViewModel(
                 else -> continue
             }
         }
+
         errorMessage.putAll(updatedErrors)
+        return newList
     }
 }
 

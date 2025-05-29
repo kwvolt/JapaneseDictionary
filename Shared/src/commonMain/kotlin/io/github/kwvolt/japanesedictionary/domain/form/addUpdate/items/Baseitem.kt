@@ -71,22 +71,30 @@ data class InputTextItem(
 
 sealed class FormUIItem(itemProperties: GenericItemProperties) : BaseItem(itemProperties) {
     abstract val errorMessage: ErrorMessage
+    abstract fun withErrorMessage(errorMessage: ErrorMessage): FormUIItem
 }
 
 data class InputTextFormUIItem(
     val inputTextItem: InputTextItem,
     override val errorMessage: ErrorMessage = ErrorMessage(),
-) : FormUIItem(inputTextItem.itemProperties)
+) : FormUIItem(inputTextItem.itemProperties){
+    override fun withErrorMessage(errorMessage: ErrorMessage) = copy(errorMessage = errorMessage)
+}
+
 
 data class WordClassFormUIItem(
     val wordClassItem: WordClassItem,
     override val errorMessage: ErrorMessage = ErrorMessage()
-) : FormUIItem(wordClassItem.itemProperties)
+) : FormUIItem(wordClassItem.itemProperties){
+    override fun withErrorMessage(errorMessage: ErrorMessage) = copy(errorMessage = errorMessage)
+}
 
 data class StaticLabelFormUIItem(
     val staticLabelItem: StaticLabelItem,
     override val errorMessage: ErrorMessage = ErrorMessage()
-) : FormUIItem(staticLabelItem.itemProperties)
+) : FormUIItem(staticLabelItem.itemProperties){
+    override fun withErrorMessage(errorMessage: ErrorMessage) = copy(errorMessage = errorMessage)
+}
 
 
 // Enums to indicate type of input item
