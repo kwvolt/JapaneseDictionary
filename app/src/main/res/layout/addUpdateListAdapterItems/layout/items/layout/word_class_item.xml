@@ -17,7 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/subClassLabel"
-        app:layout_constraintHorizontalWeight="1"
         android:layout_marginEnd="8dp"/>
 
     <!-- Sub Class Label -->
@@ -30,7 +29,6 @@
         app:layout_constraintStart_toEndOf="@id/mainClassLabel"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontalWeight="1"
         android:layout_marginStart="8dp"/>
 
     <!-- Main Class Spinner -->

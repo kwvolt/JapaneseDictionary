@@ -9,31 +9,31 @@ CREATE TABLE main_class(
     CONSTRAINT UQIDX_main_class__id_name UNIQUE(id_name)
 );
 
-insertMainClass{
+insert{
     INSERT INTO main_class (id_name, display_text) VALUES (?, ?);
     SELECT last_insert_rowid();
 }
 
-selectMainClassId:
+selectId:
 SELECT id FROM main_class WHERE id_name = ?;
 
-selectMainClassById:
+selectRowById:
 SELECT id_name, display_text FROM main_class WHERE id = ?;
 
-selectMainClassByIdName:
+selectRowByIdName:
 SELECT id, display_text FROM main_class WHERE id_name = ?;
 
-selectAllMainClass:
+selectAll:
 SELECT id, id_name, display_text FROM main_class;
 
-updateMainClassIdName:
+updateIdName:
 UPDATE main_class SET id_name = ? WHERE id = ?;
 
-updateMainClassDisplayText:
+updateDisplayText:
 UPDATE main_class SET display_text = ? WHERE id = ?;
 
-deleteMainClassByIdName:
+deleteRowByIdName:
 DELETE FROM main_class WHERE id_name = ?;
 
-deleteMainClassById:
+deleteRowById:
 DELETE FROM main_class WHERE id = ?;

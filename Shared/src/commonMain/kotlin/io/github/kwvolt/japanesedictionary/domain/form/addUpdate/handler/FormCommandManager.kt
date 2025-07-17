@@ -1,7 +1,7 @@
 package io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler
 
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand.FormCommand
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
 
 class FormCommandManager(
     private var _wordEntryFormData: WordEntryFormData
@@ -9,8 +9,8 @@ class FormCommandManager(
 
     val wordEntryFormData: WordEntryFormData get() = _wordEntryFormData.copy()
 
-    private val undoStack = mutableListOf<FormCommand>()
-    private val redoStack = mutableListOf<FormCommand>()
+    private val undoStack = mutableListOf<FormCommand<*>>()
+    private val redoStack = mutableListOf<FormCommand<*>>()
 
     private val MAX_HISTORY_SIZE = 50
 
@@ -24,14 +24,16 @@ class FormCommandManager(
         listener.onStateChanged(canUndo, canRedo)
     }
 
-    fun executeCommand(formCommand: FormCommand) {
+    fun <T> executeCommand(formCommand: FormCommand<T>): T {
         if (undoStack.size >= MAX_HISTORY_SIZE) {
             undoStack.removeAt(0)
         }
-        _wordEntryFormData = formCommand.execute()
+        val result = formCommand.execute()
+        _wordEntryFormData = result.wordEntryFormData
         undoStack.add(formCommand)
         redoStack.clear()
         notifyListener()
+        return result.value
     }
 
     fun undo(): Boolean {
@@ -44,7 +46,7 @@ class FormCommandManager(
 
     fun redo(): Boolean {
         val command = redoStack.removeLastOrNull() ?: return false
-        _wordEntryFormData = command.execute()
+        _wordEntryFormData = command.execute().wordEntryFormData
         undoStack.add(command)
         notifyListener()
         return true

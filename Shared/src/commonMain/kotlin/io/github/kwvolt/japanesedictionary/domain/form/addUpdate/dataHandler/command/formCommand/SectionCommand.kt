@@ -1,35 +1,24 @@
 package io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand
 
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordSectionFormData
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordEntryFormData
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemSectionProperties
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormItemManager
+import io.github.kwvolt.japanesedictionary.domain.model.WordSectionFormData
+import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
 import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.persistentMapOf
 
 
 class AddSectionCommand(
     private val wordEntryFormData: WordEntryFormData,
-    private val sectionIndex: Int
-) : FormCommand {
+    private val formItemManager: FormItemManager
+) : FormCommand<Int> {
 
     private val originalSectionMap: PersistentMap<Int, WordSectionFormData> = wordEntryFormData.wordSectionMap
+    override fun execute(): CommandReturn<Int> {
 
-    override fun execute(): WordEntryFormData {
-        // Create the new section
-        val newMeaning = InputTextItem(InputTextType.MEANING, "", ItemSectionProperties(sectionId = sectionIndex))
-        val newKana = InputTextItem(InputTextType.KANA, "", ItemSectionProperties(sectionId = sectionIndex))
-        val newComponentNote = InputTextItem(InputTextType.SECTION_NOTE_DESCRIPTION, "", ItemSectionProperties(sectionId = sectionIndex))
+        val (sectionIndex: Int, wordSectionFormData: WordSectionFormData) = WordSectionFormData.buildDefault(formItemManager)
 
-        val newSection = WordSectionFormData(
-            newMeaning,
-            persistentMapOf(newKana.itemProperties.getIdentifier() to newKana),
-            persistentMapOf(newComponentNote.itemProperties.getIdentifier() to newComponentNote)
-        )
-        val updatedMap = originalSectionMap.put(sectionIndex, newSection)
+        val updatedMap = originalSectionMap.put(sectionIndex, wordSectionFormData)
 
-        return wordEntryFormData.copy(wordSectionMap = updatedMap)
+        return CommandReturn(wordEntryFormData.copy(wordSectionMap = updatedMap), sectionIndex)
     }
 
     override fun undo(): WordEntryFormData {
@@ -39,14 +28,14 @@ class AddSectionCommand(
 
 class RemoveSectionCommand(
     private val wordEntryFormData: WordEntryFormData,
-    private val sectionIndex: Int
-) : FormCommand {
+    private val sectionIndex: Int,
+) : FormCommand<Unit> {
 
     private val originalSectionMap: PersistentMap<Int, WordSectionFormData> = wordEntryFormData.wordSectionMap
 
-    override fun execute(): WordEntryFormData {
+    override fun execute(): CommandReturn<Unit> {
         val updatedMap = originalSectionMap.remove(sectionIndex)
-        return wordEntryFormData.copy(wordSectionMap = updatedMap)
+        return CommandReturn(wordEntryFormData.copy(wordSectionMap = updatedMap), Unit)
     }
 
     override fun undo(): WordEntryFormData {

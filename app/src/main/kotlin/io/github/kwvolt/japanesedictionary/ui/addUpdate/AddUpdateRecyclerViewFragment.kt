@@ -1,7 +1,6 @@
 package io.github.kwvolt.japanesedictionary.ui.addUpdate
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -20,13 +19,15 @@ import io.github.kwvolt.japanesedictionary.DatabaseProvider
 import io.github.kwvolt.japanesedictionary.databinding.AddUpdateLayoutBinding
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.AddUpdateViewModel
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.AddUpdateAdapter
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormSectionManager
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.WordUiFormHandler
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.AddUpdateViewModelFactory
-import io.github.kwvolt.japanesedictionary.presentation.addupdate.UiState
-import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import io.github.kwvolt.japanesedictionary.R
 import androidx.navigation.fragment.findNavController
+import io.github.kwvolt.japanesedictionary.presentation.mainactivity.LoadingViewModel
+import io.github.kwvolt.japanesedictionary.ui.model.FormScreenState
+import kotlinx.coroutines.launch
 
 class AddUpdateRecyclerViewFragment: Fragment() {
     private lateinit var addUpdateViewModel: AddUpdateViewModel
@@ -34,6 +35,9 @@ class AddUpdateRecyclerViewFragment: Fragment() {
     private val binding: AddUpdateLayoutBinding get() = _binding ?: throw IllegalStateException("Binding is null")
     private var undoMenuItem: MenuItem? = null
     private var redoMenuItem: MenuItem? = null
+
+
+    private val loadingViewModel: LoadingViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,8 +52,7 @@ class AddUpdateRecyclerViewFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val application = requireActivity().application
-        val viewModelFactory = AddUpdateViewModelFactory(application, DatabaseProvider(application))
+        val viewModelFactory = AddUpdateViewModelFactory(DatabaseProvider(requireActivity().application))
         addUpdateViewModel = ViewModelProvider(this, viewModelFactory)[AddUpdateViewModel::class.java]
 
 
@@ -59,50 +62,6 @@ class AddUpdateRecyclerViewFragment: Fragment() {
         val buttonListener = InitButtonCallBack(addUpdateViewModel)
 
         val addUpdateAdapter = AddUpdateAdapter(wordClassListener, labelTextListener,editTextListener, buttonListener)
-
-        binding.addUpdateList.layoutManager = LinearLayoutManager(this.context)
-        binding.addUpdateList.adapter = addUpdateAdapter
-
-        val wordUiFormHandler =  WordUiFormHandler()
-        val formSectionManager = FormSectionManager()
-        //addUpdateViewModel.loadWordClassSpinner()
-        addUpdateViewModel.loadItems(formSectionManager, wordUiFormHandler)
-
-        addUpdateViewModel.uiState.observe(viewLifecycleOwner) { uiState ->
-            when (uiState) {
-                UiState.Loading -> {
-                    binding.loadingBackground.apply {
-                        animate().alpha(1f).setDuration(200).start()
-                        visibility = View.VISIBLE
-                    }
-                    binding.loadingProgressBar.visibility = View.VISIBLE
-                }
-                is UiState.Success -> {
-                    if(binding.loadingProgressBar.isVisible){
-                        binding.loadingBackground.apply {
-                            animate().alpha(1f).setDuration(200).start()
-                            visibility = View.GONE
-                        }
-                        binding.loadingProgressBar.visibility = View.GONE
-                    }
-                    addUpdateAdapter.submitList(uiState.data)
-                }
-
-                is UiState.UnknownError -> {
-                    binding.loadingBackground.apply {
-                        animate().alpha(1f).setDuration(200).start()
-                        visibility = View.VISIBLE
-                    }
-                    binding.loadingProgressBar.visibility = View.VISIBLE
-                    // Show a user-friendly error message
-                    Snackbar.make(binding.root, "An error occurred. Please try again.", Snackbar.LENGTH_SHORT).show()
-                }
-                is UiState.ValidationError -> {
-                    // Handle validation errors (e.g., display a Toast or Snackbar)
-                    Snackbar.make(binding.root, "Validation error occurred.", Snackbar.LENGTH_SHORT).show()
-                }
-            }
-        }
 
         val toolbar = binding.formMenu
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
@@ -116,9 +75,10 @@ class AddUpdateRecyclerViewFragment: Fragment() {
         // Set up UI components like buttons or text views
         val confirmButton: Button = binding.addUpdateLayoutConfirmButton
         confirmButton.setOnClickListener {
+            binding.addUpdateList.clearFocus()
             addUpdateViewModel.upsertValuesIntoDB()
 
-       }
+        }
 
         // Set up the menu
         requireActivity().addMenuProvider(object : MenuProvider {
@@ -146,12 +106,44 @@ class AddUpdateRecyclerViewFragment: Fragment() {
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
-        addUpdateViewModel.canUndo.observe(viewLifecycleOwner) { canUndo ->
-            undoMenuItem?.isEnabled = canUndo
-        }
 
-        addUpdateViewModel.canRedo.observe(viewLifecycleOwner) { canRedo ->
-            redoMenuItem?.isEnabled = canRedo
+        binding.addUpdateList.layoutManager = LinearLayoutManager(this.context)
+        binding.addUpdateList.adapter = addUpdateAdapter
+
+        //addUpdateViewModel.loadWordClassSpinner()
+        addUpdateViewModel.loadItems()
+
+
+
+        // observe
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                addUpdateViewModel.uiState.collect { currentState: FormScreenState ->
+
+                    when {
+                        currentState.screenStateUnknownError != null -> {
+                            loadingViewModel.showLoading()
+                            Snackbar.make(binding.root, "An error occurred. Please try again.", Snackbar.LENGTH_SHORT).show()
+                        }
+
+                        currentState.isLoading -> {
+                            loadingViewModel.showLoading()
+                        }
+
+                        else -> {
+                            if (loadingViewModel.isCurrentlyLoading()) {
+                                loadingViewModel.hideLoading()
+                            }
+
+                            // Update list and menu states
+                            addUpdateAdapter.submitList(currentState.items)
+                            undoMenuItem?.isEnabled = currentState.canUndo
+                            redoMenuItem?.isEnabled = currentState.canRedo
+                        }
+                    }
+
+                }
+            }
         }
     }
 

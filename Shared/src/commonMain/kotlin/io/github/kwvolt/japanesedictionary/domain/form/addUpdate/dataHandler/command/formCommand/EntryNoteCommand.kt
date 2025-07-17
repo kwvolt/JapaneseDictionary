@@ -1,18 +1,18 @@
 package io.github.kwvolt.japanesedictionary.domain.form.addUpdate.dataHandler.command.formCommand
 
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
 
 class AddEntryNoteItemCommand(
     private val wordEntryFormData: WordEntryFormData,
-    private val newEntryNoteItem: InputTextItem
-) : FormCommand {
+    private val newEntryNoteItem: TextItem
+) : FormCommand<Unit> {
 
     private val noteId: String = newEntryNoteItem.itemProperties.getIdentifier()
 
-    override fun execute(): WordEntryFormData {
+    override fun execute(): CommandReturn<Unit>{
         val updatedMap = wordEntryFormData.entryNoteInputMap.put(noteId, newEntryNoteItem)
-        return wordEntryFormData.copy(entryNoteInputMap = updatedMap)
+        return CommandReturn(wordEntryFormData.copy(entryNoteInputMap = updatedMap), Unit)
     }
 
     override fun undo(): WordEntryFormData {
@@ -22,15 +22,15 @@ class AddEntryNoteItemCommand(
 
 class UpdateEntryNoteItemCommand(
     private val wordEntryFormData: WordEntryFormData,
-    private val newEntryNoteItem: InputTextItem,
-) : FormCommand {
+    private val newEntryNoteItem: TextItem,
+) : FormCommand<Unit> {
 
     private val noteId: String = newEntryNoteItem.itemProperties.getIdentifier()
-    private val oldNote: InputTextItem? = wordEntryFormData.entryNoteInputMap[noteId]
+    private val oldNote: TextItem? = wordEntryFormData.entryNoteInputMap[noteId]
 
-    override fun execute(): WordEntryFormData {
+    override fun execute():  CommandReturn<Unit> {
         val updatedMap = wordEntryFormData.entryNoteInputMap.put(noteId, newEntryNoteItem)
-        return wordEntryFormData.copy(entryNoteInputMap = updatedMap)
+        return CommandReturn(wordEntryFormData.copy(entryNoteInputMap = updatedMap), Unit)
     }
 
     override fun undo(): WordEntryFormData {
@@ -44,12 +44,12 @@ class UpdateEntryNoteItemCommand(
 class RemoveEntryNoteItemCommand(
     private val wordEntryFormData: WordEntryFormData,
     private val noteId: String
-) : FormCommand {
+) : FormCommand<Unit> {
 
-    private val oldNote: InputTextItem? = wordEntryFormData.entryNoteInputMap[noteId]
+    private val oldNote: TextItem? = wordEntryFormData.entryNoteInputMap[noteId]
 
-    override fun execute(): WordEntryFormData {
-        return wordEntryFormData.copy(entryNoteInputMap = wordEntryFormData.entryNoteInputMap.remove(noteId))
+    override fun execute():  CommandReturn<Unit> {
+        return CommandReturn(wordEntryFormData.copy(entryNoteInputMap = wordEntryFormData.entryNoteInputMap.remove(noteId)), Unit)
     }
 
     override fun undo(): WordEntryFormData {

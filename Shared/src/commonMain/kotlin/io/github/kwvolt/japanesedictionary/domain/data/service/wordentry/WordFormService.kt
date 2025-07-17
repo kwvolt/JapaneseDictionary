@@ -1,16 +1,16 @@
 package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
+import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
+import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseError
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.database.Kana
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.SubClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
 import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationError
-import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationKey
 import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationResult
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.GenericItemProperties
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormSectionManager
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormItemManager
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.TextItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassItem
 import kotlinx.collections.immutable.PersistentMap
 
@@ -21,10 +21,13 @@ class WordFormService(
     private val wordClassBuilder: WordClassBuilder,
     private val wordEntryFormValidation: WordEntryFormValidation
 ) {
-    suspend fun getWordFormData(dictionaryEntryId: Long, formSectionManager: FormSectionManager): DatabaseResult<WordEntryFormData> {
-        return wordEntryFormBuilder.createWordFormData(dictionaryEntryId, formSectionManager)
+    suspend fun getWordFormData(dictionaryEntryId: Long, formItemManager: FormItemManager): DatabaseResult<WordEntryFormData> {
+        return wordEntryFormBuilder.createWordFormData(dictionaryEntryId, formItemManager)
     }
 
+    suspend fun applyIsBookmark(dictionaryEntryId:Long, isBookmark: Boolean){
+        TODO()
+    }
 
     suspend fun getMainClassList(): DatabaseResult<List<MainClassContainer>>{
         return wordClassBuilder.getMainClassList()
@@ -38,19 +41,19 @@ class WordFormService(
         wordEntryFormData: WordEntryFormData,
         deleteList: List<GenericItemProperties>
     ): UpsertResult {
-        return when (val result = wordEntryFormValidation.validateForm(wordEntryFormData)) {
+        return when (val result: ValidationResult<Unit> = wordEntryFormValidation.validateForm(wordEntryFormData)) {
             is ValidationResult.Success -> {
-                val wordClassId = result.value
-                when (val dbResult = wordEntryFormUpsert.upsertWordEntryFormData(wordEntryFormData, wordClassId, deleteList)) {
+                when (val dbResult = wordEntryFormUpsert.upsertWordEntryFormData(wordEntryFormData, deleteList)) {
                     is DatabaseResult.Success -> UpsertResult.Success
                     is DatabaseResult.NotFound -> UpsertResult.NotFound
                     is DatabaseResult.UnknownError -> UpsertResult.UnknownError(dbResult.exception, dbResult.message)
+                    is DatabaseResult.InvalidInput -> UpsertResult.DatabaseOperationFailed(dbResult.key, dbResult.error)
                 }
             }
             is ValidationResult.InvalidInputMap -> UpsertResult.ValidationFailed(result.errors)
             is ValidationResult.UnknownError -> UpsertResult.UnknownError(result.exception, result.message)
             is ValidationResult.NotFound -> UpsertResult.NotFound
-            else -> UpsertResult.UnknownError(null, "Unknown Error")
+            else -> UpsertResult.UnknownError(IllegalStateException("Unknown Error -- ValidationResult.invalidInput managed to get passed"), "Unknown Error -- ValidationResult.invalidInput managed to get passed")
         }
     }
 
@@ -58,43 +61,45 @@ class WordFormService(
         return wordEntryFormDelete.deleteWordEntryFormData(dictionaryEntryId)
     }
 
-    suspend fun validatePrimaryText(primaryTextInput: InputTextItem): ValidationResult<Unit> {
-        val result: Pair<ValidationKey, List<ValidationError>> = wordEntryFormValidation.validatePrimaryText(primaryTextInput)
+    suspend fun validatePrimaryText(primaryTextInput: TextItem): ValidationResult<Unit> {
+        val result: Pair<ItemKey, List<ValidationError>> = wordEntryFormValidation.validatePrimaryText(primaryTextInput)
         return result.toValidationResult()
     }
 
-    suspend fun validateNotes(noteItem: InputTextItem, noteList: List<InputTextItem>): ValidationResult<Unit>{
-        val result: Pair<ValidationKey, List<ValidationError>> = wordEntryFormValidation.validateNotes(noteItem, noteList)
+    fun validateNotes(noteItem: TextItem, noteList: List<TextItem>): ValidationResult<ItemKey>{
+        return wordEntryFormValidation.validateNotes(noteItem, noteList)
+    }
+
+    suspend fun validateKana(kana: TextItem, kanaList: List<TextItem>): ValidationResult<Unit>{
+        val result: Pair<ItemKey, List<ValidationError>> = wordEntryFormValidation.validateKana(kana, kanaList)
+        return result.toValidationResult()
+    }
+/*
+    suspend fun validateKanaListNotEmpty(section: Int, kanaMap: PersistentMap<String, TextItem>): ValidationResult<Unit>{
+        val result: Pair<ItemKey, List<ValidationError>> =  wordEntryFormValidation.validateHasKanaEntry(section, kanaMap)
         return result.toValidationResult()
     }
 
-    suspend fun validateKana(kana: InputTextItem, kanaList: List<InputTextItem>): ValidationResult<Unit>{
-        val result: Pair<ValidationKey, List<ValidationError>> = wordEntryFormValidation.validateKana(kana, kanaList)
+ */
+
+    suspend fun validateMeaning(meaningTextInput: TextItem): ValidationResult<Unit>{
+        val result: Pair<ItemKey, List<ValidationError>> = wordEntryFormValidation.validateMeaningText(meaningTextInput)
         return result.toValidationResult()
     }
 
-    suspend fun validateKanaListNotEmpty(section: Int, kanaMap: PersistentMap<String, InputTextItem>): ValidationResult<Unit>{
-        val result: Pair<ValidationKey, List<ValidationError>> =  wordEntryFormValidation.validateHasKanaEntry(section, kanaMap)
-        return result.toValidationResult()
-    }
-
-    suspend fun validateMeaning(meaningTextInput: InputTextItem): ValidationResult<Unit>{
-        val result: Pair<ValidationKey, List<ValidationError>> = wordEntryFormValidation.validateMeaningText(meaningTextInput)
-        return result.toValidationResult()
-    }
-
+    // no validation should happen
     suspend fun validateWordClass(wordClassItem: WordClassItem): ValidationResult<Unit>{
-        return wordEntryFormValidation.validateWordClass(wordClassItem).flatMap { ValidationResult.Success(Unit) }
-
+        return ValidationResult.Success(Unit)
     }
 
-    private fun Pair<ValidationKey, List<ValidationError>>.toValidationResult(): ValidationResult<Unit> =
+    private fun Pair<ItemKey, List<ValidationError>>.toValidationResult(): ValidationResult<Unit> =
         if (this.second.isEmpty()) ValidationResult.Success(Unit) else ValidationResult.InvalidInput(this.first, this.second)
 }
 
 sealed class UpsertResult {
     data object Success : UpsertResult()
-    data class ValidationFailed(val errors: Map<ValidationKey, List<ValidationError>>) : UpsertResult()
+    data class ValidationFailed(val errors: Map<ItemKey, List<ValidationError>>) : UpsertResult()
+    data class DatabaseOperationFailed(val itemKey: ItemKey, val error: DatabaseError) : UpsertResult()
     data object NotFound : UpsertResult()
-    data class UnknownError(val exception: Throwable?, val message: String?) : UpsertResult()
+    data class UnknownError(val exception: Throwable, val message: String?) : UpsertResult()
 }

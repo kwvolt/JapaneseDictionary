@@ -24,12 +24,12 @@ fun validationTypeErrorMessage(validationType: ValidationType): String{
         ValidationType.Section -> ""
         ValidationType.InvalidSelection -> "Combination not found"
         ValidationType.MaxLength -> ""
-        ValidationType.KanaSection -> "Please provide at least one kana reading for this section"
+        ValidationType.KanaSection -> "Please provide at least one hiragana/katakana for this section"
     }
 }
 
-fun formatValidationTypeToMessage(validationTypes: List<DatabaseResult.InvalidInput>): String {
+fun formatValidationTypeToMessage(validationTypes: List<ValidationError>): String {
     return validationTypes
-        .mapNotNull { validationTypeErrorMessage(it.invalidType).takeIf { msg -> msg.isNotBlank() } }
+        .mapNotNull { validationTypeErrorMessage(it.type).takeIf { msg -> msg.isNotBlank() } }
         .joinToString(separator = "\n") { "• $it" }
 }

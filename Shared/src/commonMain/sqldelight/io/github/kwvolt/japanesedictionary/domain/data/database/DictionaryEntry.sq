@@ -10,22 +10,27 @@ CREATE TABLE dictionary_entry(
     CONSTRAINT CK_BOOL_dict_entry__is_bookmarked CHECK (is_bookmarked IN (0, 1)),
     CONSTRAINT UQIDX_dict_entry_primary_text UNIQUE(word_class_id, primary_text)
 );
-insertDictionaryEntry{
+
+insert{
     INSERT INTO dictionary_entry (word_class_id, primary_text) VALUES (?, ?);
     SELECT last_insert_rowid();
 }
 
-selectDictionaryEntryId:
+selectIdByPrimaryText:
 SELECT id FROM dictionary_entry WHERE primary_text = ?;
 
-selectDictionaryEntry:
+selectRow:
 SELECT word_class_id, primary_text FROM dictionary_entry WHERE id = ?;
 
-deleteDictionaryEntry:
+deleteRow:
 DELETE FROM dictionary_entry WHERE id = ?;
 
-updateDictionaryEntryWordClass:
+updateWordClass:
 UPDATE dictionary_entry SET word_class_id = ? WHERE id = ?;
 
-updateDictionaryEntryPrimaryText:
+updatePrimaryText:
 UPDATE dictionary_entry SET primary_text = ? WHERE id = ?;
+
+updateWordClassIdAndPrimaryText:
+UPDATE dictionary_entry SET word_class_id = ?, primary_text = ? WHERE id = ?;
+

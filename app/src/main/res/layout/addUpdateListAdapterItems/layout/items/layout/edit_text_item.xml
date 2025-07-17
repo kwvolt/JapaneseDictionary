@@ -11,23 +11,35 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        app:errorEnabled="true">
+        app:errorEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/addUpdateEditText"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:ems="10"
-            android:inputType="text" />
+            android:layout_height="wrap_content"
+            android:backgroundTint="#FFFFFF"
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:maxLines="5"
+            android:minLines="1"
+            android:overScrollMode="always"
+            android:scrollbars="vertical"
+            android:singleLine="false"
+            tools:text="Sample note input" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/addUpdateEditTextDelete"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_gravity="center"
+        android:contentDescription="@string/editTextDescription"
+        android:insetBottom="6dp"
         android:visibility="gone"
+        app:backgroundTint="#FFFFFFFF"
         app:icon="@drawable/delete"
         app:iconGravity="textTop"
+        app:iconPadding="0dp"
+        app:iconTint="#000000"
         tools:visibility="visible" />
 </LinearLayout>

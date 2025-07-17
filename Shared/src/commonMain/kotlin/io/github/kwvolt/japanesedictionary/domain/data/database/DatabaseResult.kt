@@ -1,5 +1,10 @@
 package io.github.kwvolt.japanesedictionary.domain.data.database
 
+import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
+import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationError
+import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationResult
+import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationType
+
 /**
  * Represents the result of a database operation.
  *
@@ -17,11 +22,9 @@ sealed class DatabaseResult<out T> {
      */
     data class Success<T>(val value: T) : DatabaseResult<T>()
 
-    /**
-     * Indicates that the requested item was not found in the database.
-     */
-    data object NotFound : DatabaseResult<Nothing>()
+    data object NotFound: DatabaseResult<Nothing>()
 
+    data class InvalidInput(val key: ItemKey, val error: DatabaseError): DatabaseResult<Nothing>()
 
     /**
      * Represents an unknown error that occurred during the database operation.
@@ -42,13 +45,32 @@ sealed class DatabaseResult<out T> {
      */
     inline fun <R> flatMap(transform: (T) -> DatabaseResult<R>): DatabaseResult<R> = when (this) {
         is Success -> transform(value)
-        is NotFound -> NotFound
         is UnknownError -> this
+        is InvalidInput -> this
+        NotFound -> NotFound
     }
+
+    inline fun <R> map(transform: (T) -> R): DatabaseResult<R> = when (this) {
+        is Success -> Success(transform(value))
+        is UnknownError -> this
+        is InvalidInput -> this
+        NotFound -> NotFound
+    }
+
+    inline fun blankMap(transform: (T) -> Unit): DatabaseResult<Unit> = when (this) {
+        is Success -> Success(transform(value))
+        is UnknownError -> this
+        is InvalidInput -> this
+        NotFound -> NotFound
+    }
+
 
     fun <A, B> mapErrorTo(): DatabaseResult<B> = when (this) {
         is Success -> throw IllegalStateException("mapErrorTo called on Success")
-        is NotFound -> NotFound
         is UnknownError -> this
+        is InvalidInput -> this
+        NotFound -> NotFound
     }
 }
+
+data class DatabaseError(val type: DatabaseErrorType)

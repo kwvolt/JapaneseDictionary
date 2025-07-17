@@ -1,13 +1,13 @@
 package io.github.kwvolt.japanesedictionary.domain.data.database
+import app.cash.sqldelight.db.Closeable
 import app.cash.sqldelight.db.SqlDriver
-import io.github.kwvolt.japanesedictionary.domain.data.database.DictionaryDB
-import io.github.kwvolt.japanesedictionary.domain.data.repository.dictionaryentry.EntryNoteRepositoryInterface
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 
-class DatabaseHandler(private val driver: SqlDriver): DatabaseHandlerBase() {
+class DatabaseHandler(private val driver: SqlDriver): DatabaseHandlerBase(), Closeable {
     private val database: DictionaryDB
+    private val transactionMutex = Mutex()
     private var isInTransaction = false
 
     val queries get() = database
@@ -23,15 +23,17 @@ class DatabaseHandler(private val driver: SqlDriver): DatabaseHandlerBase() {
                 IllegalStateException("Nested transactions are not allowed!"), "Nested transactions are not allowed!"
             )
         }
-        isInTransaction = true
-        return try {
-            database.transactionWithResult {
-                block()
+        return transactionMutex.withLock {
+            isInTransaction = true
+            try {
+                database.transactionWithResult {
+                    block()
+                }
+            } catch (e: Exception) {
+                DatabaseResult.UnknownError(e, "Error within performTransaction")
+            } finally {
+                isInTransaction = false
             }
-        } catch (e: Exception) {
-            DatabaseResult.UnknownError(e, "Error within performTransaction")
-        } finally {
-            isInTransaction = false
         }
     }
 

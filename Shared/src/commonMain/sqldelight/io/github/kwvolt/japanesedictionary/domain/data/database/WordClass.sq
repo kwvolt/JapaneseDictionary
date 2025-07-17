@@ -10,39 +10,39 @@ CREATE TABLE word_class(
     CONSTRAINT  UQIDX_word_class__main_class_id__sub_class_Id UNIQUE(main_class_id, sub_class_id)
 );
 
-insertWordClassByMainClassIdAndSubClassId {
+insertByMainClassIdAndSubClassId {
     INSERT INTO word_class (main_class_id, sub_class_id) VALUES (?, ?);
     SELECT last_insert_rowid();
 }
-insertWordClassByMainClassIdNameAndSubClassIdName {
+insertByMainClassIdNameAndSubClassIdName {
     INSERT INTO word_class (main_class_id, sub_class_id)
     VALUES ((SELECT id FROM main_class WHERE main_class.id_name = ?), (SELECT id FROM sub_class WHERE sub_class.id_name = ?));
     SELECT last_insert_rowid();
 }
 
-selectWordClassIdByMainClassIdAndSubClassId:
+selectIdByMainClassIdAndSubClassId:
 SELECT id FROM word_class WHERE main_class_id = ? AND sub_class_id = ?;
 
-selectWordClassIdByMainClassIdNameAndSubClassIdName:
+selectIdByMainClassIdNameAndSubClassIdName:
 SELECT word_class.id AS id FROM word_class INNER JOIN main_class ON word_class.main_class_id = main_class.id
 INNER JOIN sub_class ON word_class.sub_class_id = sub_class.id WHERE main_class.id_name = ? AND sub_class.id_name = ?;
 
-selectWordClassMainClassIdAndSubClassIdByWordClassId:
+selectRow:
 SELECT main_class_id, sub_class_id FROM word_class WHERE id = ?;
 
-updateWordClassMainClassIdByWordClassId:
+updateMainClassId:
 UPDATE word_class SET main_class_id = ? WHERE id = ?;
 
-updateWordClassSubClassIdByWordClassId:
+updateSubClassId:
 UPDATE word_class SET sub_class_id = ? WHERE id = ?;
 
-updateWordClassMainClassIdAndSubClassIdByWordClassId:
+updateMainClassIdAndSubClassId:
 UPDATE word_class SET main_class_id = ?, sub_class_id = ? WHERE id = ?;
 
-deleteWordClassByWordClassId:
+deleteRowByWordClassId:
 DELETE FROM word_class WHERE id = ?;
 
-deleteWordClassByMainClassIdAndSubClassId:
+deleteRowByMainClassIdAndSubClassId:
 DELETE FROM word_class WHERE main_class_id = ? AND sub_class_id = ?;
 
 /**
@@ -60,10 +60,3 @@ CREATE VIEW vw_word_class
     FROM word_class
     INNER JOIN main_class ON word_class.main_class_id = main_class.id
     INNER JOIN sub_class ON word_class.sub_class_id = sub_class.id;
-
-initializeWordClass {
-    INSERT INTO main_class (id_name, display_text) VALUES (:IdName, :displayText);
-    INSERT OR IGNORE INTO sub_class (id_name, display_text) VALUES ("NONE", "--NA--");
-    INSERT INTO word_class (main_class_id, sub_class_id) VALUES ((SELECT id FROM main_class WHERE id_name = :IdName), (SELECT id FROM sub_class WHERE id_name = "NONE"));
-    SELECT id FROM main_class WHERE id_name = :IdName AND display_text = :displayText;
-}

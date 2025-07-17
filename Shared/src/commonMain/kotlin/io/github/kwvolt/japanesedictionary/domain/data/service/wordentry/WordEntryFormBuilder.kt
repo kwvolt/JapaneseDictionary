@@ -2,29 +2,31 @@ package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.repository.dictionaryentry.DictionaryEntryContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.dictionaryentry.EntryNoteRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.dictionaryentry.EntryRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.dictionaryentrysection.DictionaryEntrySectionContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.dictionaryentrysection.DictionaryEntrySectionKanaContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.dictionaryentrysection.DictionaryEntrySectionNoteContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.dictionaryentrysection.EntrySectionKanaInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.dictionaryentrysection.EntrySectionNoteRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.dictionaryentrysection.EntrySectionRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.SubClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.SubClassRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.WordClassIdContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.WordClassRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordEntryFormData
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordSectionFormData
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryEntryContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntryNoteRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntryRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryEntrySectionContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryEntrySectionKanaContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryEntrySectionNoteContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntrySectionKanaInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntrySectionNoteRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntrySectionRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordClassIdContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordClassRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.WordSectionFormData
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.TextItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextType
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemProperties
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemSectionProperties
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordEntryTable
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormSectionManager
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormItemManager
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.Deferred
@@ -41,6 +43,7 @@ class WordEntryFormBuilder(
     private val entrySectionRepository: EntrySectionRepositoryInterface,
     private val entrySectionKanaRepository: EntrySectionKanaInterface,
     private val entrySectionNoteRepository: EntrySectionNoteRepositoryInterface,
+    private val mainClassRepository: MainClassRepositoryInterface,
     private val subClassRepository: SubClassRepositoryInterface,
     private val wordClassRepository: WordClassRepositoryInterface
 ) {
@@ -49,13 +52,13 @@ class WordEntryFormBuilder(
 
     suspend fun createWordFormData(
         dictionaryEntryId: Long,
-        formSectionManager: FormSectionManager
+        formItemManager: FormItemManager
     ): DatabaseResult<WordEntryFormData> = coroutineScope {
 
         // Run DB calls concurrently
-        val dictionaryEntryDeferred = async { withTimeout(5000) { semaphore.withPermit { entryRepository.selectDictionaryEntry(dictionaryEntryId) }} }
-        val entryNotesDeferred = async { withTimeout(5000) { semaphore.withPermit { fetchEntryNotes(dictionaryEntryId) }} }
-        val entrySectionsDeferred = async { withTimeout(5000) { semaphore.withPermit { fetchEntrySections(dictionaryEntryId, formSectionManager) }}}
+        val dictionaryEntryDeferred = async { withDbTimeout { semaphore.withPermit { entryRepository.selectRow(dictionaryEntryId) }} }
+        val entryNotesDeferred = async { withDbTimeout { semaphore.withPermit { fetchEntryNotes(dictionaryEntryId) }} }
+        val entrySectionsDeferred = async { withDbTimeout { semaphore.withPermit { fetchEntrySections(dictionaryEntryId, formItemManager) }}}
 
         // Await results
         val dictionaryEntryResult = dictionaryEntryDeferred.await()
@@ -64,44 +67,32 @@ class WordEntryFormBuilder(
 
         val dictionaryEntry: DictionaryEntryContainer = when (dictionaryEntryResult) {
             is DatabaseResult.Success -> dictionaryEntryResult.value
-            else -> return@coroutineScope dictionaryEntryResult.mapErrorTo<DictionaryEntryContainer,WordEntryFormData>()
+            else -> return@coroutineScope dictionaryEntryResult.mapErrorTo<DictionaryEntryContainer, WordEntryFormData>()
         }
 
-        val entryNotes: PersistentMap<String, InputTextItem> = when (entryNotesResult) {
+        val entryNotes: PersistentMap<String, TextItem> = when (entryNotesResult) {
             is DatabaseResult.Success -> entryNotesResult.value
-            else -> return@coroutineScope entryNotesResult.mapErrorTo<PersistentMap<String, InputTextItem>,WordEntryFormData>()
+            else -> return@coroutineScope entryNotesResult.mapErrorTo<PersistentMap<String, TextItem>, WordEntryFormData>()
         }
 
         val entrySections: PersistentMap<Int, WordSectionFormData> = when (entrySectionsResult) {
             is DatabaseResult.Success -> entrySectionsResult.value
-            else -> return@coroutineScope entrySectionsResult.mapErrorTo<PersistentMap<Int, WordSectionFormData>,WordEntryFormData>()
+            else -> return@coroutineScope entrySectionsResult.mapErrorTo<PersistentMap<Int, WordSectionFormData>, WordEntryFormData>()
         }
 
         val wordClass: WordClassItem = when (val wordClassResult = fetchWordClass(dictionaryEntry.wordClassId)) {
             is DatabaseResult.Success -> wordClassResult.value
-            else -> return@coroutineScope wordClassResult.mapErrorTo<WordClassItem,WordEntryFormData>()
+            else -> return@coroutineScope wordClassResult.mapErrorTo<WordClassItem, WordEntryFormData>()
         }
 
         buildWordEntryFormData(dictionaryEntry, wordClass, entryNotes, entrySections)
     }
 
-    private suspend fun fetchEntryNotes(dictionaryEntryId: Long): DatabaseResult<PersistentMap<String, InputTextItem>> {
-        return fetchItemsAndMap(
-            { entryNoteRepository.selectAllDictionaryEntryNoteByDictionaryEntryId(dictionaryEntryId) }
-        ) { container ->
-            InputTextItem(
-                InputTextType.ENTRY_NOTE_DESCRIPTION,
-                container.note,
-                ItemProperties(WordEntryTable.DICTIONARY_ENTRY_NOTE, id = container.id)
-            )
-        }
-    }
-
     private suspend fun fetchEntrySections(
         dictionaryEntryId: Long,
-        formSectionManager: FormSectionManager,
+        formItemManager: FormItemManager,
     ): DatabaseResult<PersistentMap<Int, WordSectionFormData>> {
-        val sectionListResult: DatabaseResult<List<DictionaryEntrySectionContainer>> = entrySectionRepository.selectAllDictionaryEntrySectionByEntry(dictionaryEntryId)
+        val sectionListResult: DatabaseResult<List<DictionaryEntrySectionContainer>> = entrySectionRepository.selectAllByEntryId(dictionaryEntryId)
 
         val sectionList: List<DictionaryEntrySectionContainer> = when (sectionListResult) {
             is DatabaseResult.Success -> sectionListResult.value
@@ -111,10 +102,10 @@ class WordEntryFormBuilder(
         val resultMap: MutableMap<Int, WordSectionFormData> = mutableMapOf()
 
         for (container in sectionList) {
-            val section = formSectionManager.getThenIncrementEntrySectionId()
+            val section = formItemManager.getThenIncrementEntrySectionId()
             val sectionDataResult: DatabaseResult<WordSectionFormData> = createWordSectionFormData(container.id, container.meaning, section)
 
-            val sectionData: WordSectionFormData  = when (sectionDataResult) {
+            val sectionData: WordSectionFormData = when (sectionDataResult) {
                 is DatabaseResult.Success -> sectionDataResult.value
                 else -> return sectionDataResult.mapErrorTo<WordSectionFormData, PersistentMap<Int, WordSectionFormData>>()
             }
@@ -128,28 +119,13 @@ class WordEntryFormBuilder(
         }
     }
 
-    private suspend fun fetchWordClass(wordClassId: Long): DatabaseResult<WordClassItem> {
-        return wordClassRepository.selectWordClassMainClassIdAndSubClassIdByWordClassId(wordClassId).flatMap { wordClassResult: WordClassIdContainer ->
-            subClassRepository.selectAllSubClassByMainClassId(wordClassResult.mainClassId).flatMap { subClassResult: List<SubClassContainer> ->
-                DatabaseResult.Success(
-                    WordClassItem(
-                        wordClassResult.mainClassId,
-                        wordClassResult.subClassId,
-                        subClassResult,
-                        ItemProperties(tableId = WordEntryTable.WORD_CLASS, id = wordClassResult.wordClassId)
-                    )
-                )
-            }
-        }
-    }
-
     private fun buildWordEntryFormData(
         dictionaryEntryResult: DictionaryEntryContainer,
         wordClassItem: WordClassItem,
-        entryNoteMap: PersistentMap<String, InputTextItem>,
+        entryNoteMap: PersistentMap<String, TextItem>,
         entrySectionMap: PersistentMap<Int, WordSectionFormData>
     ): DatabaseResult<WordEntryFormData> {
-        val primaryTextItem = InputTextItem(
+        val primaryTextItem = TextItem(
             InputTextType.PRIMARY_TEXT,
             dictionaryEntryResult.primaryText,
             ItemProperties(tableId = WordEntryTable.DICTIONARY_ENTRY, id = dictionaryEntryResult.id)
@@ -170,35 +146,35 @@ class WordEntryFormBuilder(
         meaning: String,
         section: Int
     ): DatabaseResult<WordSectionFormData> = coroutineScope {
-        val meaningItem = InputTextItem(
+        val meaningItem = TextItem(
             InputTextType.MEANING,
             meaning,
             ItemSectionProperties(WordEntryTable.DICTIONARY_SECTION, id = dictionaryEntrySectionId, sectionId = section)
         )
 
-        val kanaDeferred:  Deferred<DatabaseResult<PersistentMap<String, InputTextItem>>> = async {
+        val kanaDeferred:  Deferred<DatabaseResult<PersistentMap<String, TextItem>>> = async {
             withTimeout(5000) { // 5-second timeout for kana fetch
                 semaphore.withPermit {
                     fetchEntrySectionKana(dictionaryEntrySectionId, section)
                 }
             }
         }
-        val noteDeferred:  Deferred<DatabaseResult<PersistentMap<String, InputTextItem>>>  = async {
+        val noteDeferred:  Deferred<DatabaseResult<PersistentMap<String, TextItem>>>  = async {
             withTimeout(5000) {semaphore.withPermit { fetchEntrySectionNotes(dictionaryEntrySectionId, section) }}
         }
 
         // Limit concurrent tasks
-        val kanaResult: DatabaseResult<PersistentMap<String, InputTextItem>> = kanaDeferred.await()
-        val noteResult: DatabaseResult<PersistentMap<String, InputTextItem>> = noteDeferred.await()
+        val kanaResult: DatabaseResult<PersistentMap<String, TextItem>> = kanaDeferred.await()
+        val noteResult: DatabaseResult<PersistentMap<String, TextItem>> = noteDeferred.await()
 
-        val kanaItems: PersistentMap<String, InputTextItem> = when (kanaResult) {
+        val kanaItems: PersistentMap<String, TextItem> = when (kanaResult) {
             is DatabaseResult.Success -> kanaResult.value
-            else -> return@coroutineScope kanaResult.mapErrorTo<PersistentMap<String, InputTextItem>, WordSectionFormData>()
+            else -> return@coroutineScope kanaResult.mapErrorTo<PersistentMap<String, TextItem>, WordSectionFormData>()
         }
 
-        val noteItems: PersistentMap<String, InputTextItem> = when (noteResult) {
+        val noteItems: PersistentMap<String, TextItem> = when (noteResult) {
             is DatabaseResult.Success -> noteResult.value
-            else -> return@coroutineScope noteResult.mapErrorTo<PersistentMap<String, InputTextItem>, WordSectionFormData>()
+            else -> return@coroutineScope noteResult.mapErrorTo<PersistentMap<String, TextItem>, WordSectionFormData>()
         }
 
         DatabaseResult.Success(
@@ -209,11 +185,56 @@ class WordEntryFormBuilder(
             )
         )
     }
-    private suspend fun fetchEntrySectionKana(dictionaryEntrySectionId: Long, section: Int): DatabaseResult<PersistentMap<String, InputTextItem>> {
+
+    suspend fun fetchWordClass(wordClassId: Long): DatabaseResult<WordClassItem> {
+        return wordClassRepository.selectRow(wordClassId).flatMap { wordClassResult: WordClassIdContainer ->
+            mainClassRepository.selectRowById(wordClassResult.mainClassId).flatMap { mainClassContainer: MainClassContainer ->
+                subClassRepository.selectRowById(wordClassResult.subClassId).map { subClassContainer: SubClassContainer ->
+                    WordClassItem(
+                        mainClassContainer,
+                        subClassContainer,
+                        ItemProperties(tableId = WordEntryTable.WORD_CLASS, id = wordClassResult.wordClassId)
+                    )
+                }
+            }
+        }
+    }
+
+    suspend fun fetchPrimaryText(dictionaryEntryId: Long): DatabaseResult<TextItem>{
+        return entryRepository.selectRow(dictionaryEntryId).map { container ->
+            TextItem(
+            InputTextType.PRIMARY_TEXT,
+            container.primaryText,
+            ItemProperties(WordEntryTable.DICTIONARY_ENTRY, id = container.id))
+        }
+    }
+
+    suspend fun fetchEntryNotes(dictionaryEntryId: Long): DatabaseResult<PersistentMap<String, TextItem>> {
         return fetchItemsAndMap(
-            { entrySectionKanaRepository.selectAllKanaByDictionaryEntrySectionId(dictionaryEntrySectionId) }
+            { entryNoteRepository.selectAllById(dictionaryEntryId) }
+        ) { container ->
+            TextItem(
+                InputTextType.ENTRY_NOTE_DESCRIPTION,
+                container.note,
+                ItemProperties(WordEntryTable.DICTIONARY_ENTRY_NOTE, id = container.id)
+            )
+        }
+    }
+
+    suspend fun fetchMeaningText(dictionaryEntrySectionId: Long, section: Int): DatabaseResult<TextItem>{
+        return entrySectionRepository.selectRow(dictionaryEntrySectionId).map { container ->
+            TextItem(
+                InputTextType.MEANING,
+                container.meaning,
+                ItemSectionProperties(WordEntryTable.DICTIONARY_SECTION, id = container.id, sectionId = section))
+        }
+    }
+
+    suspend fun fetchEntrySectionKana(dictionaryEntrySectionId: Long, section: Int): DatabaseResult<PersistentMap<String, TextItem>> {
+        return fetchItemsAndMap(
+            { entrySectionKanaRepository.selectAllBySectionId(dictionaryEntrySectionId) }
         ) { container: DictionaryEntrySectionKanaContainer ->
-            InputTextItem(
+            TextItem(
                 InputTextType.ENTRY_NOTE_DESCRIPTION,
                 container.wordText,
                 ItemSectionProperties(WordEntryTable.DICTIONARY_SECTION_KANA, id = container.id, sectionId = section)
@@ -221,17 +242,20 @@ class WordEntryFormBuilder(
         }
     }
 
-    private suspend fun fetchEntrySectionNotes(dictionaryEntrySectionId: Long, section: Int): DatabaseResult<PersistentMap<String, InputTextItem>> {
+    suspend fun fetchEntrySectionNotes(dictionaryEntrySectionId: Long, section: Int): DatabaseResult<PersistentMap<String, TextItem>> {
         return fetchItemsAndMap(
-            { entrySectionNoteRepository.selectAllDictionaryEntrySectionNotesByDictionaryEntrySectionId(dictionaryEntrySectionId) }
+            { entrySectionNoteRepository.selectAllBySectionId(dictionaryEntrySectionId) }
         ) { container: DictionaryEntrySectionNoteContainer ->
-            InputTextItem(
+            TextItem(
                 InputTextType.SECTION_NOTE_DESCRIPTION,
                 container.note,
                 ItemSectionProperties(WordEntryTable.DICTIONARY_SECTION_NOTE, id = container.id, sectionId = section)
             )
         }
+    }
 
+    private suspend fun <T> withDbTimeout(block: suspend () -> T): T {
+        return withTimeout(5000) { block() }
     }
 
     private suspend fun <T, R: BaseItem> fetchItemsAndMap(

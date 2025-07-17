@@ -1,30 +1,19 @@
 package io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter
 
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
-import androidx.viewbinding.ViewBinding
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.SubClassContainer
 import io.github.kwvolt.japanesedictionary.databinding.ButtonItemBinding
 import io.github.kwvolt.japanesedictionary.databinding.EditTextItemBinding
 import io.github.kwvolt.japanesedictionary.databinding.LabelItemBinding
 import io.github.kwvolt.japanesedictionary.databinding.WordClassItemBinding
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ButtonAction
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.EntryLabelItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemButtonItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextFormUIItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ButtonItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelType
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.NamedItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.StaticLabelItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.StaticLabelFormUIItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassFormUIItem
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.viewholder.ButtonCallBack
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.viewholder.ButtonViewHolder
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.viewholder.EditTextCallBack
@@ -39,8 +28,7 @@ class AddUpdateAdapter(
     private val labelTextCallBack: LabelTextCallBack,
     private val editTextCallBack: EditTextCallBack,
     private val buttonCallBack: ButtonCallBack
-) :
-    ListAdapter<BaseItem, AddUpdateViewHolder>(AddUpdateDiffUtilCallback()) {
+) : ListAdapter<BaseItem, AddUpdateViewHolder>(AddUpdateDiffUtilCallback()) {
 
     enum class ViewType {
         LABEL,
@@ -49,12 +37,15 @@ class AddUpdateAdapter(
         BUTTON,
     }
 
+
+
     override fun getItemViewType(position: Int): Int {
+
         return when (getItem(position)) {
-            is ItemButtonItem -> ViewType.BUTTON.ordinal
-            is InputTextItem -> ViewType.EDITTEXT.ordinal
-            is StaticLabelItem, is EntryLabelItem -> ViewType.LABEL.ordinal
-            is WordClassItem -> ViewType.WORD_CLASS.ordinal
+            is ButtonItem -> ViewType.BUTTON.ordinal
+            is InputTextFormUIItem -> ViewType.EDITTEXT.ordinal
+            is LabelItem, is StaticLabelFormUIItem -> ViewType.LABEL.ordinal
+            is WordClassFormUIItem -> ViewType.WORD_CLASS.ordinal
             else -> {
                 throw IllegalStateException("Illegal BaseItem type ${getItem(position)::class.java} in AddUpdateAdapter->getItemViewType()")
             }

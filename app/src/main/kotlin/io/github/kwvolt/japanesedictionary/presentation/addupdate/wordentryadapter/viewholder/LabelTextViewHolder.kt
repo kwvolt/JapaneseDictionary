@@ -1,14 +1,14 @@
 package io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.viewholder
 
+import android.annotation.SuppressLint
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import io.github.kwvolt.japanesedictionary.R
 import io.github.kwvolt.japanesedictionary.databinding.LabelItemBinding
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.EntryLabelItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ErrorMessage
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelType
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelHeaderType
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.NamedItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.StaticLabelFormUIItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.StaticLabelItem
@@ -18,10 +18,9 @@ import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapt
 
 interface LabelTextCallBack{
     fun entryRemoveItems(entryLabelItem: EntryLabelItem, position: Int)
-    fun getLabelType(labelItem: LabelItem): LabelType
+    fun getLabelType(labelItem: LabelItem): LabelHeaderType
     fun getWidgetName(namedItem: NamedItem): String
-    fun getHasError(errorMessage: ErrorMessage): Boolean
-    fun getErrorMessage(errorMessage: ErrorMessage): String
+    fun getErrorMessage(staticLabelFormUIItem: StaticLabelFormUIItem): String?
 }
 
 class LabelTextViewHolder(private val binding: LabelItemBinding, private val callBack: LabelTextCallBack) : AddUpdateViewHolder(binding.root) {
@@ -39,7 +38,7 @@ class LabelTextViewHolder(private val binding: LabelItemBinding, private val cal
             is StaticLabelFormUIItem -> {
                 handleLabelItem(baseItem.staticLabelItem)
                 setLabelText(baseItem.staticLabelItem)
-                checkAndSetError(baseItem.errorMessage)
+                checkAndSetError(baseItem)
             }
             else -> throw IllegalStateException("Unknown item type: ${baseItem::class.java}")
         }
@@ -78,10 +77,10 @@ class LabelTextViewHolder(private val binding: LabelItemBinding, private val cal
         setDeleteIconVisible(false)
     }
 
-    private fun getTextAppearanceForLabelType(labelType: LabelType): Int {
-        return when (labelType) {
-            LabelType.HEADER -> R.style.TextAppearance_AppCompat_Headline1
-            LabelType.SUB_HEADER -> R.style.TextAppearance_AppCompat_Subhead
+    private fun getTextAppearanceForLabelType(labelHeaderType: LabelHeaderType): Int {
+        return when (labelHeaderType) {
+            LabelHeaderType.HEADER -> R.style.TextAppearance_AppCompat_Headline1
+            LabelHeaderType.SUB_HEADER -> R.style.TextAppearance_AppCompat_Subhead
         }
     }
 
@@ -89,12 +88,11 @@ class LabelTextViewHolder(private val binding: LabelItemBinding, private val cal
         binding.addUpdateEditTextDelete.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
-    private fun checkAndSetError(errorMessage: ErrorMessage){
-        if(callBack.getHasError(errorMessage)){
-            val message: String = callBack.getErrorMessage(errorMessage)
-            if(message.isNotBlank()){
-                binding.addUpdateLabelError.text = message
-            }
+    private fun checkAndSetError(staticLabelFormUIItem: StaticLabelFormUIItem){
+        val message = callBack.getErrorMessage(staticLabelFormUIItem)
+        binding.addUpdateLabelError.apply {
+            text = message.orEmpty()
+            visibility = if (message.isNullOrEmpty()) View.GONE else View.VISIBLE
         }
     }
 }

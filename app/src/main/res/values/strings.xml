@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">JapaneseDictionary</string>
     <string name="search">Search:</string>
-    <string name="testing_testing_123">testing testing 123</string>
-    <string name="search_title" />
+    <string name="search_title">Search </string>
+    <string name="cancel">Cancel </string>
     <string name="action_settings">Settings</string>
     <string name="generic_label">%1$s:</string>
     <string name="generic_add_button">Add %1$s</string>
@@ -14,4 +14,30 @@
     <string name="undo">Undo</string>
     <string name="redo">Redo</string>
     <string name="preview">preview</string>
+    <string name="editTextDescription">Deletes the edit text from the list</string>
+
+    <string name="unsaved_changes_title">Discard changes?</string>
+    <string name="unsaved_changes_message">You have unsaved changes. Are you sure you want to discard them?</string>
+    <string name="proceed">Proceed</string>
+
+    <string name="binding_null_error">Binding is null</string>
+
+    <!-- Dictionary Word Page -->
+    <string name="dwp_definition_tab">Definition</string>
+    <string name="dwp_conjugation_tab2">Conjugation</string>
+    <string name="dwp_SectionsLabel">Definitions:</string>
+    <string name="dwp_GeneralNotesLabel">General:</string>
+    <string name="dwp_show_notes_text">Additional Notes</string>
+    <string name="dwp_word_class_display">%1$s: %2$s</string>
+    <string name="dwp_add_note_button">Add Note</string>
+    <string name="dwp_ordered_number_prefix">%1$d. </string>
+    <string name="dwp_kana_separator">; </string>
+    <string name="dwp_expand_notes_content_description">Expand notes</string>
+    <string name="dwp_collapse_notes_content_description">Collapse notes</string>
+    <string name="update">Update</string>
+    <string name="delete">Delete</string>
+    <string name="string_divider">──────────</string>
+    <string name="dwp_bookmark">bookmark</string>
+    <string name="dwp_overflow_icon_content_description">More options</string>
+    <string name="dwp_edit_note_dialog_title">Edit Note</string>
 </resources>

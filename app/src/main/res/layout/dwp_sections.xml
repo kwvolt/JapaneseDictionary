@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/dwp_sections_layout"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/dwp_meaning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:text="1. Japanese; iwoejfwoeifjoiwejfoil; iwoejfioweiof; iowejfiowe; oiwjefoiwejfo; wiojefiowjeiofjw" />
+
+    <TextView
+        android:id="@+id/dwp_kana"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="5dp"
+        android:textSize="16sp"
+        android:visibility="visible"
+        tools:text="にほんご;\t\tか;\t\tバナナ"
+        tools:visibility="visible" />
+
+    <FrameLayout
+        android:id="@+id/dwp_sectionNotesContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:visibility="visible"
+        tools:visibility="visible">
+
+        <include
+            android:id="@+id/dwp_sectionNotes"
+            layout="@layout/dwp_notes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </FrameLayout>
+
+</LinearLayout>

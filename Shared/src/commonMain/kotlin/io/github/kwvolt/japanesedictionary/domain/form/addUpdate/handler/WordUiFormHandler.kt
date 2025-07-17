@@ -1,73 +1,60 @@
 package io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler
 
-import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.ValidationKey
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordSectionFormData
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
+import io.github.kwvolt.japanesedictionary.domain.model.WordSectionFormData
+import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ButtonAction
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.EntryLabelItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ErrorMessage
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.FormKeys
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.FormUIItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.GenericItemProperties
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextFormUIItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemButtonItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemProperties
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemSectionProperties
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelType
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelHeaderType
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.StaticLabelFormUIItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.StaticLabelItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassFormUIItem
 
 class WordUiFormHandler() : UiFormHandlerInterface {
-    private val uiIdCache = mutableMapOf<String, GenericItemProperties>()
+    private val uiIdCache = mutableMapOf<String, ItemProperties>()
+    private val uiIdCacheSection = mutableMapOf<String, ItemSectionProperties>()
 
-    private fun getOrCreateUiItemProperties(key: String): ItemProperties {
-        return uiIdCache.getOrPut(key) { ItemProperties() } as ItemProperties
+    private fun getOrCreateUiItemProperties(key: String, formItemManager: FormItemManager): ItemProperties {
+        return uiIdCache.getOrPut(key) { formItemManager.createItemProperties() }
     }
 
-    private fun getOrCreateUiSectionItemProperties(key: String, sectionId: Int): ItemSectionProperties {
-        return uiIdCache.getOrPut(key) { ItemSectionProperties(sectionId = sectionId) } as ItemSectionProperties
+    private fun getOrCreateUiSectionItemProperties(key: String, sectionId: Int, formItemManager: FormItemManager): ItemSectionProperties {
+        return uiIdCacheSection.getOrPut(key) { formItemManager.createItemSectionProperties(sectionId = sectionId) }
     }
 
-    override fun createUIList(wordEntryFormData: WordEntryFormData, formSectionManager: FormSectionManager, errors: Map<ValidationKey, ErrorMessage>): List<BaseItem> {
+    override fun createUIList(wordEntryFormData: WordEntryFormData, formItemManager: FormItemManager, errors: Map<ItemKey, ErrorMessage>): List<BaseItem> {
         val list: MutableList<BaseItem> = mutableListOf()
 
         // Add WordClass, Primary Text Input, and Entry Notes
-        list.add(StaticLabelItem("Word Class",
-            itemProperties = getOrCreateUiItemProperties(FormKeys.WORD_CLASS_LABEL)))
+        list.add(formItemManager.createStaticLabelItem("Word Class", genericItemProperties = getOrCreateUiItemProperties(FormKeys.WORD_CLASS_LABEL, formItemManager)))
         list.add(applyDataItemErrorMessage(wordEntryFormData.wordClassInput, errors) { error ->
             WordClassFormUIItem(wordEntryFormData.wordClassInput, error)
         })
 
-        list.add(StaticLabelItem("Word",
-            itemProperties = getOrCreateUiItemProperties(FormKeys.PRIMARY_TEXT_LABEL)))
+        list.add(formItemManager.createStaticLabelItem("Word", genericItemProperties = getOrCreateUiItemProperties(FormKeys.PRIMARY_TEXT_LABEL, formItemManager)))
         list.add(applyDataItemErrorMessage(wordEntryFormData.primaryTextInput, errors){ error ->
             InputTextFormUIItem(wordEntryFormData.primaryTextInput, error)
         })
 
-        list.add(StaticLabelItem("Entry Description",
-            itemProperties = getOrCreateUiItemProperties(FormKeys.ENTRY_DESCRIPTION_LABEL)))
+        list.add(formItemManager.createStaticLabelItem("Entry Description", genericItemProperties = getOrCreateUiItemProperties(FormKeys.ENTRY_DESCRIPTION_LABEL, formItemManager)))
         list.addAll(wordEntryFormData.getEntryNoteMapAsList().map{ applyDataItemErrorMessage(it, errors){ error->
             InputTextFormUIItem(it, error) }})
 
-        list.add(
-            ItemButtonItem(
-                "Create more entry note",
-                ButtonAction.AddItem(InputTextType.ENTRY_NOTE_DESCRIPTION),
-                itemProperties = getOrCreateUiItemProperties(FormKeys.ENTRY_DESCRIPTION_ADD_BUTTON)
-            )
-        )
+        list.add(formItemManager.createButtonItem("Create more entry note", ButtonAction.AddItem(InputTextType.ENTRY_NOTE_DESCRIPTION), getOrCreateUiItemProperties(FormKeys.ENTRY_DESCRIPTION_ADD_BUTTON, formItemManager)))
 
         // Add the sections
         wordEntryFormData.wordSectionMap.forEach { section ->
-            val sectionItems = createSectionItems(section.key, section.value, formSectionManager)
+            val sectionItems = createSectionItems(section.key, section.value, formItemManager, errors)
             list.addAll(sectionItems)
         }
 
-        list.add(ItemButtonItem("Add Section", ButtonAction.AddSection,
-            itemProperties = getOrCreateUiItemProperties(FormKeys.SECTION_ADD_BUTTON)))
+        list.add(formItemManager.createButtonItem("Add Section", ButtonAction.AddSection, genericItemProperties= getOrCreateUiItemProperties(FormKeys.SECTION_ADD_BUTTON, formItemManager)))
 
         return list
     }
@@ -75,97 +62,82 @@ class WordUiFormHandler() : UiFormHandlerInterface {
     override fun createSectionItems(
         sectionKey: Int,
         section: WordSectionFormData,
-        formSectionManager: FormSectionManager,
-        errors: Map<ValidationKey, ErrorMessage>
+        formItemManager: FormItemManager,
+        errors: Map<ItemKey, ErrorMessage>
     ): List<BaseItem> {
         val sectionList: MutableList<BaseItem> = mutableListOf()
 
         // Section Header
-        val entryLabelItem = EntryLabelItem(
-            sectionCount = formSectionManager.getCurrentSectionCount(),
-            itemProperties = getOrCreateUiSectionItemProperties(
+        val entryLabelItem = formItemManager.createEntryLabelItem(sectionCount = formItemManager.getCurrentSectionCount(),
+            itemSectionProperties = getOrCreateUiSectionItemProperties(
                 key = FormKeys.entrySectionLabel(sectionKey),
-                sectionId = sectionKey
-            )
-        )
+                sectionId = sectionKey,
+                formItemManager
+            ))
         sectionList.add(entryLabelItem)
 
         // English and Kana Inputs
-        sectionList.add(
-            StaticLabelItem(
-                "Meaning",
-                LabelType.SUB_HEADER,
-                itemProperties = getOrCreateUiSectionItemProperties(
-                    key = FormKeys.meaningLabel(sectionKey),
-                    sectionId = sectionKey
-                )
-            )
-        )
+        sectionList.add(formItemManager.createStaticLabelItem("Meaning",
+            LabelHeaderType.SUB_HEADER,  genericItemProperties = getOrCreateUiSectionItemProperties(FormKeys.meaningLabel(sectionKey), sectionKey, formItemManager)))
         sectionList.add(applyDataItemErrorMessage(section.meaningInput, errors){ error->
             InputTextFormUIItem(section.meaningInput, error)
         })
 
-
-        val kanaLabel =  StaticLabelItem(
-            "Kana",
-            LabelType.SUB_HEADER,
-            itemProperties = getOrCreateUiSectionItemProperties(
-                key = FormKeys.kanaLabel(sectionKey),
-                sectionId = sectionKey
-            )
-        )
-        sectionList.add(applyFormItemErrorMessage(ValidationKey.FormItem(FormKeys.kanaLabel(sectionKey)), errors){ error ->
+        val kanaLabel = formItemManager.createStaticLabelItem("Kana", LabelHeaderType.SUB_HEADER,genericItemProperties = getOrCreateUiSectionItemProperties(FormKeys.kanaLabel(sectionKey), sectionKey, formItemManager))
+        val kanaLabelWithValidation = applyFormItemErrorMessage(ItemKey.FormItem(FormKeys.kanaLabel(sectionKey)), errors){ error ->
             StaticLabelFormUIItem(kanaLabel, error)
-        })
+        }
+        sectionList.add(kanaLabelWithValidation)
         sectionList.addAll(section.getKanaInputMapAsList().map{ applyDataItemErrorMessage(it, errors){ error-> InputTextFormUIItem(it, error) }})
-        sectionList.add(
-            ItemButtonItem(
-                "Kana",
-                ButtonAction.AddChild(InputTextType.KANA, entryLabelItem),
-                itemProperties = getOrCreateUiSectionItemProperties(
-                    key = FormKeys.kanaAddButton(sectionKey),
-                    sectionId = sectionKey
+        sectionList.add(formItemManager.createButtonItem("Kana",
+            ButtonAction.ValidateItem(
+                kanaLabelWithValidation,
+                ButtonAction.AddChild(InputTextType.KANA, entryLabelItem
                 )
-            )
-        )
+        ), genericItemProperties = getOrCreateUiSectionItemProperties(
+            key = FormKeys.kanaAddButton(sectionKey),
+            sectionId = sectionKey,
+            formItemManager
+        )))
 
         // Component Note Inputs
         sectionList.add(
-            StaticLabelItem(
+            formItemManager.createStaticLabelItem(
                 "Specific Description",
-                LabelType.SUB_HEADER,
-                itemProperties = getOrCreateUiSectionItemProperties(
+                LabelHeaderType.SUB_HEADER,
+                genericItemProperties = getOrCreateUiSectionItemProperties(
                     key = FormKeys.sectionDescriptionLabel(sectionKey),
-                    sectionId = sectionKey
+                    sectionId = sectionKey,
+                    formItemManager
                 )
             )
         )
         sectionList.addAll(section.getComponentNoteInputMapAsList().map{ applyDataItemErrorMessage(it, errors){ error-> InputTextFormUIItem(it, error) }})
-        sectionList.add(
-            ItemButtonItem(
+        sectionList.add(formItemManager.createButtonItem(
                 "Description",
                 ButtonAction.AddChild(InputTextType.SECTION_NOTE_DESCRIPTION, entryLabelItem),
-                itemProperties = getOrCreateUiSectionItemProperties(
+                genericItemProperties = getOrCreateUiSectionItemProperties(
                     key = FormKeys.sectionDescriptionAddButton(sectionKey),
-                    sectionId = sectionKey
+                    sectionId = sectionKey,
+                    formItemManager
                 )
             )
         )
 
         // Update entryChildrenCountMap
-        formSectionManager.incrementCurrentSectionCount()
-        formSectionManager.addSectionToMap(entryLabelItem.itemProperties.getSectionIndex(),  sectionList)
+        formItemManager.incrementCurrentSectionCount()
+        formItemManager.addSectionToMap(entryLabelItem.itemProperties.getSectionIndex(),  sectionList)
 
         return sectionList
     }
 
-    private fun applyDataItemErrorMessage(item: BaseItem, errors: Map<ValidationKey, ErrorMessage>, block: (ErrorMessage)->FormUIItem): BaseItem{
+    private fun applyDataItemErrorMessage(item: BaseItem, errors: Map<ItemKey, ErrorMessage>, block: (ErrorMessage)->FormUIItem): BaseItem{
         val itemId: String = item.itemProperties.getIdentifier()
-        val error = errors[ValidationKey.DataItem(itemId)] ?: ErrorMessage()
+        val error = errors[ItemKey.DataItem(itemId)] ?: ErrorMessage()
         return block(error)
     }
 
-    private fun applyFormItemErrorMessage(form: ValidationKey.FormItem, errors: Map<ValidationKey, ErrorMessage>, block: (ErrorMessage)->FormUIItem): BaseItem{
+    private fun applyFormItemErrorMessage(form: ItemKey.FormItem, errors: Map<ItemKey, ErrorMessage>, block: (ErrorMessage)->FormUIItem): FormUIItem{
         val error = errors[form] ?: ErrorMessage()
         return block(error)
     }

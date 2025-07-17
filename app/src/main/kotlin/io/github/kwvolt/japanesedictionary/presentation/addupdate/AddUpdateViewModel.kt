@@ -1,342 +1,393 @@
 package io.github.kwvolt.japanesedictionary.presentation.addupdate
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.SubClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.ValidationKey
+import io.github.kwvolt.japanesedictionary.domain.data.database.formatDatabaseErrorTypeToMessage
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.UpsertResult
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ButtonAction
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.EntryLabelItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.TextItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.inputData.WordEntryFormData
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemProperties
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemSectionProperties
+import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormCommandManager
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormSectionManager
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.UiFormHandlerInterface
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormItemManager
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.WordFormHandler
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordEntryTable
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordFormService
-import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationKey
-import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationResult
 import io.github.kwvolt.japanesedictionary.domain.data.validation.formatValidationTypeToMessage
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormListValidatorManager
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ErrorMessage
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.UndoRedoStateListener
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.FormKeys
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.WordClassDataManager
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.WordFormItemListManager
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.FormUIItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextFormUIItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemValidation.FormItemValidator
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemValidation.InputTextFormValidator
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemValidation.StaticLabelFormValidator
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemValidation.WordClassFormValidator
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelType
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.itemValidation.FormItemValidator
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.itemValidation.InputTextFormValidator
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.itemValidation.StaticLabelFormValidator
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.itemValidation.WordClassFormValidator
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.StaticLabelFormUIItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassFormUIItem
+import io.github.kwvolt.japanesedictionary.ui.model.FormScreenState
+import io.github.kwvolt.japanesedictionary.ui.model.ScreenStateUnknownError
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AddUpdateViewModel(
-    private val wordFormService: WordFormService,
+    private val _wordFormService: WordFormService,
+    private val _listManager: WordFormItemListManager,
+    private val _formItemManager: FormItemManager,
+    private val _wordClassDataManager: WordClassDataManager,
+    private val _formListValidatorManager: FormListValidatorManager
 ): ViewModel() {
 
     // handles managing data
-    private lateinit var wordFormHandler: WordFormHandler
+    private var _wordFormHandler: WordFormHandler? = null
 
-    // word class variables
-    private var mainClassData: List<MainClassContainer> = listOf(MainClassContainer(0, "TEMP", "temp"))
-    private var subClassMapData: Map<Long, List<SubClassContainer>> = mapOf(0L to listOf(SubClassContainer(0, "TEMP", "temp")))
+    private val _uiState = MutableStateFlow(FormScreenState())
+    val uiState: StateFlow<FormScreenState> get() = _uiState
 
-    // validation Error
-    private val errorMessage: MutableMap<ValidationKey, ErrorMessage> = mutableMapOf()
-
-    // Main item list
-    private val _uiState: MutableLiveData<UiState<List<BaseItem>>> = MutableLiveData()
-    val uiState: LiveData<UiState<List<BaseItem>>> get() = _uiState
-
-    // Undo Redo
-    private val _canUndo = MutableLiveData(false)
-    val canUndo: LiveData<Boolean> = _canUndo
-
-    private val _canRedo = MutableLiveData(false)
-    val canRedo: LiveData<Boolean> = _canRedo
-
+    // retrieves Word Class values from database
     fun loadWordClassSpinner(){
         viewModelScope.launch {
-            //_uiState.value = UiState.Loading
-            val result = wordFormService.getMainClassList().flatMap { main ->
-                mainClassData = main
-                wordFormService.getSubClassMap(mainClassData).flatMap { subMap ->
-                    subClassMapData = subMap
-                    DatabaseResult.Success(Unit)
-                }
-            }
-            when(result){
-                is DatabaseResult.InvalidInputMap -> {
-                    TODO()
-                }
-                is DatabaseResult.Success<Unit> -> TODO()
-                is DatabaseResult.UnknownError -> TODO()
-                else -> TODO()
+            _uiState.update { it.copy(isLoading = true) }
+            val result = _wordClassDataManager.loadWordClassData(_wordFormService)
+            handleDatabaseResult(result, "Value was not found within the database for LoadWordClassSpinner"){
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
     }
 
-    fun loadItems(dictionaryEntryId: Long, formSectionManager: FormSectionManager, wordUiFormHandler: UiFormHandlerInterface) {
-        _uiState.value = UiState.Loading
+    fun loadItems(dictionaryEntryId: Long) {
+        _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            val result = wordFormService.getWordFormData(dictionaryEntryId, formSectionManager).flatMap { data ->
-                val handler = FormCommandManager(data)
-                wordFormHandler = WordFormHandler(handler, formSectionManager, wordUiFormHandler)
-                val formList = wordFormHandler.generateFormList()
-
-                setUndoRedoListener()
-
-                _uiState.postValue(UiState.Success(formList))
-                DatabaseResult.Success(Unit)
+            val result = _wordFormService.getWordFormData(dictionaryEntryId, _formItemManager).blankMap { data ->
+                val commandManager = FormCommandManager(data)
+                _wordFormHandler = WordFormHandler(commandManager)
             }
 
-            if (result is DatabaseResult.UnknownError) {
-                _uiState.postValue(UiState.UnknownError(result.exception, result.message ?: ""))
+            handleDatabaseResult(result, "Value was not found within the database for LoadItems"){
+                withWordFormHandler { handler ->
+                    val formList: List<BaseItem> = _listManager.generateFormList(handler.getWordEntryFormData(), _formItemManager)
+                    setUndoRedoListener()
+                    _uiState.update { it.copy(isLoading = false, items = formList) }
+                }
             }
         }
     }
 
-    fun loadItems(formSectionManager: FormSectionManager, wordUiFormHandler: UiFormHandlerInterface) {
-        _uiState.value = UiState.Loading
-        val subClassList: List<SubClassContainer> = subClassMapData[mainClassData[0].id] ?: emptyList()
-        val wordClassItem: WordClassItem = WordClassItem(
-            0, 0,
-            subClassList,
-            ItemProperties(WordEntryTable.WORD_CLASS))
-        val wordEntryFormData: WordEntryFormData = WordEntryFormData.buildDefault(wordClassItem, formSectionManager)
+    fun loadItems() {
+        _uiState.update { it.copy(isLoading = true)}
+        val wordEntryFormData: WordEntryFormData = WordEntryFormData.buildDefault(_formItemManager)
         val dataHandler = FormCommandManager(wordEntryFormData)
-        wordFormHandler = WordFormHandler(dataHandler, formSectionManager, wordUiFormHandler)
-        val list = wordFormHandler.generateFormList()
-        _uiState.postValue(UiState.Success(list))
-        setUndoRedoListener()
+        _wordFormHandler = WordFormHandler(dataHandler)
+
+        withWordFormHandler { handler ->
+            val list: List<BaseItem> = _listManager.generateFormList(handler.getWordEntryFormData(), _formItemManager)
+            _uiState.update { it.copy(isLoading = false, items = list) }
+            setUndoRedoListener()
+        }
     }
 
-    fun upsertValuesIntoDB(){
-        val wordEntryFormData: WordEntryFormData = wordFormHandler.getWordEntryFormData()
-        _uiState.value = UiState.Loading
-        viewModelScope.launch {
-            val result = wordFormService.upsertWordEntryFormDataIntoDatabase(
-                wordEntryFormData,
-                deleteList = wordFormHandler.getDeletedItemIds().toList()
-            )
-            when(result){
-                is DatabaseResult.InvalidInputMap -> {
-                    val errorMap: Map<ValidationKey, ErrorMessage> = result.errors.entries.associate { (key, value) ->
-                        key to ErrorMessage(errorMessage =formatValidationTypeToMessage(value), isDirty = true)
+    fun upsertValuesIntoDB() {
+        withWordFormHandler { handler ->
+            val wordEntryFormData: WordEntryFormData = handler.getWordEntryFormData()
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            viewModelScope.launch {
+
+                val result = _wordFormService.upsertWordEntryFormDataIntoDatabase(
+                    wordEntryFormData,
+                    deleteList = handler.getDeletedItemIds().toList()
+                )
+
+                when (result) {
+                    is UpsertResult.ValidationFailed -> {
+                        val errorMap: Map<ItemKey, ErrorMessage> =
+
+                            result.errors.entries.associate { (key, value) ->
+                                key to ErrorMessage(errorMessage = formatValidationTypeToMessage(value), isDirty = true)
+                            }
+                        val updatedErrorMessage: MutableMap<ItemKey, ErrorMessage> =
+                            uiState.value.errors.toMutableMap()
+                        updatedErrorMessage.putAll(errorMap)
+                        val itemList: List<BaseItem> = _listManager.reBuild(handler.getWordEntryFormData(), _formItemManager, updatedErrorMessage)
+                        _uiState.update {
+                            it.copy(
+                                items = itemList,
+                                errors = updatedErrorMessage,
+                                isLoading = false
+                            )
+                        }
                     }
-                    errorMessage.putAll(errorMap)
-                    wordFormHandler.generateFormList(errorMap)
-                    _uiState.postValue(UiState.ValidationError())
-                    TODO()
+
+                    is UpsertResult.DatabaseOperationFailed -> {
+                        val updatedErrorMessage: MutableMap<ItemKey, ErrorMessage> =
+                            uiState.value.errors.toMutableMap()
+                        updatedErrorMessage[result.itemKey] = ErrorMessage(
+                            errorMessage = formatDatabaseErrorTypeToMessage(result.error),
+                            isDirty = true
+                        )
+
+                        val itemList: List<BaseItem> = _listManager.generateFormList(handler.getWordEntryFormData(), _formItemManager, updatedErrorMessage)
+                        _uiState.update {
+                            it.copy(
+                                items = itemList,
+                                errors = updatedErrorMessage,
+                                isLoading = false
+                            )
+                        }
+
+                    }
+
+                    is UpsertResult.Success -> _uiState.update { it.copy(isLoading = false) }
+                    is UpsertResult.UnknownError -> _uiState.update {
+                        it.copy(
+                            screenStateUnknownError = ScreenStateUnknownError(
+                                result.exception,
+                                result.message
+                            )
+                        )
+                    }
+
+                    UpsertResult.NotFound -> _uiState.update {
+                        it.copy(
+                            screenStateUnknownError = ScreenStateUnknownError(
+                                NotFoundException("Value was not found within the database for upsertValuesIntoDB"),
+                                "Value was not found within the database for upsertValuesIntoDB"
+                            )
+                        )
+                    }
                 }
-                is DatabaseResult.Success<Unit> -> TODO()
-                is DatabaseResult.UnknownError -> TODO()
-                else -> TODO()
             }
         }
     }
 
     fun redo(){
-        val list = wordFormHandler.redo()
-        if(list.isNotEmpty()) {
-            viewModelScope.launch {
-                val newList = revalidateDirtyFieldsAfterUndoRedo(list)
-                _uiState.postValue(UiState.Success(newList))
-            }
-        }
+        redoUndo { it.redo() }
     }
 
     fun undo(){
-        val list = wordFormHandler.undo()
-        if(list.isNotEmpty()) {
+        redoUndo { it.undo() }
+    }
+
+    private fun redoUndo(block: (WordFormHandler) -> Unit){
+        _uiState.update { it.copy(isLoading = true) }
+        withWordFormHandler { handler ->
+            block(handler)
             viewModelScope.launch {
-                val newList = revalidateDirtyFieldsAfterUndoRedo(list)
-                _uiState.postValue(UiState.Success(newList))
+                val errorMap = uiState.value.errors
+                val list = _listManager.reBuild(handler.getWordEntryFormData(), _formItemManager, errorMap)
+                val updatedUiState = _formListValidatorManager.revalidateEntireList(
+                    handler, list, errorMap.toMutableMap(), _wordFormService, uiState.value, _listManager
+                )
+                _uiState.update { updatedUiState.copy(isLoading = false) }
             }
         }
     }
 
     private fun setUndoRedoListener(){
-        wordFormHandler.setUndoRedoListener(object : UndoRedoStateListener {
-            override fun onStateChanged(canUndo: Boolean, canRedo: Boolean) {
-                _canUndo.postValue(canUndo)
-                _canRedo.postValue(canRedo)
-            }
-        })
-    }
-
-    private fun withList(action: (MutableList<BaseItem>) -> Unit) {
-        val currentList = (uiState.value as? UiState.Success)?.data?.toMutableList() ?: return
-        action(currentList)
-        _uiState.postValue(UiState.Success(currentList))
-    }
-
-    private fun addItemAtPosition(item: BaseItem, position: Int) {
-        withList { it.add(position, item) }
-    }
-
-    private fun removeItemAtPosition(position: Int) {
-        withList { it.removeAt(position) }
-    }
-
-    private fun updateItemAtPosition(item: BaseItem, position: Int) {
-        withList { it[position] = item }
+        withWordFormHandler { handler ->
+            handler.setUndoRedoListener(object : UndoRedoStateListener {
+                override fun onStateChanged(canUndo: Boolean, canRedo: Boolean) {
+                    _uiState.update{ it.copy(canUndo = canUndo, canRedo = canRedo) }
+                }
+            })
+        }
     }
 
     // section
     fun addSectionClicked(position: Int) {
-        val newItems = wordFormHandler.createNewSection()
-        withList { it.addAll(position, newItems) }
+        withWordFormHandler { handler ->
+            val newSectionId = handler.createNewSection(_formItemManager)
+            val newItems: List<BaseItem> = _listManager.generateSectionList(newSectionId, handler.getWordEntryFormData(), _formItemManager, uiState.value.errors)
+            val updated = _listManager.addItemsAt(uiState.value.items, newItems, position)
+            _uiState.update { it.copy(items = updated) }
+        }
     }
 
     fun removeSectionClicked(entryLabelItem: EntryLabelItem, position: Int) {
-        val updated = wordFormHandler.removeSection(
-            (uiState.value as? UiState.Success)?.data.orEmpty(),
-            entryLabelItem.itemProperties.getSectionIndex(),
-            entryLabelItem.sectionCount,
-            position
-        )
-        _uiState.postValue(UiState.Success(updated))
+        withWordFormHandler { handler ->
+            val sectionId = entryLabelItem.itemProperties.getSectionIndex()
+            handler.removeSection(sectionId)
+            val updated = _listManager.removeSection(uiState.value.items, sectionId, entryLabelItem.sectionCount, position, _formItemManager)
+            _uiState.update { it.copy(items = updated) }
+        }
     }
 
     // Word Class
-    fun updateMainClassId(wordClassItem: WordClassItem, selectionPosition: Int, position: Int): Boolean{
-        val selectedMainClass: MainClassContainer = mainClassData[selectionPosition]
-        if(wordClassItem.chosenMainClassId != selectedMainClass.id) {
-            val subClassList: List<SubClassContainer> = subClassMapData[selectedMainClass.id] ?: emptyList()
-            val updateWordClassItem: WordClassItem = wordClassItem.copy(chosenMainClassId = selectedMainClass.id, currentSubClassData = subClassList)
-            wordFormHandler.updateWordClassId(updateWordClassItem)
-            updateItemAtPosition(updateWordClassItem, position)
-            return true
+    fun updateMainClassId(wordClassFormUIItem: WordClassFormUIItem, selectionPosition: Int, position: Int): Boolean {
+        var updated = false
+        withWordFormHandler { handler ->
+            val updatedItem: WordClassItem?  = _wordClassDataManager.updateMainClassId(
+                wordClassFormUIItem.wordClassItem,
+                selectionPosition,
+                handler
+            )
+            if (updatedItem != null) {
+                val updatedUIItem = wordClassFormUIItem.copy(updatedItem)
+                val validator = WordClassFormValidator(_wordFormService)
+                updateAndValidateFormUIItem(updatedUIItem, position, validator)
+                updated = true
+            }
         }
-        return false
+        return updated
     }
 
-    fun updateSubClassId(wordClassItem: WordClassItem, selectedPosition: Int, position: Int){
-        val subClassId: Long = wordClassItem.currentSubClassData[selectedPosition].id
-        val updateWordClassItem: WordClassItem = wordClassItem.copy(chosenSubClassId = subClassId)
-        wordFormHandler.updateWordClassId(updateWordClassItem)
-        updateItemAtPosition(updateWordClassItem, position)
+    fun updateSubClassId(wordClassFormUIItem: WordClassFormUIItem, selectedPosition: Int, position: Int){
+        withWordFormHandler { handler ->
+            val wordClassItem = wordClassFormUIItem.wordClassItem
+            val updatedItem: WordClassItem? = _wordClassDataManager.updateSubClassId(wordClassItem, selectedPosition, handler)
+            if (updatedItem != null) {
+                val updatedWordClassFormUIItem = wordClassFormUIItem.copy(updatedItem)
+                val validator = WordClassFormValidator(_wordFormService)
+                updateAndValidateFormUIItem(updatedWordClassFormUIItem, position, validator)
+            }
+        }
     }
 
     fun getMainClassListIndex(wordClassItem: WordClassItem): Int{
-        val mainClassIndex: Int = mainClassData.indexOfFirst { it.id.toInt() == wordClassItem.chosenMainClassId.toInt() }.takeIf { it >= 0 } ?: 0
-        return mainClassIndex
+        return _wordClassDataManager.getMainClassListIndex(wordClassItem)
     }
 
     fun getSubClassListIndex(wordClassItem: WordClassItem): Int{
-        val subClassList: List<SubClassContainer> = wordClassItem.currentSubClassData
-        val subClassIndex = subClassList.indexOfFirst { it.id.toInt() == wordClassItem.chosenSubClassId.toInt() }.takeIf { it >= 0 } ?: 0
-        return subClassIndex
+        return _wordClassDataManager.getSubClassListIndex(wordClassItem)
     }
 
     fun getMainClassList(): List<MainClassContainer>{
-        return mainClassData
+        return _wordClassDataManager.getMainClassList()
     }
 
     fun getSubClassList(wordClassItem: WordClassItem): List<SubClassContainer>{
-        return wordClassItem.currentSubClassData
+        val subList: List<SubClassContainer> = _wordClassDataManager.getSubClassList(wordClassItem)
+        if(subList.isEmpty()){
+            _uiState.update { it.copy(screenStateUnknownError = ScreenStateUnknownError(IllegalStateException("Invalid value accessed within the subClassMap"), "Invalid value accessed within the subClassMap")) }
+        }
+        return subList
     }
 
-    // TextInput
     fun addTextItemClicked(action: ButtonAction.AddItem, position: Int){
-        val inputTextType = action.inputType
-        val inputTextItem = InputTextItem(inputTextType, itemProperties = ItemProperties())
-        wordFormHandler.addItemCommand(inputTextItem)
-        addItemAtPosition(inputTextItem, position)
+        withWordFormHandler { handler ->
+            val inputTextType = action.inputType
+            val textItem: TextItem = handler.addTextItemCommand(inputTextType, formItemManager = _formItemManager)
+            val inputTextFormUIItem = InputTextFormUIItem(textItem, ErrorMessage())
+            _uiState.update { it.copy(items = _listManager.addItemAt(uiState.value.items, inputTextFormUIItem, position))}
+        }
     }
 
     fun addChildTextItemClicked(action: ButtonAction.AddChild, position: Int){
-        val inputTextType = action.inputTextType
-        val parent: EntryLabelItem = action.entryLabelItem
-        val inputTextItem = InputTextItem(inputTextType, itemProperties = ItemSectionProperties(sectionId = parent.itemProperties.getSectionIndex()))
-        wordFormHandler.addItemCommand(inputTextItem)
-        addItemAtPosition(inputTextItem, position)
+        withWordFormHandler { handler ->
+            val inputTextType = action.inputTextType
+            val parent: EntryLabelItem = action.entryLabelItem
+            val textItem: TextItem = handler.addTextItemCommand(inputTextType, parent.itemProperties.getSectionIndex(), formItemManager = _formItemManager)
+            val inputTextFormUIItem = InputTextFormUIItem(textItem, ErrorMessage())
+            _uiState.update { it.copy(items = _listManager.addItemAt(uiState.value.items, inputTextFormUIItem, position))}
+        }
     }
 
     //Primary Text, Kana, Meaning, Dictionary Entry Note. Section Entry Note
-    fun updateInputTextValue(inputTextItem: InputTextItem, textValue: String, position: Int) {
-        val updatedItem = inputTextItem.copy(inputTextValue = textValue)
-        wordFormHandler.updateItemCommand(inputTextItem,  textValue)
-        updateItemAtPosition(updatedItem, position)
+    fun updateInputTextValue(inputTextFormUIItem: InputTextFormUIItem, textValue: String, position: Int) {
+        withWordFormHandler { handler ->
+            val newInputTextItem = handler.updateTextItemCommand(inputTextFormUIItem.textItem, textValue)
+            val updatedItem = inputTextFormUIItem.copy(newInputTextItem)
+
+            val validator = InputTextFormValidator(_wordFormService)
+            updateAndValidateFormUIItem(updatedItem, position, validator)
+        }
     }
 
-    fun removeTextItemClicked(inputTextItem: InputTextItem, position: Int){
-        wordFormHandler.removeItemCommand(inputTextItem)
-        removeItemAtPosition(position)
+    fun removeTextItemClicked(inputTextFormUIItem: InputTextFormUIItem, position: Int){
+        withWordFormHandler { handler ->
+            val textItem: TextItem = inputTextFormUIItem.textItem
+            handler.removeItemCommand(textItem)
+            _uiState.update { it.copy(items = _listManager.removeItemAt(uiState.value.items, position)) }
+        }
     }
 
-    private suspend fun revalidateDirtyFieldsAfterUndoRedo(currentItems: List<BaseItem>): List<BaseItem> {
-        val updatedErrors = mutableMapOf<ValidationKey, ErrorMessage>()
-        val formData = wordFormHandler.getWordEntryFormData()
-        val newList = currentItems.toMutableList()
+    fun validateStaticLabelFormUIItem(staticLabelFormUIItem: StaticLabelFormUIItem){
+        val currentList = uiState.value.items
+        val labelIndex = currentList.indexOfFirst {
+            it is StaticLabelFormUIItem && it.itemProperties.getIdentifier() == staticLabelFormUIItem.itemProperties.getIdentifier()
+        }
+        if(labelIndex >= 0){
+            val staticLabelFormValidator = StaticLabelFormValidator(_wordFormService)
+            updateAndValidateFormUIItem(staticLabelFormUIItem, labelIndex, staticLabelFormValidator)
+        }
+    }
 
-        val dirtyItemsWithIndices = currentItems.asSequence()
-            .mapIndexedNotNull { index, item ->
-                val validationKey = when (item) {
-                    is InputTextFormUIItem -> ValidationKey.DataItem(item.inputTextItem.itemProperties.getIdentifier())
-                    is StaticLabelFormUIItem -> {
-                        val props = item.itemProperties as? ItemSectionProperties
-                        props?.let { ValidationKey.FormItem(FormKeys.kanaLabel(it.getSectionIndex())) }
-                    }
-                    is WordClassFormUIItem -> ValidationKey.DataItem(item.wordClassItem.itemProperties.getIdentifier())
-                    else -> null
-                }
-                if (validationKey != null && errorMessage.containsKey(validationKey)) {
-                    index to (item as FormUIItem)
-                } else {
-                    null
-                }
-            }.toMap()
-
-        for ((index, uiItem) in dirtyItemsWithIndices) {
-            val (key, result) = when (uiItem) {
-                is InputTextFormUIItem -> InputTextFormValidator(wordFormService).validate(uiItem, formData)
-                is StaticLabelFormUIItem -> StaticLabelFormValidator(wordFormService).validate(uiItem, formData)
-                is WordClassFormUIItem -> WordClassFormValidator(wordFormService).validate(uiItem, formData)
-            }
-
-            when (result) {
-                is ValidationResult.InvalidInput -> {
-                    val newError = ErrorMessage(
-                        errorMessage = formatValidationTypeToMessage(result.error),
-                        isDirty = true
+    private fun <T : FormUIItem> updateAndValidateFormUIItem(
+        updatedItem: T,
+        position: Int,
+        validator: FormItemValidator<T>
+    ) {
+        if (updatedItem.errorMessage.isDirty) {
+            viewModelScope.launch {
+                withWordFormHandler { handler ->
+                    val updatedState: FormScreenState = _formListValidatorManager.validateAndUpdateItem(
+                        updatedItem,
+                        position,
+                        handler.getWordEntryFormData(),
+                        validator,
+                        uiState.value,
+                        _listManager
                     )
-                    updatedErrors[key] = newError
-                    newList[index] = uiItem.withErrorMessage(newError)
+                    _uiState.update { updatedState }
                 }
-                is ValidationResult.Success -> {
-                    errorMessage.remove(key)
-                }
-                is ValidationResult.UnknownError -> {
-                    val exception = result.exception
-                    val message = result.message
-                    if (exception != null && message != null) {
-                        _uiState.postValue(UiState.UnknownError(exception, message))
-                    }
-                }
-                else -> continue
+            }
+        } else {
+            // No validation error, just update UI list
+            _uiState.update {
+                it.copy(items = _listManager.updateItemAt(it.items, updatedItem, position))
             }
         }
+    }
 
-        errorMessage.putAll(updatedErrors)
-        return newList
+
+    private inline fun withWordFormHandler(block: (WordFormHandler) -> Unit) {
+        val handler = _wordFormHandler
+        if (handler != null) {
+            block(handler)
+        } else {
+            _uiState.update {
+                it.copy(
+                    screenStateUnknownError = ScreenStateUnknownError(
+                        IllegalStateException("WordFormHandler was not initialized"),
+                        "Internal error: WordFormHandler was not initialized"
+                    )
+                )
+            }
+        }
+    }
+
+    private inline fun handleDatabaseResult(
+        result: DatabaseResult<Unit>,
+        notFoundMessage: String,
+        onSuccess: () -> Unit
+    ) {
+        when (result) {
+            is DatabaseResult.Success -> onSuccess()
+            is DatabaseResult.UnknownError -> _uiState.update {
+                it.copy(screenStateUnknownError = ScreenStateUnknownError(result.exception, result.message))
+            }
+            DatabaseResult.NotFound -> _uiState.update {
+                it.copy(screenStateUnknownError = ScreenStateUnknownError(
+                    NotFoundException(notFoundMessage),
+                    notFoundMessage
+                ))
+            }
+            else -> _uiState.update {
+                it.copy(screenStateUnknownError = ScreenStateUnknownError(
+                    IllegalStateException("InvalidInput should not be accessible"),
+                    "InvalidInput should not be accessible"
+                ))
+            }
+        }
     }
 }
 
-sealed class UiState<out T>{
-    data class Success<T>(val data: T): UiState<T>()
-    data object Loading: UiState<Nothing>()
-    data class ValidationError(val error: Map<String, String>): UiState<Nothing>()
-    data class UnknownError(val exception: Throwable, val message: String) : UiState<Nothing>()
-}
+class NotFoundException(message: String): Exception(message)

@@ -1,7 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.data.validation
 
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
 
 
 fun validJapanese(text:String):Boolean{
@@ -19,7 +18,7 @@ fun validKana(text:String):Boolean{
     return regex.matches(text)
 }
 
-fun validateNotEmpty(text:String): Boolean{
+fun validateNotEmptyString(text:String): Boolean{
     return text.trim().isNotEmpty()
 }
 

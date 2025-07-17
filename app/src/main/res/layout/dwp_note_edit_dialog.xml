@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="16dp"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/dwp_dialog_edit_note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="none"
+        android:textAlignment="textStart"
+        android:gravity="top|start"
+        android:inputType="textMultiLine"
+        tools:text = "wefjiowqefoiwefjoiwejfoiwejfioewjiofjweoifjoi wejfiowefiowej foiwei joiwejf oiwejoifjwoei jfoiwef oiweoif jweiofowe"
+        tools:ignore="LabelFor" />
+</LinearLayout>

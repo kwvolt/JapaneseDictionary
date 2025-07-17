@@ -4,7 +4,7 @@ import io.github.kwvolt.japanesedictionary.R
 import io.github.kwvolt.japanesedictionary.databinding.ButtonItemBinding
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ButtonAction
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ItemButtonItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ButtonItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.NamedItem
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.AddUpdateViewHolder
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.getResourceString
@@ -16,7 +16,7 @@ interface ButtonCallBack{
 
 class ButtonViewHolder(private val binding: ButtonItemBinding, private val callBack: ButtonCallBack) : AddUpdateViewHolder(binding.root) {
     override fun bind(baseItem: BaseItem) {
-        if (baseItem is ItemButtonItem) {
+        if (baseItem is ButtonItem) {
             val buttonName = callBack.getWidgetName(baseItem)
             setupButtonText(buttonName)
             setupButtonClickListener(baseItem)
@@ -32,7 +32,7 @@ class ButtonViewHolder(private val binding: ButtonItemBinding, private val callB
     }
 
     // Set up the button's click listener.
-    private fun setupButtonClickListener(button: ItemButtonItem) {
+    private fun setupButtonClickListener(button: ButtonItem) {
         binding.addUpdateButton.setOnClickListener {
             callBack.buttonClickedHandler(button.action, adapterPosition)
         }

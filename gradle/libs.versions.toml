@@ -1,5 +1,5 @@
 [versions]
-agp = "8.10.0"
+agp = "8.10.1"
 androidDriver = "2.0.2"
 apacheLog4jSlf4jImpl = "2.12.4"
 gradlePlugin = "2.0.0"
@@ -80,4 +80,5 @@ androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navi
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 

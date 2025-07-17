@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/dwp_notes_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="10dp"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:drawableEndCompat="@drawable/arrow_drop_down"
+        android:text="@string/dwp_show_notes_text"
+        tools:visibility="visible" />
+
+
+    <LinearLayout
+        android:id="@+id/dwp_expandable_notes_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:forceDarkAllowed="false"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <!-- Preview -->
+        <!-- <include layout="@layout/dwp_notes_textview" />
+        <include layout="@layout/dwp_notes_textview" />
+        <include layout="@layout/dwp_notes_textview" /> -->
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/dwp_addNoteButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        app:cornerRadius="8dp"
+        android:text="@string/dwp_add_note_button" />
+
+</LinearLayout>

@@ -1,14 +1,18 @@
 package io.github.kwvolt.japanesedictionary.ui.addUpdate
 
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.word_class.SubClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ButtonAction
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.EntryLabelItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ErrorMessage
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextFormUIItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.TextItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextType
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelType
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.LabelHeaderType
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.NamedItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.StaticLabelFormUIItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassFormUIItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassItem
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.AddUpdateViewModel
 import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapter.viewholder.ButtonCallBack
@@ -20,19 +24,19 @@ import io.github.kwvolt.japanesedictionary.presentation.addupdate.wordentryadapt
 class InitWordClassCallBack(private val addUpdateViewModel: AddUpdateViewModel): WordClassCallBack {
 
     override fun updateMainClassId(
-        wordClassItem: WordClassItem,
+        wordClassFormUIItem: WordClassFormUIItem,
         selectionPosition: Int,
         position: Int
     ): Boolean {
-        return addUpdateViewModel.updateMainClassId(wordClassItem, selectionPosition, position)
+        return addUpdateViewModel.updateMainClassId(wordClassFormUIItem, selectionPosition, position)
     }
 
     override fun updateSubClassId(
-        wordClassItem: WordClassItem,
+        wordClassFormUIItem: WordClassFormUIItem,
         selectionPosition: Int,
         position: Int
     ) {
-        addUpdateViewModel.updateSubClassId(wordClassItem, selectionPosition, position)
+        addUpdateViewModel.updateSubClassId(wordClassFormUIItem, selectionPosition, position)
     }
 
     override fun getMainClassListIndex(wordClassItem: WordClassItem): Int {
@@ -51,44 +55,44 @@ class InitWordClassCallBack(private val addUpdateViewModel: AddUpdateViewModel):
         return addUpdateViewModel.getSubClassList(wordClassItem)
     }
 
-    override fun getHasError(identifier: String): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun getErrorMessage(identifier: String): String {
-        TODO("Not yet implemented")
+    override fun getErrorMessage(wordClassFormUIItem: WordClassFormUIItem): String? {
+        val errorMessage: ErrorMessage = wordClassFormUIItem.errorMessage
+        if(errorMessage.isDirty){
+            return errorMessage.errorMessage
+        }
+        return null
     }
 }
 
 class InitEditTextCallBack(private val addUpdateViewModel: AddUpdateViewModel): EditTextCallBack {
     override fun updateInputTextValue(
-        inputTextItem: InputTextItem,
+        inputTextFormUIItem: InputTextFormUIItem,
         inputText: String,
         position: Int
     ) {
-        addUpdateViewModel.updateInputTextValue(inputTextItem, inputText, position)
+        addUpdateViewModel.updateInputTextValue(inputTextFormUIItem, inputText, position)
     }
 
-    override fun removeItemAtPosition(inputTextItem: InputTextItem, position: Int) {
-        addUpdateViewModel.removeTextItemClicked(inputTextItem, position)
+    override fun removeItemAtPosition(inputTextFormUIItem: InputTextFormUIItem, position: Int) {
+        addUpdateViewModel.removeTextItemClicked(inputTextFormUIItem, position)
     }
 
-    override fun getInputTextValue(inputTextItem: InputTextItem): String {
+    override fun getInputTextValue(inputTextItem: TextItem): String {
         return  inputTextItem.inputTextValue
     }
 
-    override fun getInputTextType(inputTextItem: InputTextItem): InputTextType {
+    override fun getInputTextType(inputTextItem: TextItem): InputTextType {
         return inputTextItem.inputTextType
     }
 
-    override fun getHasError(identifier: String): Boolean {
-        TODO("Not yet implemented")
-    }
 
-    override fun getErrorMessage(identifier: String): String {
-        TODO("Not yet implemented")
+    override fun getErrorMessage(inputTextFormUIItem: InputTextFormUIItem): String? {
+        val errorMessage: ErrorMessage = inputTextFormUIItem.errorMessage
+        if(errorMessage.isDirty){
+            return errorMessage.errorMessage
+        }
+        return null
     }
-
 }
 
 class InitLabelTextCallBack(private val addUpdateViewModel: AddUpdateViewModel): LabelTextCallBack {
@@ -96,20 +100,20 @@ class InitLabelTextCallBack(private val addUpdateViewModel: AddUpdateViewModel):
         addUpdateViewModel.removeSectionClicked(entryLabelItem, position)
     }
 
-    override fun getLabelType(labelItem: LabelItem): LabelType {
-        return labelItem.labelType
+    override fun getLabelType(labelItem: LabelItem): LabelHeaderType {
+        return labelItem.labelHeaderType
     }
 
     override fun getWidgetName(namedItem: NamedItem): String {
         return namedItem.getDisplayText()
     }
 
-    override fun getHasError(identifier: String): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun getErrorMessage(identifier: String): String {
-        TODO("Not yet implemented")
+    override fun getErrorMessage(staticLabelFormUIItem: StaticLabelFormUIItem): String? {
+        val errorMessage: ErrorMessage = staticLabelFormUIItem.errorMessage
+        if (errorMessage.isDirty){
+            return errorMessage.errorMessage
+        }
+        return null
     }
 
 }
@@ -120,6 +124,16 @@ class InitButtonCallBack(private val addUpdateViewModel: AddUpdateViewModel): Bu
             is ButtonAction.AddChild -> addUpdateViewModel.addChildTextItemClicked(button, position)
             is ButtonAction.AddItem -> addUpdateViewModel.addTextItemClicked(button, position)
             is ButtonAction.AddSection -> addUpdateViewModel.addSectionClicked(position)
+            is ButtonAction.ValidateItem -> {
+                val item = button.baseItem
+                buttonClickedHandler(button.action, position)
+                if(item.errorMessage.isDirty) {
+                    // check validation for labels (used to indicate errors for the whole section)
+                    if(item is StaticLabelFormUIItem){
+                        addUpdateViewModel.validateStaticLabelFormUIItem(item)
+                    }
+                }
+            }
         }
     }
 

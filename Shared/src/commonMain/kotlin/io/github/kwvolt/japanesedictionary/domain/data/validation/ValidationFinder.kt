@@ -1,8 +1,8 @@
 package io.github.kwvolt.japanesedictionary.domain.data.validation
 
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.TextItem
 
-fun findDuplicateIdentifiers(inputs: List<InputTextItem>): Set<String> {
+fun findDuplicateIdentifiers(inputs: List<TextItem>): Set<String> {
     val nonEmptyInputs = inputs.filter { it.inputTextValue.trim().isNotEmpty() }
     val counts = nonEmptyInputs
         .groupingBy { it.inputTextValue }

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Definition Card Container -->
+            <TextView
+                android:id="@+id/dwp_primaryText"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginTop="64dp"
+                android:gravity="center"
+                android:textSize="48sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.498"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="日本語" />
+
+            <TextView
+                android:id="@+id/dwp_wordClass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dwp_primaryText"
+                tools:text="Verb: Irregular" />
+
+
+            <TextView
+                android:id="@+id/dwp_section_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="@+id/dwp_definitionContainer"
+                app:layout_constraintTop_toBottomOf="@+id/dwp_wordClass"
+                android:text="@string/dwp_SectionsLabel" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/dwp_definitionContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="30dp"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="0dp"
+                app:cardUseCompatPadding="true"
+                app:layout_constraintBottom_toTopOf="@+id/dwp_generalNoteLabel"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dwp_section_label"
+                app:strokeWidth="1dp">
+
+                <!-- Definition Container Layout -->
+                <LinearLayout
+                    android:id="@+id/dwp_definitionContainerLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:divider="@drawable/divider"
+                    android:dividerPadding="10dp"
+                    android:orientation="vertical"
+                    android:paddingTop="20dp"
+                    android:showDividers="middle">
+
+                    <include layout="@layout/dwp_sections"
+                        android:layout_height="match_parent"
+                        android:layout_width="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        tools:visibility="visible"
+                        android:visibility="gone"
+                        />
+
+                    <include layout="@layout/dwp_sections"
+                        android:layout_height="match_parent"
+                        android:layout_width="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
+                        tools:visibility="visible"
+                        android:visibility="gone"
+                        />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <TextView
+                android:id="@+id/dwp_generalNoteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                app:layout_constraintBottom_toTopOf="@id/dwp_generalNoteContainer"
+                app:layout_constraintStart_toStartOf="@+id/dwp_generalNoteContainer"
+                app:layout_constraintTop_toBottomOf="@id/dwp_definitionContainer"
+                android:text="@string/dwp_GeneralNotesLabel" />
+
+            <!-- General Notes -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/dwp_generalNoteContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:layout_marginHorizontal="30dp"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dwp_generalNoteLabel">
+
+                <FrameLayout
+                    android:id="@+id/frameLayout2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="10dp">
+
+                    <include
+                        android:id="@+id/dwp_generalNotesLayout"
+                        layout="@layout/dwp_notes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+</LinearLayout>

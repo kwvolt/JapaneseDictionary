@@ -9,7 +9,7 @@ CREATE TABLE sub_class(
     CONSTRAINT UQIDX_sub_class__id_name UNIQUE(id_name)
 );
 
-insertSubClassLinkToMainClass {
+insertLinkToMainClass {
     INSERT OR IGNORE INTO sub_class (id_name, display_text)
     VALUES (:idName, :displayText);
     INSERT INTO word_class (main_class_id, sub_class_id)
@@ -20,34 +20,34 @@ insertSubClassLinkToMainClass {
     SELECT id FROM sub_class WHERE id_name = :idName AND display_text = :displayText LIMIT 1;
 }
 
-selectAllSubClassByMainClassId:
+selectAllByMainClassId:
 SELECT sub_class.id, sub_class.id_name, sub_class.display_text
 FROM sub_class
 INNER JOIN word_class ON sub_class.id = word_class.sub_class_id
 WHERE word_class.main_class_id = ?;
 
-insertSubClass{
+insert{
     INSERT INTO sub_class (id_name, display_text) VALUES (?, ?);
     SELECT last_insert_rowid();
 }
 
-selectSubClassId:
+selectId:
 SELECT id FROM sub_class WHERE id_name = ?;
 
-selectSubClassById:
+selectRowById:
 SELECT id_name, display_text FROM sub_class WHERE id = ?;
 
-selectSubClassByIdName:
+selectRowByIdName:
 SELECT id, display_text FROM sub_class WHERE id_name = ?;
 
-updateSubClassIdName:
+updateIdName:
 UPDATE sub_class SET id_name = ? WHERE id = ?;
 
-updateSubClassDisplayText:
+updateDisplayText:
 UPDATE sub_class SET display_text = ? WHERE id = ?;
 
-deleteSubClassByIdName:
+deleteRowByIdName:
 DELETE FROM sub_class WHERE id_name = ?;
 
-deleteSubClassById:
+deleteRowById:
 DELETE FROM sub_class WHERE id = ?;

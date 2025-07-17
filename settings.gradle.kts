@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "JapaneseDictionary"
 include(":app")
 include(":Shared")
+include(":dictionaryList")
