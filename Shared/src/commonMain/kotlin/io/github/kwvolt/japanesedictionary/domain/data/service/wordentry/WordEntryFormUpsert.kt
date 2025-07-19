@@ -60,10 +60,10 @@ class WordEntryFormUpsert(
         )
     }
 
-    suspend fun upsertDictionarySectionKana(dictionaryId: Long, kanaItem: TextItem): DatabaseResult<Long>{
+    suspend fun upsertDictionarySectionKana(dictionarySectionId: Long, kanaItem: TextItem): DatabaseResult<Long>{
         return upsertItem(kanaItem,
             insert = { identifier: String ->
-                entrySectionKanaRepository.insert(dictionaryId, kanaItem.inputTextValue, identifier)
+                entrySectionKanaRepository.insert(dictionarySectionId, kanaItem.inputTextValue, identifier)
             },
             update = { id: Long, identifier: String ->
                 entrySectionKanaRepository.updateKana(id, kanaItem.inputTextValue, identifier)
@@ -71,10 +71,10 @@ class WordEntryFormUpsert(
         )
     }
 
-    suspend fun upsertDictionarySectionNote(dictionaryId: Long, sectionNoteItem: TextItem): DatabaseResult<Long>{
+    suspend fun upsertDictionarySectionNote(dictionarySectionId: Long, sectionNoteItem: TextItem): DatabaseResult<Long>{
         return upsertItem(sectionNoteItem,
             insert = { identifier: String ->
-                entrySectionNoteRepository.insert(dictionaryId, sectionNoteItem.inputTextValue, identifier)
+                entrySectionNoteRepository.insert(dictionarySectionId, sectionNoteItem.inputTextValue, identifier)
             },
             update = { id: Long, identifier: String ->
                 entrySectionNoteRepository.updateNoteDescription(id, sectionNoteItem.inputTextValue, identifier)

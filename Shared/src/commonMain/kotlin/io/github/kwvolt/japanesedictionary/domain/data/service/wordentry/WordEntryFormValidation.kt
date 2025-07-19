@@ -1,6 +1,7 @@
 package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
 import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
+import io.github.kwvolt.japanesedictionary.domain.data.validation.TextPreprocessor
 import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationError
 import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationResult
 import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationType
@@ -11,10 +12,12 @@ import io.github.kwvolt.japanesedictionary.domain.data.validation.validateNotEmp
 import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
 import io.github.kwvolt.japanesedictionary.domain.model.WordSectionFormData
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.TextItem
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassItem
+import kotlinx.collections.immutable.toPersistentMap
 
 class WordEntryFormValidation() {
 
-    fun validatePrimaryText(primaryTextInput: TextItem): ValidationResult<ItemKey> = validatePrimaryTextBuilder(primaryTextInput).returnValidationResult()
+    fun validatePrimaryText(primaryTextInput: TextItem): ValidationResult<TextItem> = validatePrimaryTextBuilder(primaryTextInput).toValidationResult()
 
     private fun validatePrimaryTextBuilder(primaryTextInput: TextItem): ValidationTextItemBuilder{
         return ValidationTextItemBuilder(primaryTextInput)
@@ -22,16 +25,16 @@ class WordEntryFormValidation() {
             .validJapanese()
     }
 
-    fun validateNotes(entryNoteInput: TextItem, entryNoteList: List<TextItem>): ValidationResult<ItemKey> {
-        return  validateNotesBuilder(entryNoteInput).validateNoDuplicate(findDuplicateIdentifiers(entryNoteList)).returnValidationResult()
+    fun validateNotes(entryNoteInput: TextItem, entryNoteList: List<TextItem>): ValidationResult<TextItem> {
+        return  validateNotesBuilder(entryNoteInput).validateNoDuplicate(findDuplicateIdentifiers(entryNoteList)).toValidationResult()
     }
 
     private fun validateNotesBuilder(entryNoteInput: TextItem): ValidationTextItemBuilder{
         return ValidationTextItemBuilder(entryNoteInput).validateNotEmptyString()
     }
 
-    fun validateMeaningText(meaningTextInput: TextItem): ValidationResult<ItemKey> {
-        return  validateMeaningTextBuilder(meaningTextInput).returnValidationResult()
+    fun validateMeaningText(meaningTextInput: TextItem): ValidationResult<TextItem> {
+        return  validateMeaningTextBuilder(meaningTextInput).toValidationResult()
     }
 
     private fun validateMeaningTextBuilder(meaningTextInput: TextItem): ValidationTextItemBuilder{
@@ -39,8 +42,8 @@ class WordEntryFormValidation() {
             .validateNotEmptyString()
     }
 
-    fun validateKana(kanaInput: TextItem, kanaList: List<TextItem>): ValidationResult<ItemKey> {
-        return  validateKanaBuilder(kanaInput).validateNoDuplicate(findDuplicateIdentifiers(kanaList)).returnValidationResult()
+    fun validateKana(kanaInput: TextItem, kanaList: List<TextItem>): ValidationResult<TextItem> {
+        return  validateKanaBuilder(kanaInput).validateNoDuplicate(findDuplicateIdentifiers(kanaList)).toValidationResult()
     }
 
     private fun validateKanaBuilder(kanaInput: TextItem): ValidationTextItemBuilder {
@@ -62,53 +65,74 @@ class WordEntryFormValidation() {
      *
      * Should NEVER return [ValidationResult.InvalidInput] (use InvalidInputMap instead).
      */
-    fun validateForm(wordEntryFormData: WordEntryFormData): ValidationResult<Unit> {
+    fun validateForm(wordEntryFormData: WordEntryFormData): ValidationResult<WordEntryFormData> {
 
         val validationErrors = mutableMapOf<ItemKey, List<ValidationError>>()
 
+        val wordClassItem: WordClassItem = wordEntryFormData.wordClassInput
+        var cleanedPrimary: TextItem? = null
+        val cleanedEntryNotes = mutableMapOf<String, TextItem>()
+        val cleanedSections = mutableMapOf<Int, WordSectionFormData>()
+
         // primary Text
-        validationErrors.putIfNotEmpty(
-            validatePrimaryTextBuilder(wordEntryFormData.primaryTextInput).returnErrorEntry()
-        )
+        val primaryTextValidationBuilder: ValidationTextItemBuilder = validatePrimaryTextBuilder(wordEntryFormData.primaryTextInput)
+        validationErrors.putIfNotEmpty(primaryTextValidationBuilder.returnErrorEntry())
+        cleanedPrimary = primaryTextValidationBuilder.getCleanedItem()
 
         // entry notes
         val entryNoteItemList: List<TextItem> = wordEntryFormData.entryNoteInputMap.values.toList()
-        validationErrors.putAll(validateListNoDuplicate(entryNoteItemList) { validateNotesBuilder(it) })
+        validationErrors.putAll(
+            validateListNoDuplicate(
+                entryNoteItemList,
+                { validateNotesBuilder(it) },
+                { id: String, item:TextItem -> cleanedEntryNotes[id] = item}
+            )
+        )
 
         // Entry Section Validation
         val entrySectionMap = wordEntryFormData.wordSectionMap
-        for (entrySection: WordSectionFormData in entrySectionMap.values) {
+        for ((index: Int, entrySection: WordSectionFormData) in entrySectionMap.entries) {
+
+            var cleanedMeaning: TextItem? = null
+            val cleanedKana = mutableMapOf<String, TextItem>()
+            val cleanedNotes = mutableMapOf<String, TextItem>()
 
             // Meaning Text
-            validationErrors.putIfNotEmpty(
-                validateMeaningTextBuilder(entrySection.meaningInput).returnErrorEntry()
-            )
+            val meaningTextValidationBuilder: ValidationTextItemBuilder = validateMeaningTextBuilder(entrySection.meaningInput)
+            validationErrors.putIfNotEmpty(meaningTextValidationBuilder.returnErrorEntry())
+            cleanedMeaning = meaningTextValidationBuilder.getCleanedItem()
 
             // Kana Text
             val kanaItemList: List<TextItem> = entrySection.getKanaInputMapAsList()
-            validationErrors.putAll(validateListNoDuplicate(kanaItemList) { validateKanaBuilder(it) })
+            validationErrors.putAll(validateListNoDuplicate(kanaItemList, { validateKanaBuilder(it) }, { id: String, item: TextItem -> cleanedKana[id] = item}))
 
             // Section Note
             val sectionNoteItemList: List<TextItem> = entrySection.getComponentNoteInputMapAsList()
-            validationErrors.putAll(validateListNoDuplicate(sectionNoteItemList) { validateNotesBuilder(it) })
+            validationErrors.putAll(validateListNoDuplicate(sectionNoteItemList, { validateNotesBuilder(it) }, { id: String, item: TextItem -> cleanedNotes[id] = item}))
+
+            cleanedSections[index] = WordSectionFormData(cleanedMeaning, cleanedKana.toPersistentMap(), cleanedNotes.toPersistentMap())
         }
 
 
+        val cleanedWordEntryFormData = WordEntryFormData(wordClassItem, cleanedPrimary, cleanedEntryNotes.toPersistentMap(), cleanedSections.toPersistentMap())
         if (validationErrors.isNotEmpty()) {
             return ValidationResult.InvalidInputMap(validationErrors)
         }
-        return ValidationResult.Success(Unit)
+        return ValidationResult.Success(cleanedWordEntryFormData)
     }
 
     private fun validateListNoDuplicate(
         itemList: List<TextItem>,
-        block: (TextItem) -> ValidationTextItemBuilder
+        block: (TextItem) -> ValidationTextItemBuilder,
+        assignCleanItem: (String, TextItem) -> Unit
     ): Map<ItemKey, List<ValidationError>> {
         val validationErrors = mutableMapOf<ItemKey, List<ValidationError>>()
         val duplicates = findDuplicateIdentifiers(itemList)
         itemList.forEach {
             val builder = block(it).validateNoDuplicate(duplicates)
             validationErrors.putIfNotEmpty(builder.returnErrorEntry())
+            val cleanItem: TextItem = builder.getCleanedItem()
+            assignCleanItem(cleanItem.itemProperties.getIdentifier(), cleanItem)
         }
         return validationErrors
     }
@@ -127,9 +151,11 @@ class WordEntryFormValidation() {
 }
 
 private class ValidationTextItemBuilder(private val textItem: TextItem){
-    private val itemText = textItem.inputTextValue.trim()
+    private val itemText: String = TextPreprocessor.cleanInput(textItem.inputTextValue)
     private val itemKey: ItemKey.DataItem = ItemKey.DataItem(textItem.itemProperties.getIdentifier())
     private val validation = mutableListOf<ValidationError>()
+    private val cleanedItem: TextItem by lazy { textItem.copy(inputTextValue = itemText) }
+
 
     fun validJapanese(): ValidationTextItemBuilder{
         if (!validJapanese(itemText)) {
@@ -164,11 +190,17 @@ private class ValidationTextItemBuilder(private val textItem: TextItem){
         return this
     }
 
-    fun returnValidationResult(): ValidationResult<ItemKey>{
-        return if (validation.isEmpty()) ValidationResult.Success(itemKey) else ValidationResult.InvalidInput(itemKey, validation)
-    }
 
     fun returnErrorEntry(): Pair<ItemKey, List<ValidationError>>{
         return Pair(itemKey, validation)
+    }
+
+    fun toValidationResult(): ValidationResult<TextItem> {
+        return if (validation.isEmpty()) ValidationResult.Success(cleanedItem)
+        else ValidationResult.InvalidInput(itemKey, validation)
+    }
+
+    fun getCleanedItem(): TextItem {
+        return cleanedItem
     }
 }

@@ -95,11 +95,3 @@ class WordFormService(
     private fun Pair<ItemKey, List<ValidationError>>.toValidationResult(): ValidationResult<Unit> =
         if (this.second.isEmpty()) ValidationResult.Success(Unit) else ValidationResult.InvalidInput(this.first, this.second)
 }
-
-sealed class UpsertResult {
-    data object Success : UpsertResult()
-    data class ValidationFailed(val errors: Map<ItemKey, List<ValidationError>>) : UpsertResult()
-    data class DatabaseOperationFailed(val itemKey: ItemKey, val error: DatabaseError) : UpsertResult()
-    data object NotFound : UpsertResult()
-    data class UnknownError(val exception: Throwable, val message: String?) : UpsertResult()
-}
