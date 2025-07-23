@@ -107,11 +107,11 @@ class AddUpdateViewModel(
                 )
 
                 when (result) {
-                    is UpsertResult.ValidationFailed -> {
+                    is UpsertResult.ItemsOperationFailed -> {
                         val errorMap: Map<ItemKey, ErrorMessage> =
 
-                            result.errors.entries.associate { (key, value) ->
-                                key to ErrorMessage(errorMessage = formatValidationTypeToMessage(value), isDirty = true)
+                            result { (key, value) ->
+                                key to ErrorMessage(value , isDirty = true)
                             }
                         val updatedErrorMessage: MutableMap<ItemKey, ErrorMessage> =
                             uiState.value.errors.toMutableMap()
@@ -126,7 +126,7 @@ class AddUpdateViewModel(
                         }
                     }
 
-                    is UpsertResult.DatabaseOperationFailed -> {
+                    is UpsertResult.SingleItemOperationFailed -> {
                         val updatedErrorMessage: MutableMap<ItemKey, ErrorMessage> =
                             uiState.value.errors.toMutableMap()
                         updatedErrorMessage[result.itemKey] = ErrorMessage(

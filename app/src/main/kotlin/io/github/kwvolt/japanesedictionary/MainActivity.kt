@@ -4,10 +4,16 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import io.github.kwvolt.japanesedictionary.ui.addUpdate.AddUpdateRecyclerViewFragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import io.github.kwvolt.japanesedictionary.databinding.ActivityMainBinding
 import io.github.kwvolt.japanesedictionary.presentation.mainactivity.LoadingViewModel
+import io.github.kwvolt.japanesedictionary.ui.ErrorDialogFragment
 import io.github.kwvolt.japanesedictionary.ui.dictionarydetailpage.DictionaryDetailPageViewFragment
+import io.github.kwvolt.japanesedictionary.ui.model.ActivityMainScreenState
+import io.github.kwvolt.japanesedictionary.ui.model.ScreenStateUnknownError
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,13 +30,23 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-        loadingViewModel.isLoading.observe(this) { isLoading ->
-            if(isLoading) {
-                showLoading()
-            }
-            else {
-                hideLoading()
+        // Observe StateFlow
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                loadingViewModel.uiState.collect { state: ActivityMainScreenState ->
+                    when {
+                        state.isLoading -> showLoading()
+                        state.screenStateUnknownError != null -> {
+                            showLoading()
+                            state.screenStateUnknownError?.let { error ->
+                                ErrorDialogFragment.show(supportFragmentManager, error.throwable, error.message)
+                            }
+                        }
+                        else -> {
+                            hideLoading()
+                        }
+                    }
+                }
             }
         }
 
@@ -52,9 +68,21 @@ class MainActivity : AppCompatActivity() {
         binding.loadingProgressBar.visibility = View.VISIBLE
     }
 
-    private fun hideLoading(){
-        binding.loadingBackground.animate().alpha(1f).setDuration(200).start()
-        binding.loadingBackground.visibility = View.GONE
+    private fun hideLoading() {
+        binding.loadingBackground.animate()
+            .alpha(0f)
+            .setDuration(200)
+            .withEndAction {
+                binding.loadingBackground.visibility = View.GONE
+                binding.loadingBackground.alpha = 1f // Reset alpha
+            }
+            .start()
+
         binding.loadingProgressBar.visibility = View.GONE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 }

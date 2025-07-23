@@ -7,8 +7,6 @@ import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.Ent
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntrySectionKanaInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntrySectionNoteRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntrySectionRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordClassRepositoryInterface
 
 class WordEntryFormDelete (
     private val dbHandler: DatabaseHandlerBase,
@@ -18,6 +16,27 @@ class WordEntryFormDelete (
     private val entrySectionKanaRepository: EntrySectionKanaInterface,
     private val entrySectionNoteRepository: EntrySectionNoteRepositoryInterface,
 ){
+
+    suspend fun deletePrimaryText(dictionaryId: Long, itemId: String? = null): DatabaseResult<Unit>{
+        return entryRepository.deleteRow(dictionaryId, itemId)
+    }
+
+    suspend fun deleteEntryNote(dictionaryNoteId: Long, itemId: String? = null): DatabaseResult<Unit>{
+        return entryNoteRepository.deleteRow(dictionaryNoteId, itemId)
+    }
+
+    suspend fun deleteSectionMeaning(meaningId: Long, itemId: String? = null): DatabaseResult<Unit>{
+        return entrySectionRepository.deleteRow(meaningId, itemId)
+    }
+
+    suspend fun deleteSectionKana(kanaId: Long, itemId: String? = null): DatabaseResult<Unit>{
+        return entrySectionKanaRepository.deleteRow(kanaId, itemId)
+    }
+
+    suspend fun deleteSectionNote(sectionNoteId: Long, itemId: String? = null): DatabaseResult<Unit>{
+        return entrySectionNoteRepository.deleteRow(sectionNoteId, itemId)
+    }
+
     suspend fun deleteWordEntryFormData(dictionaryEntryId: Long): DatabaseResult<Unit> {
         val entryNoteIdList: DatabaseResult<List<Long>> = entryNoteRepository.selectAllById(dictionaryEntryId).flatMapList{ item -> item.id}
 

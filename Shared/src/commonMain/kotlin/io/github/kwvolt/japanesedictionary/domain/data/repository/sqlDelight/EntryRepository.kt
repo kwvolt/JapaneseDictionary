@@ -1,4 +1,4 @@
-package io.github.kwvolt.japanesedictionary.domain.data.repository
+package io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight
 
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
@@ -40,6 +40,12 @@ class EntryRepository(
         }.map { result -> DictionaryEntryContainer(id, result.word_class_id, result.primary_text) }
     }
 
+    override suspend fun selectIsBookmarked(id: Long, itemId: String?): DatabaseResult<Boolean> {
+        return dbHandler.withContextDispatcherWithException(itemId, "Error at selectIsBookmarked in EntryRepository For value dictionaryEntryId: $id"){
+            queries.selectIsBookmark(id).awaitAsOneOrNull()
+        }.map { result -> result != 0L}
+    }
+
     override suspend fun updatePrimaryText(
         id: Long,
         primaryText: String,
@@ -54,6 +60,14 @@ class EntryRepository(
         itemId: String?
     ): DatabaseResult<Unit> {
         return dbHandler.wrapQuery(itemId) {queries.updateWordClass(wordClassId, id)}
+    }
+
+    override suspend fun updateIsBookmark(
+        id: Long,
+        isBookmark: Boolean,
+        itemId: String?
+    ): DatabaseResult<Unit> {
+        return dbHandler.wrapQuery(itemId) { queries.updateIsBookmark(if (isBookmark) 1L else 0L, id) }
     }
 
     override suspend fun updateWordClassIdAndPrimaryText(

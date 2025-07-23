@@ -36,7 +36,7 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.sync.withPermit
 
-class WordEntryFormBuilder(
+class WordEntryFormFetcher(
     private val dbHandler: DatabaseHandlerBase,
     private val entryRepository: EntryRepositoryInterface,
     private val entryNoteRepository: EntryNoteRepositoryInterface,
@@ -57,7 +57,7 @@ class WordEntryFormBuilder(
 
         // Run DB calls concurrently
         val dictionaryEntryDeferred = async { withDbTimeout { semaphore.withPermit { entryRepository.selectRow(dictionaryEntryId) }} }
-        val entryNotesDeferred = async { withDbTimeout { semaphore.withPermit { fetchEntryNotes(dictionaryEntryId) }} }
+        val entryNotesDeferred = async { withDbTimeout { semaphore.withPermit { fetchEntryNoteMap(dictionaryEntryId) }} }
         val entrySectionsDeferred = async { withDbTimeout { semaphore.withPermit { fetchEntrySections(dictionaryEntryId, formItemManager) }}}
 
         // Await results
@@ -155,12 +155,12 @@ class WordEntryFormBuilder(
         val kanaDeferred:  Deferred<DatabaseResult<PersistentMap<String, TextItem>>> = async {
             withTimeout(5000) { // 5-second timeout for kana fetch
                 semaphore.withPermit {
-                    fetchEntrySectionKana(dictionaryEntrySectionId, section)
+                    fetchSectionKanaMap(dictionaryEntrySectionId, section)
                 }
             }
         }
         val noteDeferred:  Deferred<DatabaseResult<PersistentMap<String, TextItem>>>  = async {
-            withTimeout(5000) {semaphore.withPermit { fetchEntrySectionNotes(dictionaryEntrySectionId, section) }}
+            withTimeout(5000) {semaphore.withPermit { fetchSectionNoteMap(dictionaryEntrySectionId, section) }}
         }
 
         // Limit concurrent tasks
@@ -209,10 +209,24 @@ class WordEntryFormBuilder(
         }
     }
 
-    suspend fun fetchEntryNotes(dictionaryEntryId: Long): DatabaseResult<PersistentMap<String, TextItem>> {
+    suspend fun fetchIsBookmarked(dictionaryEntryId: Long): DatabaseResult<Boolean>{
+        return entryRepository.selectIsBookmarked(dictionaryEntryId)
+    }
+
+    suspend fun fetchEntryNoteMap(dictionaryEntryId: Long): DatabaseResult<PersistentMap<String, TextItem>> {
         return fetchItemsAndMap(
             { entryNoteRepository.selectAllById(dictionaryEntryId) }
         ) { container ->
+            TextItem(
+                InputTextType.ENTRY_NOTE_DESCRIPTION,
+                container.note,
+                ItemProperties(WordEntryTable.DICTIONARY_ENTRY_NOTE, id = container.id)
+            )
+        }
+    }
+
+    suspend fun fetchEntryNote(entryNoteId: Long): DatabaseResult<TextItem> {
+        return entryNoteRepository.selectRow(entryNoteId).map { container ->
             TextItem(
                 InputTextType.ENTRY_NOTE_DESCRIPTION,
                 container.note,
@@ -230,22 +244,42 @@ class WordEntryFormBuilder(
         }
     }
 
-    suspend fun fetchEntrySectionKana(dictionaryEntrySectionId: Long, section: Int): DatabaseResult<PersistentMap<String, TextItem>> {
+    suspend fun fetchSectionKanaMap(dictionaryEntrySectionId: Long, section: Int): DatabaseResult<PersistentMap<String, TextItem>> {
         return fetchItemsAndMap(
             { entrySectionKanaRepository.selectAllBySectionId(dictionaryEntrySectionId) }
         ) { container: DictionaryEntrySectionKanaContainer ->
             TextItem(
-                InputTextType.ENTRY_NOTE_DESCRIPTION,
+                InputTextType.KANA,
                 container.wordText,
                 ItemSectionProperties(WordEntryTable.DICTIONARY_SECTION_KANA, id = container.id, sectionId = section)
             )
         }
     }
 
-    suspend fun fetchEntrySectionNotes(dictionaryEntrySectionId: Long, section: Int): DatabaseResult<PersistentMap<String, TextItem>> {
+    suspend fun fetchSectionKana(kanaId: Long, section: Int): DatabaseResult<TextItem> {
+        return entrySectionKanaRepository.selectRow(kanaId).map { container ->
+            TextItem(
+                InputTextType.KANA,
+                container.wordText,
+                ItemSectionProperties(WordEntryTable.DICTIONARY_SECTION_KANA, id = container.id, sectionId = section)
+            )
+        }
+    }
+
+    suspend fun fetchSectionNoteMap(dictionaryEntrySectionId: Long, section: Int): DatabaseResult<PersistentMap<String, TextItem>> {
         return fetchItemsAndMap(
             { entrySectionNoteRepository.selectAllBySectionId(dictionaryEntrySectionId) }
         ) { container: DictionaryEntrySectionNoteContainer ->
+            TextItem(
+                InputTextType.SECTION_NOTE_DESCRIPTION,
+                container.note,
+                ItemSectionProperties(WordEntryTable.DICTIONARY_SECTION_NOTE, id = container.id, sectionId = section)
+            )
+        }
+    }
+
+    suspend fun fetchSectionNote(entryNoteId: Long, section: Int): DatabaseResult<TextItem> {
+        return entrySectionNoteRepository.selectRow(entryNoteId).map { container ->
             TextItem(
                 InputTextType.SECTION_NOTE_DESCRIPTION,
                 container.note,

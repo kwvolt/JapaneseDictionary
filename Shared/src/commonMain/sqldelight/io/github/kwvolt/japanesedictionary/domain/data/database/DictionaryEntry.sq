@@ -19,6 +19,9 @@ insert{
 selectIdByPrimaryText:
 SELECT id FROM dictionary_entry WHERE primary_text = ?;
 
+selectIsBookmark:
+SELECT is_bookmarked FROM dictionary_entry WHERE id = ?;
+
 selectRow:
 SELECT word_class_id, primary_text FROM dictionary_entry WHERE id = ?;
 
@@ -30,6 +33,9 @@ UPDATE dictionary_entry SET word_class_id = ? WHERE id = ?;
 
 updatePrimaryText:
 UPDATE dictionary_entry SET primary_text = ? WHERE id = ?;
+
+updateIsBookmark:
+UPDATE dictionary_entry SET is_bookmarked = ? WHERE id = ?;
 
 updateWordClassIdAndPrimaryText:
 UPDATE dictionary_entry SET word_class_id = ?, primary_text = ? WHERE id = ?;

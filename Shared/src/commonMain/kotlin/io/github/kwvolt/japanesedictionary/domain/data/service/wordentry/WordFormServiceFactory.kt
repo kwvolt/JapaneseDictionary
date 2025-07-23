@@ -1,14 +1,14 @@
 package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandler
-import io.github.kwvolt.japanesedictionary.domain.data.repository.EntryNoteRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.EntryRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.EntrySectionKanaRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.EntrySectionNoteRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.EntrySectionRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.MainClassRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.SubClassRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.WordClassRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.EntryNoteRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.EntryRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.EntrySectionKanaRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.EntrySectionNoteRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.EntrySectionRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.MainClassRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.SubClassRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.WordClassRepository
 
 class WordFormServiceFactory(private val dbHandler: DatabaseHandler) {
     fun create(): WordFormService {
@@ -21,7 +21,7 @@ class WordFormServiceFactory(private val dbHandler: DatabaseHandler) {
         val mainClassRepository = MainClassRepository(dbHandler, dbHandler.queries.mainClassQueries)
         val subClassRepository = SubClassRepository(dbHandler, dbHandler.queries.subClassQueries)
 
-        val wordEntryFormBuilder = WordEntryFormBuilder(
+        val wordEntryFormFetcher = WordEntryFormFetcher(
             dbHandler,
             entryRepository,
             entryNoteRepository,
@@ -60,7 +60,7 @@ class WordFormServiceFactory(private val dbHandler: DatabaseHandler) {
         val wordEntryFormValidation = WordEntryFormValidation()
 
         return WordFormService(
-            wordEntryFormBuilder,
+            wordEntryFormFetcher,
             wordEntryFormUpsert,
             wordEntryFormDelete,
             wordClassBuilder,

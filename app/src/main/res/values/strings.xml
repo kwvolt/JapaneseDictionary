@@ -20,6 +20,9 @@
     <string name="unsaved_changes_message">You have unsaved changes. Are you sure you want to discard them?</string>
     <string name="proceed">Proceed</string>
 
+    <string name="warning_delete_title">Delete value?</string>
+    <string name="warning_delete_message">You are about to delete a note. Are you sure you want to delete?</string>
+
     <string name="binding_null_error">Binding is null</string>
 
     <!-- Dictionary Word Page -->
@@ -40,4 +43,9 @@
     <string name="dwp_bookmark">bookmark</string>
     <string name="dwp_overflow_icon_content_description">More options</string>
     <string name="dwp_edit_note_dialog_title">Edit Note</string>
+    <string name="note_dialog_error_note_unavailable">Sorry the value for this note is not available\n</string>
+    <string name="ok">ok</string>
+    <string name="error">Error</string>
+    <string name="copy">copy</string>
+    <string name="copied_to_clipboard">copied to clipboard</string>
 </resources>

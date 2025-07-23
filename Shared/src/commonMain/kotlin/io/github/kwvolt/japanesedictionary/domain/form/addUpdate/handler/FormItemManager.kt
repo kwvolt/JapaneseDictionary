@@ -62,6 +62,11 @@ class FormItemManager {
         return entryChildrenCountMap[sectionId] ?: 0
     }
 
+    fun clear(){
+        entrySectionId = 0
+        nextAvailableId = 0
+    }
+
     fun createNewTextItem(inputTextType: InputTextType, genericItemProperties: GenericItemProperties): TextItem{
         return TextItem(inputTextType, "", genericItemProperties)
     }

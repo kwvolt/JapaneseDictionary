@@ -1,7 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
 import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
-import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseError
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
@@ -12,17 +11,16 @@ import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.GenericIt
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormItemManager
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.TextItem
 import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassItem
-import kotlinx.collections.immutable.PersistentMap
 
 class WordFormService(
-    private val wordEntryFormBuilder: WordEntryFormBuilder,
+    private val wordEntryFormFetcher: WordEntryFormFetcher,
     private val wordEntryFormUpsert: WordEntryFormUpsert,
     private val wordEntryFormDelete: WordEntryFormDelete,
     private val wordClassBuilder: WordClassBuilder,
     private val wordEntryFormValidation: WordEntryFormValidation
 ) {
     suspend fun getWordFormData(dictionaryEntryId: Long, formItemManager: FormItemManager): DatabaseResult<WordEntryFormData> {
-        return wordEntryFormBuilder.createWordFormData(dictionaryEntryId, formItemManager)
+        return wordEntryFormFetcher.createWordFormData(dictionaryEntryId, formItemManager)
     }
 
     suspend fun applyIsBookmark(dictionaryEntryId:Long, isBookmark: Boolean){

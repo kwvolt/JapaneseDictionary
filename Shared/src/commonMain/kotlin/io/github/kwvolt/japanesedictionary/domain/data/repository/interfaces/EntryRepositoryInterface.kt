@@ -39,6 +39,18 @@ interface EntryRepositoryInterface {
      */
     suspend fun selectRow(id: Long, itemId: String? = null): DatabaseResult<DictionaryEntryContainer>
 
+
+    /**
+     * Retrieves the bookmark boolean of a dictionary entry based on its Id
+     *
+     * @param id The ID of the bookmark to retrieve.
+     * @return [DatabaseResult.Success] with [Boolean],
+     * [DatabaseResult.InvalidInput] if database Error occurs (unique constraint, foreign key, not null, not found)
+     * [DatabaseResult.NotFound] if no value is returned and not tied to item else it returns InvalidInput
+     * [DatabaseResult.UnknownError] if an error occurred.
+     */
+    suspend fun selectIsBookmarked(id: Long, itemId: String? = null): DatabaseResult<Boolean>
+
     /**
      * Updates the primary text of a dictionary entry.
      *
@@ -62,6 +74,18 @@ interface EntryRepositoryInterface {
      * [DatabaseResult.UnknownError] if an error occurred.
      */
     suspend fun updateWordClass(id: Long, wordClassId: Long, itemId: String? = null): DatabaseResult<Unit>
+
+    /**
+     * Updates the bookmark of a dictionary entry.
+     *
+     * @param id The ID of the entry to update.
+     * @param isBookmark The updated isBookmark
+     * @return [DatabaseResult.Success] if update was successful,
+     * [DatabaseResult.InvalidInput] if database Error occurs (unique constraint, foreign key, not null, not found)
+     * [DatabaseResult.NotFound] if no value is returned and not tied to item else it returns InvalidInput
+     * [DatabaseResult.UnknownError] if an error occurred.
+     */
+    suspend fun updateIsBookmark(id: Long, isBookmark: Boolean, itemId: String? = null): DatabaseResult<Unit>
 
     /**
      * Updates the word class and primary text of a dictionary entry.

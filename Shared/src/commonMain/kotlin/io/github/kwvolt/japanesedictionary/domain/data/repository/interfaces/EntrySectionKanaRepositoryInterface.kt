@@ -1,6 +1,7 @@
 package io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
+import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.TextItem
 
 interface EntrySectionKanaInterface {
     /**
@@ -26,6 +27,8 @@ interface EntrySectionKanaInterface {
      * [DatabaseResult.UnknownError] if an error occurred.
      */
     suspend fun selectId(sectionId: Long, wordText: String, itemId: String? = null): DatabaseResult<Long>
+
+    suspend fun selectRow(id: Long, itemId: String? = null): DatabaseResult<DictionaryEntrySectionKanaContainer>
 
     /**
      * Retrieves all Kana representations linked to a specific dictionary entry section.

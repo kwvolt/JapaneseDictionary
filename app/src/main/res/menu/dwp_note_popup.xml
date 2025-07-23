@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/dwp_menu_update"
+        android:id="@+id/dwp_popup_menu_update"
         android:title="@string/update" />
 
     <item
@@ -13,6 +13,6 @@
         android:title="@string/string_divider" />
 
     <item
-        android:id="@+id/dwp_menu_delete"
+        android:id="@+id/dwp_popup_menu_delete"
         android:title="@string/delete" />
 </menu>

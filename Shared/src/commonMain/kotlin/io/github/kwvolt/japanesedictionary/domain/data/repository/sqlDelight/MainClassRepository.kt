@@ -1,4 +1,4 @@
-package io.github.kwvolt.japanesedictionary.domain.data.repository
+package io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight
 
 import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull

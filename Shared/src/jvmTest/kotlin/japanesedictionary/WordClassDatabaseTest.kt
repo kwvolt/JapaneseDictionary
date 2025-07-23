@@ -6,9 +6,9 @@ import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandler
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.database.DriverFactory
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.MainClassRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.SubClassRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.WordClassRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.MainClassRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.SubClassRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.WordClassRepository
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordClassBuilder
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordClassUpsert
 import kotlinx.coroutines.runBlocking
@@ -20,9 +20,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestMethodOrder
-
-
-import org.sqlite.SQLiteException
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)

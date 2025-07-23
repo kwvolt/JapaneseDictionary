@@ -16,6 +16,7 @@
             android:layout_height="wrap_content">
 
             <!-- Definition Card Container -->
+
             <TextView
                 android:id="@+id/dwp_primaryText"
                 android:layout_width="wrap_content"
@@ -27,7 +28,8 @@
                 app:layout_constraintHorizontal_bias="0.498"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="日本語" />
+                tools:text="日本語"
+                android:paddingHorizontal="50dp"/>
 
             <TextView
                 android:id="@+id/dwp_wordClass"

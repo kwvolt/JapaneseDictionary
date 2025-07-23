@@ -38,6 +38,11 @@ class WordEntryFormUpsert(
         )
     }
 
+    suspend fun updateIsBookmark(dictionaryId: Long, isBookmark: Boolean): DatabaseResult<Unit>{
+        return entryRepository.updateIsBookmark(dictionaryId, isBookmark)
+
+    }
+
     suspend fun upsertDictionaryEntryNote(dictionaryId: Long, entryNoteItem: TextItem): DatabaseResult<Long>{
         return upsertItem(entryNoteItem,
             insert = { identifier: String ->

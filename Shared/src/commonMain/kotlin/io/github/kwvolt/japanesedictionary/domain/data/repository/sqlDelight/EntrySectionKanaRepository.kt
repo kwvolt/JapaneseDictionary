@@ -1,4 +1,4 @@
-package io.github.kwvolt.japanesedictionary.domain.data.repository
+package io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight
 
 import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
@@ -30,6 +30,14 @@ class EntrySectionKanaRepository(
         ){
             entrySectionKanaQueries.selectId(sectionId, wordText).awaitAsOneOrNull()
         }
+    }
+
+    override suspend fun selectRow(id: Long, itemId: String?): DatabaseResult<DictionaryEntrySectionKanaContainer> {
+        return dbHandler.withContextDispatcherWithException(itemId,
+            "Error at selectRow in EntrySectionKanaRepository For value id: $id"
+        ){
+            entrySectionKanaQueries.selectRow(id).awaitAsOneOrNull()
+        }.flatMap { result -> DatabaseResult.Success(DictionaryEntrySectionKanaContainer(result.id, result.wordText)) }
     }
 
     override suspend fun selectAllBySectionId(

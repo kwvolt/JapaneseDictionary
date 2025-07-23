@@ -17,6 +17,9 @@ insert {
 selectId:
 SELECT id FROM kana WHERE dictionary_entry_section_id = ? AND wordText = ?;
 
+selectRow:
+SELECT id, dictionary_entry_section_id, wordText FROM kana WHERE id = ?;
+
 selectAllBySectionId:
 SELECT id, wordText FROM kana WHERE dictionary_entry_section_id = ?;
 
