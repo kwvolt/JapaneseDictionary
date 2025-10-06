@@ -48,10 +48,7 @@ class VerbSuffixSwapRepository(
         replacement: String,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectId in VerbSuffixSwapRepository for original: $original and replacement: $replacement",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             queries.selectId(original, replacement).awaitAsOneOrNull()
         }
     }
@@ -60,10 +57,7 @@ class VerbSuffixSwapRepository(
         id: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<ConjugationVerbSuffixSwapContainer> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectRow in VerbSuffixSwapRepository for id: $id",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             queries.selectRow(id).awaitAsOneOrNull()
         }.map {
             ConjugationVerbSuffixSwapContainer(id, it.original, it.replacement)
@@ -94,10 +88,7 @@ class VerbSuffixSwapRepository(
         conjugationId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectVerbSwapSuffixId in VerbSuffixSwapRepository for conjugationId: $conjugationId",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             linkQueries.selectVerbSwapSuffixId(conjugationId).awaitAsOneOrNull()?.verb_suffix_swap_id
         }
     }

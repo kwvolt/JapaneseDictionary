@@ -41,8 +41,7 @@ class ConjugationPatternRepository(
     }
 
     override suspend fun selectId(idName: String, returnNotFoundOnNull: Boolean): DatabaseResult<Long> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectId in ConjugationPatternRepository for idName: $idName",
+        return dbHandler.wrapQuery(
             returnNotFoundOnNull = returnNotFoundOnNull
         ){
             queries.selectId(idName).awaitAsOneOrNull()
@@ -50,10 +49,7 @@ class ConjugationPatternRepository(
     }
 
     override suspend fun selectRow(id: Long, returnNotFoundOnNull: Boolean): DatabaseResult<ConjugationPatternContainer> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectRow in ConjugationPatternRepository for id: $id",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             queries.selectRow(id).awaitAsOneOrNull()
         }.map {
             ConjugationPatternContainer(id, it.id_name, it.display_text)
@@ -65,10 +61,7 @@ class ConjugationPatternRepository(
         idName: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Boolean> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectExist in ConjugationPatternRepository for id: $id",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             if(id != null){
                 queries.selectExistById(id).awaitAsOneOrNull()
             }
@@ -103,10 +96,7 @@ class ConjugationPatternRepository(
         conjugationVariantId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectIsVariantOf in ConjugationPatternRepository for conjugationVariantId: $conjugationVariantId",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             variantQueries.selectIsVariantOfPatternId(conjugationVariantId).awaitAsOneOrNull()
         }
     }
@@ -116,10 +106,7 @@ class ConjugationPatternRepository(
         conjugationVariantId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Boolean> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectCheckLinkExist in ConjugationPatternRepository for conjugationVariantId: $conjugationVariantId",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             variantQueries.selectCheckLinkExist(conjugationPatternId, conjugationVariantId).awaitAsOneOrNull()
         }
     }

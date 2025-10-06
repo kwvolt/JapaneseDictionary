@@ -47,10 +47,7 @@ class ConjugationRepository(
         conjugationSuffixId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectId in ConjugationRepository for conjugationPatternId: $conjugationPatternId, conjugationPreprocessId: $conjugationPreprocessId, conjugationSuffixId: $conjugationSuffixId",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             queries.selectId(conjugationPatternId, conjugationPreprocessId, conjugationSuffixId).awaitAsOneOrNull()
         }
     }
@@ -59,10 +56,7 @@ class ConjugationRepository(
         id: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<ConjugationContainer> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectRow in ConjugationRepository for id: $id",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             queries.selectRow(id).awaitAsOneOrNull()
         }.map {
             ConjugationContainer(id, it.conjugation_pattern_id, it.conjugation_preprocess_id, it.conjugation_suffix_id)

@@ -43,10 +43,7 @@ class ConjugationPreprocessRepository(
         idName: String,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectId in ConjugationPreprocessRepository for idName: $idName",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             queries.selectId(idName).awaitAsOneOrNull()
         }
     }
@@ -55,10 +52,7 @@ class ConjugationPreprocessRepository(
         id: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<ConjugationPreprocessContainer> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectRow in ConjugationPreprocessRepository for id: $id",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             queries.selectRow(id).awaitAsOneOrNull()
         }.map {
             ConjugationPreprocessContainer(id, it)
@@ -70,10 +64,7 @@ class ConjugationPreprocessRepository(
         idName: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Boolean> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectExist in ConjugationPatternRepository for idName: $idName",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             if(id != null){
                 queries.selectExistById(id).awaitAsOneOrNull()
             }

@@ -48,10 +48,7 @@ class ConjugationSuffixRepository(
         isShortForm: Boolean?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectId in ConjugationSuffixRepository for suffixText: $suffixText isShortForm: $isShortForm",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             queries.selectId(suffixText, isShortForm?.let{if(it) 1 else 0}).awaitAsOneOrNull()
         }
     }
@@ -60,10 +57,7 @@ class ConjugationSuffixRepository(
         id: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<ConjugationSuffixContainer> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectRow in ConjugationSuffixRepository for id: $id",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             queries.selectRow(id).awaitAsOneOrNull()
         }.map {
             ConjugationSuffixContainer(
@@ -78,10 +72,7 @@ class ConjugationSuffixRepository(
         id: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Boolean> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectExist in ConjugationSuffixRepository for id: $id",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             queries.selectExistById(id).awaitAsOneOrNull()
         }
     }

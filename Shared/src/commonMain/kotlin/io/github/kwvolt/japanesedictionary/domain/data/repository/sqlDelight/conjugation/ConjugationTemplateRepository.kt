@@ -43,10 +43,7 @@ class ConjugationTemplateRepository(
         idName: String,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectId in ConjugationTemplateRepository for idName: $idName",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             queries.selectId(idName).awaitAsOneOrNull()
         }
     }
@@ -55,10 +52,7 @@ class ConjugationTemplateRepository(
         id: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<ConjugationTemplateContainer> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectRow in ConjugationTemplateRepository for id: $id",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             queries.selectRow(id).awaitAsOneOrNull()
         }.map {
             ConjugationTemplateContainer(id, it.id_name, it.display_text)
@@ -70,10 +64,7 @@ class ConjugationTemplateRepository(
         idName: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Boolean> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectExist in ConjugationTemplateRepository for id: $id",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             if(id != null){
                 queries.selectExistById(id).awaitAsOneOrNull()
             }
@@ -108,10 +99,7 @@ class ConjugationTemplateRepository(
         conjugationTemplateId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<List<Long>> {
-        return dbHandler.withContextDispatcherWithException(
-            errorMessage = "Error at selectConjugationIdByConjugationTemplateId in ConjugationTemplateRepository for conjugationTemplateId: $conjugationTemplateId",
-            returnNotFoundOnNull = returnNotFoundOnNull
-        ){
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             linkQueries.selectConjugationIdByConjugationTemplateId(conjugationTemplateId).awaitAsList()
         }.map { listOf()}
     }
