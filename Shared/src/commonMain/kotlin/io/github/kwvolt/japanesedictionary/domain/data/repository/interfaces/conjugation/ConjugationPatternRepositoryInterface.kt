@@ -19,6 +19,7 @@ interface ConjugationPatternRepositoryInterface {
     suspend fun insertLinkVariantToOriginal(conjugationPatternId: Long, conjugationVariantId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
     suspend fun removeLinkVariantToOriginal(conjugationPatternId: Long, conjugationVariantId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
     suspend fun selectIsVariantOf(conjugationVariantId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
+    suspend fun selectCheckLinkExist(conjugationPatternId: Long, conjugationVariantId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Boolean>
 }
 
 data class ConjugationPatternContainer(val id: Long, val idName: String, val displayText: String)

@@ -21,81 +21,59 @@ class ConjugationUpsert(
     private val conjugationTemplateRepository: ConjugationTemplateRepositoryInterface
 ) {
 
-    suspend fun insertPattern(
-        idName: String,
-        displayText: String,
-        descriptionText: String? =null,
-    ): DatabaseResult<Long>{
-        return conjugationPatternRepository.insert(idName, displayText, descriptionText)
-    }
-
-    suspend fun updatePattern(
-        conjugationPatternId: Long,
-        idName: String? = null,
-        displayText: String? = null,
-        descriptionTextProvided: Boolean,
-        descriptionText: String? =null
-    ): DatabaseResult<Unit>{
-        return conjugationPatternRepository.update(
-            conjugationPatternId,
-            idName,
-            displayText,
-            true,
-            descriptionText
-        )
-    }
-
     suspend fun upsertPattern(
         conjugationPatternId: Long? = null,
-        idName: String? = null,
-        displayText: String? = null,
-        descriptionText: String? =null,
+        idNameValue: NullableValue<String> = NullableValue.ValueNotProvided,
+        displayTextValue: NullableValue<String> = NullableValue.ValueNotProvided,
+        descriptionTextValue: OptionalNullableValue<String> = NullableValue.ValueNotProvided
     ): DatabaseResult<Long>{
-        return upsertBlock(conjugationPatternId, idName,
-            doesExistResult = { conjugationPatternRepository.selectExist(conjugationPatternId, idName)},
-            insert = {idName: String ->
-                val displayText: String = getOrFail(displayText) {return it.mapErrorTo()}
+        return upsertBlock(conjugationPatternId, idNameValue,
+            doesExistResult = { idName: String? ->conjugationPatternRepository.selectExist(conjugationPatternId, idName)},
+            insert = { idName: String ->
+                val displayText: String = displayTextValue.requireNotNullOrFail {return it.mapErrorTo()}
                 conjugationPatternRepository.insert(idName, displayText)
             },
-            update={ id: Long, idName: String? ->conjugationPatternRepository.update(
-                id,
-                idName,
-                displayText,
-                false,
-                descriptionText,
-            ) }
+            update={ id: Long, idName: String? ->
+                val (descriptionText: String? ,descriptionTextProvided: Boolean) = descriptionTextValue.getValueWithPresenceFlag()
+                conjugationPatternRepository.update(id, idName, displayTextValue.getOrNull(), descriptionTextProvided, descriptionText)
+            }
         )
     }
 
     suspend fun upsertPattern(
         conjugationPatternId: Long? = null,
-        idName: String?,
-        displayText: String?,
-        descriptionText: String? = null,
+        idNameValue: NullableValue<String> = NullableValue.ValueNotProvided,
+        displayTextValue: NullableValue<String> = NullableValue.ValueNotProvided,
+        descriptionTextValue: OptionalNullableValue<String> = NullableValue.ValueNotProvided,
         variantList: List<ConjugationPatternUpsertContainer>
     ): DatabaseResult<Long>{
-        return upsertPattern(conjugationPatternId, idName, displayText, descriptionText).flatMap { id: Long ->
+        return upsertPattern(conjugationPatternId, idNameValue, displayTextValue, descriptionTextValue).flatMap { id: Long ->
             dbHandler.processBatchWrite(variantList){ container: ConjugationPatternUpsertContainer ->
                 val result = upsertPattern(
                     container.conjugationPatternId,
-                    container.idName,
-                    container.displayText,
-                    container.descriptionText)
+                    container.idNameValue,
+                    container.displayTextValue,
+                    container.descriptionTextValue)
                 val variantId: Long = result.getOrReturn { return@processBatchWrite it.mapErrorTo() }
-                val linkResult: DatabaseResult<Unit> = conjugationPatternRepository.insertLinkVariantToOriginal(id, variantId)
-                linkResult.returnOnFailure { return@processBatchWrite it.mapErrorTo() }
+                val linkExist: Boolean = conjugationPatternRepository.selectCheckLinkExist(id, variantId).getOrReturn { return@processBatchWrite it.mapErrorTo() }
+                if(linkExist){
+                    conjugationPatternRepository.insertLinkVariantToOriginal(id, variantId).returnOnFailure { return@processBatchWrite it.mapErrorTo() }
+                }
+                DatabaseResult.Success(Unit)
+
+
             }.map { id }
         }
     }
 
     suspend fun  upsertPreprocess(
         conjugationPreprocessId: Long? = null,
-        idName: String?
+        idNameValue: NullableValue<String> = NullableValue.ValueNotProvided,
     ): DatabaseResult<Long>{
         return upsertBlock(
             conjugationPreprocessId,
-            idName,
-            doesExistResult = { conjugationPreprocessRepository.selectExist(conjugationPreprocessId, idName) },
+            idNameValue,
+            doesExistResult = { idName: String? -> conjugationPreprocessRepository.selectExist(conjugationPreprocessId, idName) },
             insert = { idName: String -> conjugationPreprocessRepository.insert(idName) },
             update={ id: Long, idName: String? ->
                 val idName = getOrFail(idName) {return it.mapErrorTo()}
@@ -106,18 +84,18 @@ class ConjugationUpsert(
 
     suspend fun upsertSuffix(
         conjugationSuffixId: Long? = null,
-        suffixTextProvided: Boolean = false,
-        isShortOrLongProvided: Boolean = false,
-        suffixText: String? = null,
-        isShortOrLong: Boolean? = null
+        suffixTextValue: OptionalNullableValue<String> = NullableValue.ValueNotProvided,
+        isShortOrLongValue: OptionalNullableValue<Boolean> = NullableValue.ValueNotProvided,
     ): DatabaseResult<Long>{
+        val (suffixText: String? ,suffixTextProvided: Boolean) = suffixTextValue.getValueWithPresenceFlag()
+        val (isShortOrLong: Boolean? ,isShortOrLongProvided: Boolean) = isShortOrLongValue.getValueWithPresenceFlag()
         if(conjugationSuffixId != null){
-                return conjugationSuffixRepository.update(
-                    conjugationSuffixId,
-                    suffixTextProvided,
-                    isShortOrLongProvided,
-                    suffixText,
-                    isShortOrLong).map { conjugationSuffixId }
+            return conjugationSuffixRepository.update(
+                conjugationSuffixId,
+                suffixTextProvided,
+                isShortOrLongProvided,
+                suffixText,
+                isShortOrLong).map { conjugationSuffixId }
             }
 
         val result = conjugationSuffixRepository.selectId(suffixText, isShortOrLong, true)
@@ -139,9 +117,11 @@ class ConjugationUpsert(
 
     suspend fun upsertVerbSuffixSwap(
         verbSuffixSwapId: Long? = null,
-        original: String? = null,
-        replacement: String? = null
+        originalValue: NullableValue<String> = NullableValue.ValueNotProvided,
+        replacementValue: NullableValue<String> = NullableValue.ValueNotProvided
     ): DatabaseResult<Long>{
+        val original: String? = originalValue.getOrNull()
+        val replacement: String? = replacementValue.getOrNull()
         if(verbSuffixSwapId != null){
             return verbSuffixSwapRepository.update(verbSuffixSwapId, original, replacement).map { verbSuffixSwapId }
         }
@@ -160,71 +140,46 @@ class ConjugationUpsert(
 
     suspend fun upsertConjugation(
         conjugationId: Long? = null,
-        conjugationPatternId: Long? = null,
-        conjugationPreprocessId: Long? = null,
-        conjugationSuffixId: Long? = null
+        conjugationPatternIdValue: NullableValue<Long> = NullableValue.ValueNotProvided,
+        conjugationPreprocessIdValue: NullableValue<Long> = NullableValue.ValueNotProvided,
+        conjugationSuffixIdValue: NullableValue<Long> = NullableValue.ValueNotProvided
     ): DatabaseResult<Long>{
+        val conjugationPatternId: Long? = conjugationPatternIdValue.getOrNull()
+        val conjugationPreprocessId: Long? = conjugationPreprocessIdValue.getOrNull()
+        val conjugationSuffixId: Long? = conjugationSuffixIdValue.getOrNull()
         if(conjugationId != null){
             return conjugationRepository.update(conjugationId, conjugationPatternId, conjugationPreprocessId, conjugationSuffixId).map { conjugationId }
         }
-        val conjugationPatternId: Long = getOrFail(conjugationPatternId) {return it.mapErrorTo()}
-        val conjugationPreprocessId: Long = getOrFail(conjugationPreprocessId) { return it.mapErrorTo()}
-        val conjugationSuffixId: Long = getOrFail(conjugationSuffixId) { return it.mapErrorTo()}
-        val result: DatabaseResult<Long> = conjugationRepository.selectId(conjugationPatternId, conjugationPreprocessId, conjugationSuffixId)
+        val patternId: Long = getOrFail(conjugationPatternId) {return it.mapErrorTo()}
+        val preprocessId: Long = getOrFail(conjugationPreprocessId) { return it.mapErrorTo()}
+        val suffixId: Long = getOrFail(conjugationSuffixId) { return it.mapErrorTo()}
+        val result: DatabaseResult<Long> = conjugationRepository.selectId(patternId, preprocessId, suffixId)
         return when(result){
             is DatabaseResult.Success -> {
                 val id: Long = result.value
                 conjugationRepository.update(id, conjugationPatternId, conjugationPreprocessId, conjugationSuffixId).map { id }
             }
-            is DatabaseResult.NotFound -> { conjugationRepository.insert(conjugationPatternId, conjugationPreprocessId, conjugationSuffixId) }
+            is DatabaseResult.NotFound -> { conjugationRepository.insert(patternId, preprocessId, suffixId) }
             else -> result.mapErrorTo()
-        }
-    }
-
-    suspend fun upsertConjugation(
-        conjugationId: Long? = null,
-        conjugationPatternIdName: String,
-        conjugationPreprocessIdName: String,
-        suffixText: String? = null,
-        isShortOrLong: Boolean? = null
-    ): DatabaseResult<Long>{
-        if(conjugationId != null){
-            val preprocessId: Long = conjugationPreprocessRepository.selectId(conjugationPreprocessIdName).getOrReturn { return it.mapErrorTo() }
-            val patternId: Long = conjugationPatternRepository.selectId(conjugationPatternIdName).getOrReturn { return it.mapErrorTo() }
-            val suffixResult: DatabaseResult<Long> =
-                conjugationSuffixRepository.selectId(suffixText, isShortOrLong, true)
-            val suffixId: Long = when(suffixResult){
-                is DatabaseResult.Success -> suffixResult.value
-                is DatabaseResult.NotFound -> {
-                    upsertSuffix(
-                        suffixTextProvided =  true,
-                        isShortOrLongProvided =  true,
-                        suffixText = suffixText,
-                        isShortOrLong = isShortOrLong).getOrReturn { return it.mapErrorTo() }
-                }
-                else -> return suffixResult.mapErrorTo()
-
-            }
-            return upsertConjugation(conjugationId, preprocessId, patternId, suffixId)
         }
     }
 
     private suspend inline fun upsertBlock(
         id: Long? = null,
-        idName: String? = null,
-        doesExistResult: suspend ()-> DatabaseResult<Boolean>,
+        idNameValue: NullableValue<String>,
+        doesExistResult: suspend (String?)-> DatabaseResult<Boolean>,
         insert: suspend (String) -> DatabaseResult<Long>,
         update: suspend (Long, String?)-> DatabaseResult<Unit>,
     ): DatabaseResult<Long>{
-        if(id == null && idName == null) return DatabaseResult.UnknownError(IllegalArgumentException("either id or idname have to be not null"))
-        val isExist: Boolean = doesExistResult().getOrReturn { return it.mapErrorTo() }
+        if(id == null && idNameValue is NullableValue.ValueNotProvided) return DatabaseResult.UnknownError(IllegalArgumentException("either id or idname have to be not null"))
+        val isExist: Boolean = doesExistResult(idNameValue.getOrNull()).getOrReturn { return it.mapErrorTo() }
         return if(!isExist){
-            val idName: String = getOrFail(idName){return it.mapErrorTo()}
+            val idName: String = idNameValue.requireNotNullOrFail {return it.mapErrorTo()}
             insert(idName)
         }
         else {
             val id: Long = getOrFail(id){return it.mapErrorTo()}
-            update( id, idName).map { id }
+            update( id, idNameValue.getOrNull()).map { id }
         }
     }
 
@@ -235,16 +190,45 @@ class ConjugationUpsert(
     ): T{
         return value ?: error(DatabaseResult.UnknownError(IllegalArgumentException(errorMessage)))
     }
+
+    private inline fun <T> NullableValue<T>.requireNotNullOrFail(
+        errorMessage: String = "value much not be null",
+        error: (DatabaseResult<T>)-> T
+    ): T{
+        return when(this){
+            is NullableValue.Value -> value
+            NullableValue.ValueNotProvided -> error(DatabaseResult.UnknownError(IllegalArgumentException(errorMessage)))
+        }
+    }
+
+    private fun <T> NullableValue<T>.getValueWithPresenceFlag(): Pair<T?, Boolean>{
+        return when(this){
+            is NullableValue.Value -> Pair( value, true)
+            is NullableValue.ValueNotProvided -> Pair(null, false)
+        }
+    }
+
+    private fun <T> NullableValue<T>.getOrNull(): T?{
+        return when(this){
+            is NullableValue.Value -> value
+            is NullableValue.ValueNotProvided -> null
+        }
+    }
+
+
+
 }
 
 data class ConjugationPatternUpsertContainer(
     val conjugationPatternId: Long? = null,
-    val idName: String?=null,
-    val displayText: String?=null,
-    val descriptionText: String?=null
+    val idNameValue: NullableValue<String> = NullableValue.ValueNotProvided,
+    val displayTextValue: NullableValue<String> = NullableValue.ValueNotProvided,
+    val descriptionTextValue: OptionalNullableValue<String> = NullableValue.ValueNotProvided,
 )
 
 sealed class  NullableValue<out T>  (){
-    data class Value<T>(val value: T?): NullableValue<T>()
+    data class Value<T>(val value: T): NullableValue<T>()
     data object ValueNotProvided: NullableValue<Nothing>()
 }
+
+typealias OptionalNullableValue<T> = NullableValue<T?>

@@ -17,3 +17,6 @@ DELETE FROM conjugation_pattern_variant WHERE conjugation_pattern_id = ? AND con
 
 selectIsVariantOfPatternId:
 SELECT conjugation_pattern_id FROM conjugation_pattern_variant WHERE conjugation_variant_id = ?;
+
+selectCheckLinkExist:
+SELECT COUNT(*) > 0 FROM conjugation_pattern_variant WHERE conjugation_pattern_id = ? AND conjugation_variant_id = ?;

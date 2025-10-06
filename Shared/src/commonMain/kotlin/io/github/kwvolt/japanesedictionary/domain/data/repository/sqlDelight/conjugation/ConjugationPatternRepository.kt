@@ -110,4 +110,17 @@ class ConjugationPatternRepository(
             variantQueries.selectIsVariantOfPatternId(conjugationVariantId).awaitAsOneOrNull()
         }
     }
+
+    override suspend fun selectCheckLinkExist(
+        conjugationPatternId: Long,
+        conjugationVariantId: Long,
+        returnNotFoundOnNull: Boolean
+    ): DatabaseResult<Boolean> {
+        return dbHandler.withContextDispatcherWithException(
+            errorMessage = "Error at selectCheckLinkExist in ConjugationPatternRepository for conjugationVariantId: $conjugationVariantId",
+            returnNotFoundOnNull = returnNotFoundOnNull
+        ){
+            variantQueries.selectCheckLinkExist(conjugationPatternId, conjugationVariantId).awaitAsOneOrNull()
+        }
+    }
 }

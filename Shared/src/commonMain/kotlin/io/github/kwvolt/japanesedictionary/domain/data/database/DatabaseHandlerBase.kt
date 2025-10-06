@@ -10,10 +10,13 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.AbstractCoroutineContextElement
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
 
 abstract class DatabaseHandlerBase {
-    internal val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    val dispatcher: CoroutineDispatcher = Dispatchers.IO
 
     private fun <K, V> Map<K, V>.chunkedMap(batchSize: Int): List<List<Map.Entry<K, V>>> {
         return this.entries.chunked(batchSize)
@@ -87,56 +90,47 @@ abstract class DatabaseHandlerBase {
         return DatabaseResult.Success(Unit)
     }
 
-
-
     suspend inline fun <T> wrapQuery(
         itemId: String? = null,
         returnNotFoundOnNull: Boolean = false,
-        block: suspend () -> T?
+        crossinline block: suspend () -> T?
     ): DatabaseResult<T> {
+        val inTransaction = coroutineContext[TransactionContext]?.inTransaction ?: false
         return try {
-            val value = block()
-            if (value != null) {
-                DatabaseResult.Success(value)
+            val result = if (inTransaction) {
+                block()
+            } else {
+                withContext(dispatcher) { block() }
+            }
+
+            if (result != null) {
+                DatabaseResult.Success(result)
             } else {
                 if (returnNotFoundOnNull) {
                     itemId?.let {
                         DatabaseResult.InvalidInput(ItemKey.DataItem(it), DatabaseError(DatabaseErrorType.NOT_FOUND))
                     } ?: DatabaseResult.NotFound
                 } else {
-                    DatabaseResult.UnknownError(NullPointerException("Expected value but was null").fillInStackTrace(), "Expected value but was null")
+                    DatabaseResult.UnknownError(
+                        NullPointerException("Expected value but was null").fillInStackTrace(),
+                        "Expected value but was null"
+                    )
                 }
             }
         } catch (e: Exception) {
             itemId?.let {
                 mapToDatabaseException(ItemKey.DataItem(it), e)
-            } ?: DatabaseResult.NotFound
-        }
-    }
-
-    suspend fun <T> withContextDispatcherWithException(
-        itemId: String? = null,
-        errorMessage: String,
-        returnNotFoundOnNull: Boolean = false,
-        block: suspend () -> T?
-    ): DatabaseResult<T> {
-        return try {
-            withContext(dispatcher) {
-                wrapQuery(itemId, returnNotFoundOnNull, block=block)
-            }
-        } catch (e: Exception) {
-            DatabaseResult.UnknownError(e, errorMessage)
+            } ?: DatabaseResult.UnknownError(e, "Unexpected DB error")
         }
     }
 
     suspend inline fun <T, R> selectAll(
         itemId: String? = null,
-        errorMessage: String,
         returnNotFoundOnNull: Boolean = false,
         crossinline queryBlock: suspend () -> List<T>,
         crossinline mapper: (T) -> R
     ): DatabaseResult<List<R>> {
-        return withContextDispatcherWithException(itemId, errorMessage, returnNotFoundOnNull) {
+        return wrapQuery(itemId, returnNotFoundOnNull) {
             val results = queryBlock()
             if (results.isNotEmpty()) results.map { mapper(it) } else emptyList()
         }
@@ -147,4 +141,10 @@ abstract class DatabaseHandlerBase {
 
     // Method to close the database connection
     abstract fun close()
+}
+
+class TransactionContext private constructor(val inTransaction: Boolean) : AbstractCoroutineContextElement(TransactionContext) {
+    companion object : CoroutineContext.Key<TransactionContext> {
+        val Active = TransactionContext(true)
+    }
 }

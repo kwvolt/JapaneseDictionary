@@ -1,19 +1,18 @@
 package io.github.kwvolt.japanesedictionary.domain.data.database
+import app.cash.sqldelight.Transacter
 import app.cash.sqldelight.db.Closeable
 import app.cash.sqldelight.db.SqlDriver
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.coroutineContext
 
 
 class DatabaseHandler(private val driver: SqlDriver): DatabaseHandlerBase(), Closeable {
     private val database: DictionaryDB
     private val transactionMutex = Mutex()
-    private var isInTransaction = false
 
     val queries: DictionaryDB get() = database
-
-
 
     init {
         this.driver.execute(null, "PRAGMA foreign_keys = ON;", 0)
@@ -21,26 +20,23 @@ class DatabaseHandler(private val driver: SqlDriver): DatabaseHandlerBase(), Clo
     }
 
     override suspend fun <T> performTransaction(block: suspend () -> DatabaseResult<T>): DatabaseResult<T> {
-        if (isInTransaction) {
+        // Check for active transaction in coroutine context
+        if (coroutineContext[TransactionContext]?.inTransaction == true) {
             return DatabaseResult.UnknownError(
                 IllegalStateException("Nested transactions are not allowed!").fillInStackTrace(),
                 "Nested transactions are not allowed!"
             )
         }
         return transactionMutex.withLock {
-            isInTransaction = true
-            val result: DatabaseResult<T> = try {
-                withContext(dispatcher) {
+            try {
+                withContext(dispatcher + TransactionContext.Active) {
                     database.transactionWithResult {
                         block()
                     }
                 }
             } catch (e: Exception) {
                 DatabaseResult.UnknownError(e, "Error within performTransaction")
-            } finally {
-                isInTransaction = false
             }
-            return@withLock result
         }
     }
 

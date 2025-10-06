@@ -7,6 +7,7 @@ import io.github.kwvolt.japanesedictionary.domain.data.database.returnOnFailure
 import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.ConjugationUpsert
 import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.ConjugationPatternUpsertContainer
 import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.ConjugationTemplateInserter
+import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.NullableValue
 import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.StemRule
 
 class InitializeConjugation (
@@ -15,51 +16,54 @@ class InitializeConjugation (
 ) {
     suspend fun initialize(): DatabaseResult<Unit> {
         // patterns
-        val patternResult = databaseHandler.performTransaction {
-            conjugationUpsert.upsertPattern(idName = "CONJUNCTIVE", displayText = "Conjunctive")
+        val patternResult: DatabaseResult<Unit>  = databaseHandler.performTransaction {
+            conjugationUpsert.upsertPattern(idNameValue = NullableValue.Value("CONJUNCTIVE"), displayTextValue = NullableValue.Value("Conjunctive"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertPattern(idName = "POLITE", displayText = "Polite")
+            conjugationUpsert.upsertPattern(idNameValue = NullableValue.Value("POLITE"), displayTextValue = NullableValue.Value("Polite"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertPattern(idName = "TE_FORM", displayText = "Te-form")
+            conjugationUpsert.upsertPattern(idNameValue = NullableValue.Value("TE_FORM"), displayTextValue = NullableValue.Value("Te-form"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertPattern(idName = "TA_FORM", displayText = "Ta-form")
+            conjugationUpsert.upsertPattern(idNameValue = NullableValue.Value("TA_FORM"), displayTextValue = NullableValue.Value("Ta-form"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
             conjugationUpsert.upsertPattern(
-                idName = "PRESENT_NEGATIVE",
-                displayText = "Present Negative"
+                idNameValue = NullableValue.Value("PRESENT_NEGATIVE"),
+                displayTextValue = NullableValue.Value("Present Negative")
             ).returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertPattern(idName = "PAST_NEGATIVE", displayText = "Past Negative")
+            conjugationUpsert.upsertPattern(idNameValue = NullableValue.Value("PAST_NEGATIVE"), displayTextValue = NullableValue.Value("Past Negative"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertPattern(idName = "VOLITIONAL", displayText = "Volitional")
+            conjugationUpsert.upsertPattern(idNameValue = NullableValue.Value("VOLITIONAL"), displayTextValue = NullableValue.Value("Volitional"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertPattern(idName = "PASSIVE", displayText = "Passive")
+            conjugationUpsert.upsertPattern(idNameValue = NullableValue.Value("PASSIVE"), displayTextValue = NullableValue.Value("Passive"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertPattern(idName = "CAUSATIVE", displayText = "Causative")
-                .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertPattern(
-                idName = "CAUSATIVE_PASSIVE",
-                displayText = "Causative-passive"
-            ).returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertPattern(idName = "IMPERATIVE", displayText = "Imperative")
+            conjugationUpsert.upsertPattern(idNameValue = NullableValue.Value("CAUSATIVE"), displayTextValue = NullableValue.Value("Causative"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
             conjugationUpsert.upsertPattern(
-                idName = "POTENTIAL", displayText = "Potential",
+                idNameValue = NullableValue.Value("CAUSATIVE_PASSIVE"),
+                displayTextValue = NullableValue.Value("Causative-passive"
+            )).returnOnFailure { return@performTransaction it.mapErrorTo() }
+            conjugationUpsert.upsertPattern(idNameValue = NullableValue.Value("IMPERATIVE"), displayTextValue = NullableValue.Value("Imperative"))
+                .returnOnFailure { return@performTransaction it.mapErrorTo() }
+            conjugationUpsert.upsertPattern(
+                idNameValue = NullableValue.Value("POTENTIAL"), displayTextValue = NullableValue.Value("Potential"),
                 variantList = listOf(
                     ConjugationPatternUpsertContainer(
-                        idName = "POTENTIAL_RA_LESS",
-                        displayText = "Potential (ら-less)"
+                        idNameValue = NullableValue.Value("POTENTIAL_RA_LESS"),
+                        displayTextValue = NullableValue.Value("Potential (ら-less)")
                     )
                 )
             ).returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertPattern(idName = "CONDITIONAL", displayText = "Conditional")
-                .returnOnFailure { return@performTransaction it.mapErrorTo() }
+            conjugationUpsert.upsertPattern(
+                idNameValue = NullableValue.Value("CONDITIONAL"), 
+                displayTextValue = NullableValue.Value("Conditional")
+            ).returnOnFailure { return@performTransaction it.mapErrorTo() }
+            DatabaseResult.Success(Unit)
         }
         patternResult.returnOnFailure { return it.mapErrorTo() }
 
         // preprocess
         val preprocessResult = databaseHandler.performTransaction {
             StemRule.entries.forEach { rule ->
-                conjugationUpsert.upsertPreprocess(idName = rule.toString())
+                conjugationUpsert.upsertPreprocess(idNameValue = NullableValue.Value(rule.toString()))
                     .returnOnFailure { return@performTransaction it.mapErrorTo() }
             }
             DatabaseResult.Success(Unit)
@@ -68,103 +72,103 @@ class InitializeConjugation (
 
         // verb suffix swaps
         val verbSuffixSwapResult = databaseHandler.performTransaction {
-            conjugationUpsert.upsertVerbSuffixSwap(original = "う", replacement = "い")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("う"), replacementValue = NullableValue.Value("い"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "う", replacement = "え")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("う"), replacementValue = NullableValue.Value("え"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "う", replacement = "お")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("う"), replacementValue = NullableValue.Value("お"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "う", replacement = "っ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("う"), replacementValue = NullableValue.Value("っ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "う", replacement = "わ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("う"), replacementValue = NullableValue.Value("わ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "く", replacement = "い")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("く"), replacementValue = NullableValue.Value("い"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "く", replacement = "か")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("く"), replacementValue = NullableValue.Value("か"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "く", replacement = "き")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("く"), replacementValue = NullableValue.Value("き"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "く", replacement = "け")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("く"), replacementValue = NullableValue.Value("け"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "く", replacement = "こ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("く"), replacementValue = NullableValue.Value("こ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぐ", replacement = "い")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぐ"), replacementValue = NullableValue.Value("い"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぐ", replacement = "が")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぐ"), replacementValue = NullableValue.Value("が"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぐ", replacement = "ぎ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぐ"), replacementValue = NullableValue.Value("ぎ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぐ", replacement = "げ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぐ"), replacementValue = NullableValue.Value("げ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぐ", replacement = "ご")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぐ"), replacementValue = NullableValue.Value("ご"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "す", replacement = "さ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("す"), replacementValue = NullableValue.Value("さ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "す", replacement = "し")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("す"), replacementValue = NullableValue.Value("し"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "す", replacement = "せ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("す"), replacementValue = NullableValue.Value("せ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "す", replacement = "ぞ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("す"), replacementValue = NullableValue.Value("ぞ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "す", replacement = "そ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("す"), replacementValue = NullableValue.Value("そ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "つ", replacement = "た")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("つ"), replacementValue = NullableValue.Value("た"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "つ", replacement = "ち")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("つ"), replacementValue = NullableValue.Value("ち"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "つ", replacement = "っ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("つ"), replacementValue = NullableValue.Value("っ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "つ", replacement = "て")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("つ"), replacementValue = NullableValue.Value("て"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "つ", replacement = "と")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("つ"), replacementValue = NullableValue.Value("と"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぬ", replacement = "な")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぬ"), replacementValue = NullableValue.Value("な"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぬ", replacement = "に")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぬ"), replacementValue = NullableValue.Value("に"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぬ", replacement = "ね")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぬ"), replacementValue = NullableValue.Value("ね"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぬ", replacement = "の")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぬ"), replacementValue = NullableValue.Value("の"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぬ", replacement = "ん")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぬ"), replacementValue = NullableValue.Value("ん"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぶ", replacement = "ち")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぶ"), replacementValue = NullableValue.Value("ち"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぶ", replacement = "ば")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぶ"), replacementValue = NullableValue.Value("ば"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぶ", replacement = "び")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぶ"), replacementValue = NullableValue.Value("び"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぶ", replacement = "べ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぶ"), replacementValue = NullableValue.Value("べ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぶ", replacement = "ぼ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぶ"), replacementValue = NullableValue.Value("ぼ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "ぶ", replacement = "ん")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("ぶ"), replacementValue = NullableValue.Value("ん"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "む", replacement = "ま")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("む"), replacementValue = NullableValue.Value("ま"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "む", replacement = "み")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("む"), replacementValue = NullableValue.Value("み"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "む", replacement = "め")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("む"), replacementValue = NullableValue.Value("め"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "む", replacement = "も")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("む"), replacementValue = NullableValue.Value("も"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "む", replacement = "ん")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("む"), replacementValue = NullableValue.Value("ん"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "る", replacement = "っ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("る"), replacementValue = NullableValue.Value("っ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "る", replacement = "ら")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("る"), replacementValue = NullableValue.Value("ら"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "る", replacement = "り")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("る"), replacementValue = NullableValue.Value("り"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "る", replacement = "れ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("る"), replacementValue = NullableValue.Value("れ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugationUpsert.upsertVerbSuffixSwap(original = "る", replacement = "ろ")
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = NullableValue.Value("る"), replacementValue = NullableValue.Value("ろ"))
                 .returnOnFailure { return@performTransaction it.mapErrorTo() }
         }
         verbSuffixSwapResult.returnOnFailure { return it.mapErrorTo() }
 
         // conjugation template
-        ConjugationTemplateInserter().defineTemplate("RU_CONJUGATION", "る Verb Conjugation") {
+        val conjugationTemplate = ConjugationTemplateInserter().defineTemplate("RU_CONJUGATION", "る Verb Conjugation") {
             insert {
                 withPreprocess(StemRule.DROP_RU) {
                     getOrInsertConjugation("CONJUNCTIVE"){ nullSuffix(null)}
@@ -490,6 +494,14 @@ class InitializeConjugation (
                 }
             }
         }
+        conjugationTemplate.returnOnFailure { return it.mapErrorTo() }
+
+        //override
+
+
+
         return DatabaseResult.Success(Unit)
+
+
     }
 }
