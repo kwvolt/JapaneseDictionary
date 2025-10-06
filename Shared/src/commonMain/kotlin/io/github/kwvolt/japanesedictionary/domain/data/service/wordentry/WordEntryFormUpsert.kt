@@ -2,29 +2,32 @@ package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntryNoteRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntryRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntrySectionKanaInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntrySectionNoteRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntrySectionRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryNoteRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryUserRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SectionKanaRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SectionNoteRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SectionRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordClassRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.DictionaryUserRepository
+import io.github.kwvolt.japanesedictionary.domain.model.items.item.BaseItem
 import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
 import io.github.kwvolt.japanesedictionary.domain.model.WordSectionFormData
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.GenericItemProperties
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.TextItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordEntryTable
+import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.items.WordEntryTable
+import io.github.kwvolt.japanesedictionary.domain.model.items.item.GenericItemProperties
 import kotlinx.collections.immutable.ImmutableCollection
 import java.lang.IllegalArgumentException
 
 class WordEntryFormUpsert(
     private val dbHandler: DatabaseHandlerBase,
-    private val entryRepository: EntryRepositoryInterface,
-    private val entryNoteRepository: EntryNoteRepositoryInterface,
-    private val entrySectionRepository: EntrySectionRepositoryInterface,
-    private val entrySectionKanaRepository: EntrySectionKanaInterface,
-    private val entrySectionNoteRepository: EntrySectionNoteRepositoryInterface,
+    private val entryRepository: DictionaryRepositoryInterface,
+    private val entryNoteRepository: DictionaryNoteRepositoryInterface,
+    private val entrySectionRepository: SectionRepositoryInterface,
+    private val entrySectionKanaRepository: SectionKanaRepositoryInterface,
+    private val entrySectionNoteRepository: SectionNoteRepositoryInterface,
     private val wordClassRepository: WordClassRepositoryInterface,
+    private val dictionaryUserRepository: DictionaryUserRepositoryInterface
 ) {
 
     suspend fun upsertDictionaryEntry(primaryTextItem: TextItem, wordClassId: Long): DatabaseResult<Long>{
@@ -39,7 +42,7 @@ class WordEntryFormUpsert(
     }
 
     suspend fun updateIsBookmark(dictionaryId: Long, isBookmark: Boolean): DatabaseResult<Unit>{
-        return entryRepository.updateIsBookmark(dictionaryId, isBookmark)
+        return dictionaryUserRepository.updateIsBookmark(dictionaryId, isBookmark)
 
     }
 
@@ -65,10 +68,10 @@ class WordEntryFormUpsert(
         )
     }
 
-    suspend fun upsertDictionarySectionKana(dictionarySectionId: Long, kanaItem: TextItem): DatabaseResult<Long>{
+    suspend fun upsertDictionarySectionKana(dictionaryEntryId: Long, dictionarySectionId: Long, kanaItem: TextItem): DatabaseResult<Long>{
         return upsertItem(kanaItem,
             insert = { identifier: String ->
-                entrySectionKanaRepository.insert(dictionarySectionId, kanaItem.inputTextValue, identifier)
+                entrySectionKanaRepository.insert(dictionaryEntryId, dictionarySectionId, kanaItem.inputTextValue, identifier)
             },
             update = { id: Long, identifier: String ->
                 entrySectionKanaRepository.updateKana(id, kanaItem.inputTextValue, identifier)
@@ -102,26 +105,29 @@ class WordEntryFormUpsert(
     }
 
 
-    suspend fun upsertWordEntryFormData(wordEntryFormData: WordEntryFormData, deleteList: List<GenericItemProperties> = mutableListOf()): DatabaseResult<Unit> {
+    suspend fun upsertWordEntryFormData(
+        wordEntryFormData: WordEntryFormData,
+        deleteList: List<GenericItemProperties> = mutableListOf()
+    ): DatabaseResult<Long> {
         val wordClassItem = wordEntryFormData.wordClassInput
         return wordClassRepository.selectIdByMainClassIdAndSubClassId(
             wordClassItem.chosenMainClass.id,
             wordClassItem.chosenSubClass.id,
             wordClassItem.itemProperties.getIdentifier()
-        ).map {
+        ).flatMap{
             wordClassId: Long ->
             dbHandler.performTransaction {
 
                 // delete unused items
                 val deleteResult: DatabaseResult<Unit> = deleteItems(deleteList)
                 if (deleteResult.isFailure) {
-                    return@performTransaction deleteResult.mapErrorTo<Unit, Unit>()
+                    return@performTransaction deleteResult.mapErrorTo<Unit, Long>()
                 }
 
                 // Upsert dictionary entry
                 val dictionaryEntryId = when (val dictionaryEntryResult = upsertDictionaryEntry(wordEntryFormData.primaryTextInput, wordClassId)){
                     is DatabaseResult.Success -> dictionaryEntryResult.value
-                    else -> return@performTransaction dictionaryEntryResult.mapErrorTo<Long, Unit>()
+                    else -> return@performTransaction dictionaryEntryResult.mapErrorTo<Long, Long>()
                 }
 
                 // Upsert dictionary entry notes
@@ -139,19 +145,19 @@ class WordEntryFormUpsert(
                     delete = { id, itemId -> entryNoteRepository.deleteRow(id, itemId) }
                 )
                 if (entryNoteResult.isFailure) {
-                    return@performTransaction entryNoteResult.mapErrorTo<Unit, Unit>()
+                    return@performTransaction entryNoteResult.mapErrorTo<Unit, Long>()
                 }
 
                 val entrySectionsUpsert = wordEntryFormData.wordSectionMap
                 val entrySectionResult =
-                    dbHandler.processBatch(entrySectionsUpsert) { entrySection ->
+                    dbHandler.processBatchWrite(entrySectionsUpsert) { entrySection ->
                         upsertWordEntrySectionFormData(dictionaryEntryId, entrySection.value)
                     }
                 if (entrySectionResult.isFailure) {
-                    return@performTransaction entrySectionResult.mapErrorTo<Unit, Unit>()
+                    return@performTransaction entrySectionResult.mapErrorTo<Unit, Long>()
                 }
 
-                DatabaseResult.Success(Unit)
+                DatabaseResult.Success(dictionaryEntryId)
             }
         }
     }
@@ -171,7 +177,7 @@ class WordEntryFormUpsert(
         val kanaItems = wordSectionFormData.kanaInputMap.values
         val kanaResult = handleUpsertTableInput(
             kanaItems,
-            insert = { entrySectionKanaRepository.insert(dictionaryEntrySectionId, it.inputTextValue, it.itemProperties.getIdentifier()) },
+            insert = { entrySectionKanaRepository.insert(dictionaryEntryId, dictionaryEntrySectionId, it.inputTextValue, it.itemProperties.getIdentifier()) },
             update = { entrySectionKanaRepository.updateKana(it.itemProperties.getId(), it.inputTextValue, it.itemProperties.getIdentifier()) },
             delete = { id, itemId -> entrySectionKanaRepository.deleteRow(id, itemId) }
         )
@@ -200,7 +206,7 @@ class WordEntryFormUpsert(
         delete: suspend (Long, String) -> DatabaseResult<Unit>
     ): DatabaseResult<Unit> {
         // First pass: handle delete and update
-        val firstPassResult = dbHandler.processBatch(items) { item ->
+        val firstPassResult = dbHandler.processBatchWrite(items) { item ->
             val id = item.itemProperties.getId()
             val text = item.inputTextValue
             val result = when {
@@ -210,7 +216,7 @@ class WordEntryFormUpsert(
             }
             // return early if failure
             if(result.isFailure){
-                return@processBatch result
+                return@processBatchWrite result
             }
 
             DatabaseResult.Success(Unit)
@@ -218,7 +224,7 @@ class WordEntryFormUpsert(
         if (firstPassResult.isFailure) return firstPassResult.mapErrorTo<Unit, Unit>()
 
         // Second pass: insert new items
-        val secondPassResult = dbHandler.processBatch(items) { item ->
+        val secondPassResult = dbHandler.processBatchWrite(items) { item ->
             val text = item.inputTextValue
             val result = if (item.itemProperties.isNew() && text.isNotBlank()) {
                     insert(item).map { Unit } // New + non-blank -> insert
@@ -228,7 +234,7 @@ class WordEntryFormUpsert(
 
             // return early if failure
             if(result.isFailure){
-                return@processBatch result
+                return@processBatchWrite result
             }
 
             DatabaseResult.Success(Unit)
@@ -246,8 +252,7 @@ class WordEntryFormUpsert(
             val identifier = deleteItem.getIdentifier()
             if (identifier.isBlank()) {
                 return DatabaseResult.UnknownError(
-                    IllegalArgumentException(),
-                    "Missing identifier for item: $deleteItem"
+                    IllegalArgumentException("Missing identifier for item: $deleteItem")
                 )
             }
             val wordEntryType = WordEntryTable.fromValue(identifier)

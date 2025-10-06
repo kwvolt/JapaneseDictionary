@@ -1,31 +1,34 @@
 package io.github.kwvolt.japanesedictionary.domain.model
 
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.TextItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.WordClassItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.handler.FormItemManager
+import io.github.kwvolt.japanesedictionary.util.CommonParcelable
+import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.items.item.InputTextType
+import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem
+import io.github.kwvolt.japanesedictionary.util.CommonParcelize
+import io.github.kwvolt.japanesedictionary.util.CommonRawValue
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 
+@CommonParcelize
 data class WordEntryFormData(
-    val wordClassInput: WordClassItem,
-    val primaryTextInput: TextItem,
-    val entryNoteInputMap: PersistentMap<String, TextItem>,
-    val wordSectionMap: PersistentMap<Int, WordSectionFormData>
-) {
+    val wordClassInput: @CommonRawValue WordClassItem,
+    val primaryTextInput: @CommonRawValue  TextItem,
+    val entryNoteInputMap: @CommonRawValue PersistentMap<String, TextItem>,
+    val wordSectionMap: @CommonRawValue PersistentMap<Int, WordSectionFormData>
+): CommonParcelable {
     fun getEntryNoteMapAsList(): List<TextItem> {
         return entryNoteInputMap.values.toList()
     }
     companion object {
         fun buildDefault(formItemManager: FormItemManager): WordEntryFormData {
             // primary Text
-            val primaryTextInput: TextItem = formItemManager.createNewTextItem(InputTextType.PRIMARY_TEXT, formItemManager.createItemProperties())
+            val primaryTextInput: TextItem = formItemManager.createNewTextItem(InputTextType.PRIMARY_TEXT, genericItemProperties = formItemManager.createItemProperties())
 
             // Word Class Item
             val wordClassItem: WordClassItem = formItemManager.createNewWordClassItem(genericItemProperties= formItemManager.createItemProperties())
 
             // Entry Note
-            val entryNoteItem: TextItem = formItemManager.createNewTextItem(InputTextType.ENTRY_NOTE_DESCRIPTION, formItemManager.createItemProperties())
+            val entryNoteItem: TextItem = formItemManager.createNewTextItem(InputTextType.DICTIONARY_NOTE_DESCRIPTION, genericItemProperties = formItemManager.createItemProperties())
             val entryNoteInputMap: PersistentMap<String, TextItem> = persistentMapOf(
                 entryNoteItem.itemProperties.getIdentifier() to entryNoteItem)
 
@@ -40,11 +43,12 @@ data class WordEntryFormData(
     }
 }
 
+@CommonParcelize
 data class WordSectionFormData(
-    val meaningInput: TextItem,
-    val kanaInputMap: PersistentMap<String, TextItem>,
-    val sectionNoteInputMap: PersistentMap<String, TextItem>,
-) {
+    val meaningInput: @CommonRawValue TextItem,
+    val kanaInputMap: @CommonRawValue  PersistentMap<String, TextItem>,
+    val sectionNoteInputMap: @CommonRawValue PersistentMap<String, TextItem>,
+): CommonParcelable {
     fun getKanaInputMapAsList(): List<TextItem> {
         return kanaInputMap.values.toList()
     }
@@ -60,15 +64,15 @@ data class WordSectionFormData(
 
         fun buildDefault(section: Int, formItemManager: FormItemManager): WordSectionFormData {
             // Meaning Text
-            val meaningInput: TextItem = formItemManager.createNewTextItem(InputTextType.MEANING, formItemManager.createItemSectionProperties(sectionId = section))
+            val meaningInput: TextItem = formItemManager.createNewTextItem(InputTextType.MEANING, genericItemProperties = formItemManager.createItemSectionProperties(sectionId = section))
 
             // Entry Section Kana
-            val entrySectionKanaItem: TextItem = formItemManager.createNewTextItem(InputTextType.KANA, formItemManager.createItemSectionProperties(sectionId = section))
+            val entrySectionKanaItem: TextItem = formItemManager.createNewTextItem(InputTextType.KANA,genericItemProperties =  formItemManager.createItemSectionProperties(sectionId = section))
             val entrySectionKanaInputMap: PersistentMap<String, TextItem> = persistentMapOf(
                 entrySectionKanaItem.itemProperties.getIdentifier() to  entrySectionKanaItem)
 
             // Entry Section Note
-            val entrySectionNoteItem: TextItem = formItemManager.createNewTextItem(InputTextType.SECTION_NOTE_DESCRIPTION, formItemManager.createItemSectionProperties(sectionId = section))
+            val entrySectionNoteItem: TextItem = formItemManager.createNewTextItem(InputTextType.SECTION_NOTE_DESCRIPTION,genericItemProperties =  formItemManager.createItemSectionProperties(sectionId = section))
             val entrySectionNoteInputMap: PersistentMap<String, TextItem> = persistentMapOf(
                 entrySectionNoteItem.itemProperties.getIdentifier() to entrySectionNoteItem)
 
@@ -80,5 +84,5 @@ data class WordSectionFormData(
         }
     }
 }
-
-data class WordSectionFormReturn(val sectionId: Int, val wordSectionFormData: WordSectionFormData)
+@CommonParcelize
+data class WordSectionFormReturn(val sectionId: Int, val wordSectionFormData: WordSectionFormData): CommonParcelable

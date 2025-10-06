@@ -1,0 +1,35 @@
+/**
+    CONJUGTION
+*/
+CREATE TABLE conjugation(
+    id INTEGER NOT NULL PRIMARY KEY,
+    conjugation_pattern_id INTEGER NOT NULL,
+    conjugation_preprocess_id INTEGER NOT NULL,
+    conjugation_suffix_id INTEGER NOT NULL,
+    CONSTRAINT FK_conjugation__conjugation_pattern FOREIGN KEY (conjugation_pattern_id) REFERENCES conjugation_pattern (id),
+    CONSTRAINT FK_conjugation__conjugation_preprocess FOREIGN KEY (conjugation_preprocess_id) REFERENCES conjugation_preprocess (id),
+    CONSTRAINT FK_conjugation__conjugation_suffix FOREIGN KEY (conjugation_suffix_id) REFERENCES conjugation_suffix (id),
+    CONSTRAINT UQ_conjugation__conjugation_pattern_id_conjugation_preprocess_id_conjugation_suffix_id UNIQUE(conjugation_pattern_id, conjugation_preprocess_id, conjugation_suffix_id)
+);
+
+insert {
+    INSERT INTO conjugation (conjugation_pattern_id, conjugation_preprocess_id, conjugation_suffix_id) VALUES (?, ?, ?);
+    SELECT last_insert_rowid();
+}
+
+update:
+UPDATE conjugation
+SET
+    conjugation_pattern_id = COALESCE(:conjugation_pattern_id, conjugation_pattern_id),
+    conjugation_preprocess_id = COALESCE(:conjugation_preprocess_id, conjugation_preprocess_id),
+    conjugation_suffix_id = COALESCE(:conjugation_suffix_id, conjugation_suffix_id)
+WHERE id = ?;
+
+delete:
+DELETE FROM conjugation WHERE id = ?;
+
+selectId:
+SELECT id FROM conjugation WHERE conjugation_pattern_id = ? AND conjugation_preprocess_id = ? AND conjugation_suffix_id = ?;
+
+selectRow:
+SELECT conjugation_pattern_id, conjugation_preprocess_id, conjugation_suffix_id FROM conjugation WHERE id = ?;

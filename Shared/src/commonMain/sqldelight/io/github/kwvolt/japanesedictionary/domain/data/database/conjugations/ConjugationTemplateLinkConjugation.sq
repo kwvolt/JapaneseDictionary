@@ -1,0 +1,19 @@
+  /**
+    CONJUGTION LINK CONJUGATION TEMPLATE
+*/
+CREATE TABLE conjugation_lk_conjugation_template(
+        conjugation_id INTEGER,
+        conjugation_template_id INTEGER,
+        CONSTRAINT PK_conjugation_lk_conjugation_template PRIMARY KEY (conjugation_id, conjugation_template_id),
+        CONSTRAINT FK_conjugation_lk_conjugation_template__conjugation FOREIGN KEY (conjugation_id) REFERENCES conjugation (id),
+        CONSTRAINT FK_conjugation_lk_conjugation_template__conjugation_template FOREIGN KEY (conjugation_template_id) REFERENCES conjugation_template (id)
+);
+
+insert:
+INSERT INTO conjugation_lk_conjugation_template (conjugation_id, conjugation_template_id) VALUES (?, ?);
+
+delete:
+DELETE FROM conjugation_lk_conjugation_template WHERE conjugation_id = ? AND conjugation_template_id = ?;
+
+selectConjugationIdByConjugationTemplateId:
+SELECT conjugation_id FROM  conjugation_lk_conjugation_template WHERE conjugation_template_id = ?;

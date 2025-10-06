@@ -1,0 +1,5 @@
+selectIsBookmark:
+SELECT is_bookmarked FROM dictionary_entry WHERE id = ?;
+
+updateIsBookmark:
+UPDATE dictionary_entry SET is_bookmarked = ? WHERE id = ?;

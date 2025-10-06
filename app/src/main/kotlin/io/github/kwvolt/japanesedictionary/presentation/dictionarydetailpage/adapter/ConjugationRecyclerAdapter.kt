@@ -1,0 +1,3 @@
+package io.github.kwvolt.japanesedictionary.presentation.dictionarydetailpage.adapter
+
+import android.widget.ListAdapter

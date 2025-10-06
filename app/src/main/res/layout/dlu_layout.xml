@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Main content -->
+    <FrameLayout
+        android:id="@+id/dlu_recycler_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:padding="16dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/dlu_recycler_card_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="10dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/dlu_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/dlu_recyclerview_item" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </FrameLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/search_filter_container"
+        android:name="io.github.kwvolt.japanesedictionary.ui.searchfilter.SearchFilterViewFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="1dp"
+        tools:layout="@layout/search_filter"
+        android:layout_marginTop="?attr/actionBarSize"/>
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/dlu_form_menu"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:menu="@menu/dlu_menu"
+        android:theme="@style/Custom.Toolbar"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:popupTheme="@style/CustomPopupMenu"
+        app:title="@string/app_name" />
+</FrameLayout>

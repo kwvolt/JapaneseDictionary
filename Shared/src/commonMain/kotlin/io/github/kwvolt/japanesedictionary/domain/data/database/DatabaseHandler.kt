@@ -3,6 +3,7 @@ import app.cash.sqldelight.db.Closeable
 import app.cash.sqldelight.db.SqlDriver
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 
 class DatabaseHandler(private val driver: SqlDriver): DatabaseHandlerBase(), Closeable {
@@ -10,7 +11,9 @@ class DatabaseHandler(private val driver: SqlDriver): DatabaseHandlerBase(), Clo
     private val transactionMutex = Mutex()
     private var isInTransaction = false
 
-    val queries get() = database
+    val queries: DictionaryDB get() = database
+
+
 
     init {
         this.driver.execute(null, "PRAGMA foreign_keys = ON;", 0)
@@ -20,20 +23,24 @@ class DatabaseHandler(private val driver: SqlDriver): DatabaseHandlerBase(), Clo
     override suspend fun <T> performTransaction(block: suspend () -> DatabaseResult<T>): DatabaseResult<T> {
         if (isInTransaction) {
             return DatabaseResult.UnknownError(
-                IllegalStateException("Nested transactions are not allowed!"), "Nested transactions are not allowed!"
+                IllegalStateException("Nested transactions are not allowed!").fillInStackTrace(),
+                "Nested transactions are not allowed!"
             )
         }
         return transactionMutex.withLock {
             isInTransaction = true
-            try {
-                database.transactionWithResult {
-                    block()
+            val result: DatabaseResult<T> = try {
+                withContext(dispatcher) {
+                    database.transactionWithResult {
+                        block()
+                    }
                 }
             } catch (e: Exception) {
                 DatabaseResult.UnknownError(e, "Error within performTransaction")
             } finally {
                 isInTransaction = false
             }
+            return@withLock result
         }
     }
 

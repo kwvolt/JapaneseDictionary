@@ -1,0 +1,19 @@
+/**
+    VERB SUFFIX SWAP LINK CONJUGATION
+*/
+CREATE TABLE verb_suffix_swap_lk_conjugation(
+        conjugation_id INTEGER,
+        verb_suffix_swap_id INTEGER,
+        CONSTRAINT PK_vss_lk_conjugation PRIMARY KEY (conjugation_id, verb_suffix_swap_id),
+        CONSTRAINT FK_vss_lk_conjugation__conjugation FOREIGN KEY (conjugation_id) REFERENCES conjugation (id),
+        CONSTRAINT FK_vss_lk_conjugation__vss FOREIGN KEY (verb_suffix_swap_id) REFERENCES verb_suffix_swap (id)
+);
+
+insert:
+INSERT INTO verb_suffix_swap_lk_conjugation (conjugation_id, verb_suffix_swap_id) VALUES (?, ?);
+
+delete:
+DELETE FROM verb_suffix_swap_lk_conjugation WHERE verb_suffix_swap_id = ? AND conjugation_id = ?;
+
+selectVerbSwapSuffixId:
+SELECT verb_suffix_swap_id FROM verb_suffix_swap_lk_conjugation WHERE conjugation_id = ?;

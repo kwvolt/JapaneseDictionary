@@ -2,12 +2,18 @@
     DICTIONARY LINK CONJUGATION TEMPLATE
 */
 CREATE TABLE  dictionary_entry_lk_conjugation_template(
-    dictionary_entry_id INTEGER,
+    dictionary_entry_id INTEGER NOT NULL PRIMARY KEY,
     conjugation_template_id INTEGER,
-    CONSTRAINT PK_dictionary_lk_conjugation_template PRIMARY KEY (dictionary_entry_id, conjugation_template_id),
-    CONSTRAINT FK_dictionary_lk_conjugation_template_to_dictionary FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry (id),
-    CONSTRAINT FK_dictionary_lk_conjugation_template_to_conjugation_template FOREIGN KEY (conjugation_template_id) REFERENCES conjugation_template (id)
+    furigana TEXT,
+    CONSTRAINT FK_dictionary_lk_conjugation_template__dictionary FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry (id),
+    CONSTRAINT FK_dictionary_lk_conjugation_template__conjugation_template FOREIGN KEY (conjugation_template_id) REFERENCES conjugation_template (id)
 );
 
-linkDictionaryEntry_With_ConjugationTemplate:
+insert:
 INSERT INTO dictionary_entry_lk_conjugation_template (dictionary_entry_id, conjugation_template_id) VALUES (?, ?);
+
+delete:
+DELETE FROM dictionary_entry_lk_conjugation_template WHERE conjugation_template_id = ? AND dictionary_entry_id = ?;
+
+selectRow:
+SELECT conjugation_template_id, furigana FROM dictionary_entry_lk_conjugation_template WHERE dictionary_entry_id = ?;

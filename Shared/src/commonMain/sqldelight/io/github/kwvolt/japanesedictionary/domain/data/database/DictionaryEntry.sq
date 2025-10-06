@@ -8,9 +8,18 @@ CREATE TABLE dictionary_entry(
     is_bookmarked INTEGER NOT NULL DEFAULT FALSE,
     CONSTRAINT FK_dict_entry__word_class FOREIGN KEY (word_class_id) REFERENCES word_class (id),
     CONSTRAINT CK_BOOL_dict_entry__is_bookmarked CHECK (is_bookmarked IN (0, 1)),
-    CONSTRAINT UQIDX_dict_entry_primary_text UNIQUE(word_class_id, primary_text)
+    CONSTRAINT UQIDX_dict_entry__word_class_id_primary_text UNIQUE(word_class_id, primary_text)
 );
 
+/** fts table */
+CREATE VIRTUAL TABLE dictionary_fts
+USING fts4 (
+  primary_text TEXT,
+  content='dictionary_entry',
+  tokenize = 'unicode61'
+);
+
+/** queries */
 insert{
     INSERT INTO dictionary_entry (word_class_id, primary_text) VALUES (?, ?);
     SELECT last_insert_rowid();
@@ -18,9 +27,6 @@ insert{
 
 selectIdByPrimaryText:
 SELECT id FROM dictionary_entry WHERE primary_text = ?;
-
-selectIsBookmark:
-SELECT is_bookmarked FROM dictionary_entry WHERE id = ?;
 
 selectRow:
 SELECT word_class_id, primary_text FROM dictionary_entry WHERE id = ?;
@@ -34,9 +40,21 @@ UPDATE dictionary_entry SET word_class_id = ? WHERE id = ?;
 updatePrimaryText:
 UPDATE dictionary_entry SET primary_text = ? WHERE id = ?;
 
-updateIsBookmark:
-UPDATE dictionary_entry SET is_bookmarked = ? WHERE id = ?;
-
 updateWordClassIdAndPrimaryText:
 UPDATE dictionary_entry SET word_class_id = ?, primary_text = ? WHERE id = ?;
 
+/** Triggers */
+CREATE TRIGGER dictionary_entry_ai AFTER INSERT ON dictionary_entry BEGIN
+  INSERT INTO dictionary_fts(rowid, primary_text)
+  VALUES (new.id, new.primary_text);
+END;
+
+CREATE TRIGGER dictionary_entry_au AFTER UPDATE ON dictionary_entry BEGIN
+  UPDATE dictionary_fts
+  SET primary_text = new.primary_text
+  WHERE rowid = old.id;
+END;
+
+CREATE TRIGGER dictionary_entry_ad AFTER DELETE ON dictionary_entry BEGIN
+  DELETE FROM dictionary_fts WHERE rowid = old.id;
+END;

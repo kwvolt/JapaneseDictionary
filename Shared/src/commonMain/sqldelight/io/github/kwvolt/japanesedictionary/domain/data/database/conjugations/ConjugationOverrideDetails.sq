@@ -1,0 +1,29 @@
+CREATE TABLE conjugation_override_detail (
+    id INTEGER PRIMARY KEY,
+    conjugation_override_id INTEGER NOT NULL,
+    property_name TEXT NOT NULL,
+    property_value TEXT NOT NULL,
+    CONSTRAINT FK_conj_override_detail__conj_override FOREIGN KEY (conjugation_override_id) REFERENCES conjugation_override(id),
+    CONSTRAINT UQ_conj_override_detail__conj_override_id UNIQUE(conjugation_override_id)
+);
+
+insert {
+    INSERT INTO conjugation_override_detail (conjugation_override_id, property_name, property_value) VALUES (?, ? , ?);
+    SELECT last_insert_rowid();
+}
+
+update:
+UPDATE conjugation_override_detail SET
+    conjugation_override_id = COALESCE(:override_id, conjugation_override_id),
+    property_name = COALESCE(:property_name, property_name),
+    property_value = COALESCE(:property_value, property_value)
+    WHERE id = ?;
+
+delete:
+DELETE FROM conjugation_override_detail WHERE id = ?;
+
+selectId:
+SELECT id FROM conjugation_override_detail WHERE conjugation_override_id = ? AND property_name = ? AND property_value = ?;
+
+selectRow:
+SELECT conjugation_override_id, property_name, property_value FROM conjugation_override_detail WHERE id = ?;

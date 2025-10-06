@@ -2,7 +2,6 @@ package io.github.kwvolt.japanesedictionary.domain.data.database
 
 import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
 import io.github.kwvolt.japanesedictionary.domain.exceptions.mapToDatabaseException
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -14,14 +13,13 @@ import kotlinx.coroutines.withContext
 
 
 abstract class DatabaseHandlerBase {
-
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    internal val dispatcher: CoroutineDispatcher = Dispatchers.IO
 
     private fun <K, V> Map<K, V>.chunkedMap(batchSize: Int): List<List<Map.Entry<K, V>>> {
         return this.entries.chunked(batchSize)
     }
 
-    suspend fun <T> processBatch(
+    suspend fun <T> processBatchRead(
         items: Collection<T>,
         batchSize: Int = 10,
         maxConcurrent: Int = 5,
@@ -44,7 +42,18 @@ abstract class DatabaseHandlerBase {
         }
     }
 
-    suspend fun <T, R> processBatch(
+    suspend fun <T> processBatchWrite(
+        items: Collection<T>,
+        task: suspend (T) -> DatabaseResult<Unit>
+    ): DatabaseResult<Unit> {
+        for (item in items) {
+            val result = task(item)
+            if (result.isFailure) return result
+        }
+        return DatabaseResult.Success(Unit)
+    }
+
+    suspend fun <T, R> processBatchRead(
         items: Map<T, R>,
         batchSize: Int = 10,
         maxConcurrent: Int = 5,
@@ -67,16 +76,36 @@ abstract class DatabaseHandlerBase {
         }
     }
 
+    suspend fun <T, R> processBatchWrite(
+        items: Map<T, R>,
+        task: suspend (Map.Entry<T, R>) -> DatabaseResult<Unit>
+    ): DatabaseResult<Unit> {
+        for (item in items) {
+            val result = task(item)
+            if (result.isFailure) return result
+        }
+        return DatabaseResult.Success(Unit)
+    }
 
-    suspend inline fun <T> wrapQuery(itemId: String? = null, block: suspend () -> T?): DatabaseResult<T>{
+
+
+    suspend inline fun <T> wrapQuery(
+        itemId: String? = null,
+        returnNotFoundOnNull: Boolean = false,
+        block: suspend () -> T?
+    ): DatabaseResult<T> {
         return try {
-            val value: T? = block()
-            return if (value != null) {
+            val value = block()
+            if (value != null) {
                 DatabaseResult.Success(value)
             } else {
-                itemId?.let {
-                    DatabaseResult.InvalidInput(ItemKey.DataItem(it), DatabaseError(DatabaseErrorType.NOT_FOUND))
-                } ?: DatabaseResult.NotFound
+                if (returnNotFoundOnNull) {
+                    itemId?.let {
+                        DatabaseResult.InvalidInput(ItemKey.DataItem(it), DatabaseError(DatabaseErrorType.NOT_FOUND))
+                    } ?: DatabaseResult.NotFound
+                } else {
+                    DatabaseResult.UnknownError(NullPointerException("Expected value but was null").fillInStackTrace(), "Expected value but was null")
+                }
             }
         } catch (e: Exception) {
             itemId?.let {
@@ -85,10 +114,15 @@ abstract class DatabaseHandlerBase {
         }
     }
 
-    suspend fun <T> withContextDispatcherWithException(itemId: String? = null, errorMessage: String, block: suspend () -> T?): DatabaseResult<T> {
+    suspend fun <T> withContextDispatcherWithException(
+        itemId: String? = null,
+        errorMessage: String,
+        returnNotFoundOnNull: Boolean = false,
+        block: suspend () -> T?
+    ): DatabaseResult<T> {
         return try {
             withContext(dispatcher) {
-                wrapQuery(itemId, block)
+                wrapQuery(itemId, returnNotFoundOnNull, block=block)
             }
         } catch (e: Exception) {
             DatabaseResult.UnknownError(e, errorMessage)
@@ -98,12 +132,13 @@ abstract class DatabaseHandlerBase {
     suspend inline fun <T, R> selectAll(
         itemId: String? = null,
         errorMessage: String,
+        returnNotFoundOnNull: Boolean = false,
         crossinline queryBlock: suspend () -> List<T>,
         crossinline mapper: (T) -> R
     ): DatabaseResult<List<R>> {
-        return withContextDispatcherWithException(itemId, errorMessage) {
+        return withContextDispatcherWithException(itemId, errorMessage, returnNotFoundOnNull) {
             val results = queryBlock()
-            if (results.isNotEmpty()) results.map { mapper(it) } else null
+            if (results.isNotEmpty()) results.map { mapper(it) } else emptyList()
         }
     }
 

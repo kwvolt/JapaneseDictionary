@@ -15,33 +15,42 @@ class ConfirmDialogFragment : DialogFragment() {
             .setTitle(getString(dialogTitle))
             .setMessage(getString(dialogMessage))
             .setPositiveButton(R.string.proceed) { _, _ ->
-                val requestKey = requireArguments().getString(ARG_REQUEST_KEY, REQUEST_KEY)
+                val requestKey = requireArguments().getString(ARG_REQUEST_KEY)
                 val extraArgs = requireArguments().getBundle(ARG_EXTRAS) ?: Bundle()
                 val resultBundle = Bundle(extraArgs).apply {
                     putBoolean(RESULT_DISCARD_CONFIRMED, true)
                 }
-                parentFragmentManager.setFragmentResult(requestKey, resultBundle)
+                if (requestKey != null) {
+                    parentFragmentManager.setFragmentResult(requestKey, resultBundle)
+                }
             }
             .setNegativeButton(R.string.cancel) { _, _ ->
-                val requestKey = requireArguments().getString(ARG_REQUEST_KEY, REQUEST_KEY)
+                val requestKey = requireArguments().getString(ARG_REQUEST_KEY)
                 val resultBundle = Bundle().apply {
                     putBoolean(RESULT_DISCARD_CONFIRMED, false)
                 }
-                parentFragmentManager.setFragmentResult(requestKey, resultBundle)
+                if (requestKey != null) {
+                    parentFragmentManager.setFragmentResult(requestKey, resultBundle)
+                }
             }
             .create()
     }
 
     companion object {
-        const val REQUEST_KEY = "request_key"
-        const val ARG_REQUEST_KEY = "custom_request_key"
-        const val RESULT_DISCARD_CONFIRMED = "confirmed"
-        const val ARG_TITLE: String = "Title"
-        const val ARG_MESSAGE: String = "Message"
-        const val ARG_EXTRAS: String = "arg_extras"
-        const val CONFIRM_DIALOG_TAG: String = "ConfirmDialog"
+        const val ARG_REQUEST_KEY = "CONFIRM_DIALOG_ARG_REQUEST_KEY"
+        const val RESULT_DISCARD_CONFIRMED = "CONFIRM_DIALOG_RESULT_DISCARD_CONFIRMED"
+        const val ARG_TITLE: String = "CONFIRM_DIALOG_ARG_TITLE"
+        const val ARG_MESSAGE: String = "CONFIRM_DIALOG_ARG_MESSAGE"
+        const val ARG_EXTRAS: String = "CONFIRM_DIALOG_ARG_EXTRAS"
+        const val CONFIRM_DIALOG_TAG: String = "CONFIRM_DIALOG_CONFIRM_DIALOG_TAG"
 
-        fun show(fragmentManager: FragmentManager, dialogTitle: Int, dialogMessage: Int,  requestKey: String, bundle: Bundle? = null) {
+        fun show(
+            fragmentManager: FragmentManager,
+            dialogTitle: Int,
+            dialogMessage: Int,
+            requestKey: String,
+            bundle: Bundle? = null
+        ) {
             if (fragmentManager.findFragmentByTag(CONFIRM_DIALOG_TAG) == null) {
                 val fragment = ConfirmDialogFragment()
                 val args = Bundle().apply {
@@ -55,8 +64,17 @@ class ConfirmDialogFragment : DialogFragment() {
             }
         }
 
-        fun showDiscard(fragmentManager: FragmentManager, requestKey: String, bundle: Bundle? = null){
-            show(fragmentManager, R.string.unsaved_changes_title, R.string.unsaved_changes_message, requestKey, bundle)
+        fun showDiscard(
+            fragmentManager: FragmentManager,
+            requestKey: String,
+            bundle: Bundle? = null){
+            show(
+                fragmentManager,
+                R.string.unsaved_changes_title,
+                R.string.unsaved_changes_message,
+                requestKey,
+                bundle
+            )
         }
     }
 }

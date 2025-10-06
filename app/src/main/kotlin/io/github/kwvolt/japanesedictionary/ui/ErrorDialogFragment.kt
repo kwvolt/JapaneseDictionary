@@ -6,8 +6,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
@@ -35,7 +33,7 @@ class ErrorDialogFragment : DialogFragment() {
 
         binding.errorMessage.text = message
 
-        return AlertDialog.Builder(requireContext())
+        val errorDialog: AlertDialog = AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.error))
             .setView(binding.root)
             .setCancelable(false)
@@ -43,13 +41,21 @@ class ErrorDialogFragment : DialogFragment() {
                 requireActivity().finishAffinity()
                 exitProcess(0)
             }
-            .setNeutralButton(R.string.copy) { _, _ ->
+            .setNeutralButton(R.string.copy, null)
+            .create()
+
+        // set copy button to copy the stack trace without dismiss
+        errorDialog.setOnShowListener {
+            val neutralButton = errorDialog.getButton(AlertDialog.BUTTON_NEUTRAL)
+            neutralButton.setOnClickListener {
                 val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("Error", message)
+                val clip = ClipData.newPlainText("Error", errorStackTrace)
                 clipboard.setPrimaryClip(clip)
                 Toast.makeText(requireContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
             }
-            .create()
+        }
+
+        return errorDialog
     }
 
     override fun onDestroyView() {
@@ -58,9 +64,9 @@ class ErrorDialogFragment : DialogFragment() {
     }
 
     companion object {
-        private const val ARG_MESSAGE = "Message"
-        private const val ARG_STACKTRACE = "StackTrace"
-        private const val ERROR_DIALOG_TAG = "ErrorDialog"
+        private const val ARG_MESSAGE = "ERROR_DIALOG_ARG_MESSAGE"
+        private const val ARG_STACKTRACE = "ERROR_DIALOG_ARG_STACK_TRACE"
+        private const val ERROR_DIALOG_TAG = "ERROR_DIALOG_TAG"
 
         fun show(
             fragmentManager: FragmentManager,

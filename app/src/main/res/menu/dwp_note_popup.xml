@@ -2,17 +2,27 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/dwp_popup_menu_update"
-        android:title="@string/update" />
+    <group
+        android:id="@+id/dwp_popup_menu_update_group"
+        android:menuCategory="container">
+        <item
+            android:id="@+id/dwp_popup_menu_update"
+            android:title="@string/update" />
 
-    <item
-        android:checkable="false"
-        android:checked="false"
-        android:enabled="false"
-        android:title="@string/string_divider" />
+        <item
+            android:checkable="false"
+            android:checked="false"
+            android:enabled="false"
+            android:title=""
+            />
+    </group>
 
-    <item
-        android:id="@+id/dwp_popup_menu_delete"
-        android:title="@string/delete" />
+    <group
+        android:id="@+id/dwp_popup_menu_delete_group"
+        android:menuCategory="container">
+
+        <item
+            android:id="@+id/dwp_popup_menu_delete"
+            android:title="@string/delete" />
+    </group>
 </menu>

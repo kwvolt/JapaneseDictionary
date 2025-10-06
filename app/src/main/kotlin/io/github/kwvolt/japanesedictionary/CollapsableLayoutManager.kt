@@ -1,7 +1,6 @@
 package io.github.kwvolt.japanesedictionary
 
 import android.animation.LayoutTransition
-import android.content.Context
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.view.isVisible

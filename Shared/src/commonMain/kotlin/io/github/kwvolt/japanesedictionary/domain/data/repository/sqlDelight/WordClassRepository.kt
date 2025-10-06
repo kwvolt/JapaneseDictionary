@@ -3,7 +3,7 @@ package io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.database.WordClassQueries
+import io.github.kwvolt.japanesedictionary.domain.data.database.wordclass.WordClassQueries
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordClassIdContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordClassRepositoryInterface
 
@@ -68,7 +68,7 @@ class WordClassRepository(
         mainClassId: Long,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){wordClassQueries.updateMainClassId(wordClassId, mainClassId)}
+        return dbHandler.wrapQuery(itemId){wordClassQueries.updateMainClassId(wordClassId, mainClassId)}.map { Unit }
     }
 
     override suspend fun updateSubClassId(
@@ -76,7 +76,7 @@ class WordClassRepository(
         subClassId: Long,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){wordClassQueries.updateSubClassId(wordClassId, subClassId)}
+        return dbHandler.wrapQuery(itemId){wordClassQueries.updateSubClassId(wordClassId, subClassId)}.map { Unit }
     }
 
     override suspend fun updateMainClassIdAndSubClassId(
@@ -85,14 +85,14 @@ class WordClassRepository(
         subClassId: Long,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){wordClassQueries.updateMainClassIdAndSubClassId(mainClassId, subClassId, wordClassId)}
+        return dbHandler.wrapQuery(itemId){wordClassQueries.updateMainClassIdAndSubClassId(mainClassId, subClassId, wordClassId)}.map { Unit }
     }
 
     override suspend fun deleteRowByWordClassId(
         wordClassId: Long,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){wordClassQueries.deleteRowByWordClassId(wordClassId)}
+        return dbHandler.wrapQuery(itemId){wordClassQueries.deleteRowByWordClassId(wordClassId)}.map { Unit }
     }
 
     override suspend fun deleteRowByMainClassIdAndSubClassId(
@@ -100,7 +100,7 @@ class WordClassRepository(
         subClassId: Long,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){wordClassQueries.deleteRowByMainClassIdAndSubClassId(mainClassId, subClassId)}
+        return dbHandler.wrapQuery(itemId){wordClassQueries.deleteRowByMainClassIdAndSubClassId(mainClassId, subClassId)}.map { Unit }
     }
 
 }

@@ -3,29 +3,46 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/app_bar_search"
-        android:icon="@drawable/search"
+        android:id="@+id/dwp_action_search"
         android:title="@string/search_title"
-        app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="always"/>
-
-    <item
-        android:id="@+id/dwp_bookmark_switch"
-        android:title="@string/dwp_bookmark"
-        android:icon="@drawable/star_border"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        android:icon="@drawable/search"
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/dwp_menu_update"
-        android:title="@string/update" />
+        android:id="@+id/dwp_bookmark_switch"
+        android:icon="@drawable/star_border"
+        android:title="@string/dwp_bookmark"
+        app:showAsAction="always" />
 
     <item
-        android:checkable="false"
-        android:checked="false"
-        android:enabled="false"
-        android:title="@string/string_divider" />
+        android:id="@+id/dwp_filter_search"
+        android:icon="@drawable/filter_filled"
+        android:title="@string/filter_search"
+        app:showAsAction="always" />
 
-    <item
-        android:id="@+id/dwp_menu_delete"
-        android:title="@string/delete" />
+
+    <group
+        android:id="@+id/dwp_menu_update_group"
+        android:menuCategory="container">
+        <item
+            android:id="@+id/dwp_menu_update"
+            android:title="@string/update" />
+
+        <item
+            android:checkable="false"
+            android:checked="false"
+            android:enabled="false"
+            android:title=""
+            />
+    </group>
+
+    <group
+        android:id="@+id/dwp_menu_delete_group"
+        android:menuCategory="container">
+
+        <item
+            android:id="@+id/dwp_menu_delete"
+            android:title="@string/delete" />
+    </group>
 </menu>

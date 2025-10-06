@@ -1,0 +1,33 @@
+CREATE TABLE conjugation_override (
+    id INTEGER NOT NULL PRIMARY KEY,
+    dictionary_entry_id INTEGER NOT NULL,
+    conjugation_id INTEGER NOT NULL,
+    override_note TEXT,
+    CONSTRAINT FK_conj_override__dictionary_entry FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry(id),
+    CONSTRAINT FK_conj_override__conjugation FOREIGN KEY (conjugation_id) REFERENCES conjugation(id),
+    CONSTRAINT UQ_conj_override__dictionary_entry_id_conjugation_id UNIQUE(dictionary_entry_id, conjugation_id)
+);
+
+insert {
+    INSERT INTO conjugation_override (dictionary_entry_id, conjugation_id, override_note) VALUES (?, ?, ?);
+    SELECT last_insert_rowid();
+}
+
+update:
+UPDATE conjugation_override SET
+    dictionary_entry_id = COALESCE(:dictionary_entry_id, dictionary_entry_id),
+    conjugation_id = COALESCE(:conjugation_id, conjugation_id),
+    override_note = CASE
+        WHEN :override_note_provided THEN :override_note
+        ELSE override_note
+    END
+WHERE id = ?;
+
+delete:
+DELETE FROM conjugation_override WHERE id = ?;
+
+selectId:
+SELECT id FROM conjugation_override WHERE dictionary_entry_id = ? AND conjugation_id = ?;
+
+selectRow:
+SELECT dictionary_entry_id, conjugation_id, override_note FROM conjugation_override WHERE id = ?;

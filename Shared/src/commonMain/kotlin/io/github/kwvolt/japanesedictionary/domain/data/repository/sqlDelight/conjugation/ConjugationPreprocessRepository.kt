@@ -1,0 +1,86 @@
+package io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.conjugation
+
+import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
+import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
+import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
+import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.ConjugationPreprocessQueries
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationPreprocessContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationPreprocessRepositoryInterface
+
+class ConjugationPreprocessRepository(
+    private val dbHandler: DatabaseHandlerBase,
+    private val queries: ConjugationPreprocessQueries,
+): ConjugationPreprocessRepositoryInterface {
+    override suspend fun insert(
+        idName: String,
+        returnNotFoundOnNull: Boolean
+    ): DatabaseResult<Long> {
+        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
+            queries.insert(idName).awaitAsOneOrNull()
+        }
+    }
+
+    override suspend fun update(
+        id: Long,
+        idName: String,
+        returnNotFoundOnNull: Boolean
+    ): DatabaseResult<Unit> {
+        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
+            queries.update(idName, id)
+        }.map {  }
+    }
+
+    override suspend fun delete(
+        id: Long,
+        returnNotFoundOnNull: Boolean
+    ): DatabaseResult<Unit> {
+        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
+            queries.delete(id)
+        }.map {  }
+    }
+
+    override suspend fun selectId(
+        idName: String,
+        returnNotFoundOnNull: Boolean
+    ): DatabaseResult<Long> {
+        return dbHandler.withContextDispatcherWithException(
+            errorMessage = "Error at selectId in ConjugationPreprocessRepository for idName: $idName",
+            returnNotFoundOnNull = returnNotFoundOnNull
+        ){
+            queries.selectId(idName).awaitAsOneOrNull()
+        }
+    }
+
+    override suspend fun selectRow(
+        id: Long,
+        returnNotFoundOnNull: Boolean
+    ): DatabaseResult<ConjugationPreprocessContainer> {
+        return dbHandler.withContextDispatcherWithException(
+            errorMessage = "Error at selectRow in ConjugationPreprocessRepository for id: $id",
+            returnNotFoundOnNull = returnNotFoundOnNull
+        ){
+            queries.selectRow(id).awaitAsOneOrNull()
+        }.map {
+            ConjugationPreprocessContainer(id, it)
+        }
+    }
+
+    override suspend fun selectExist(
+        id: Long?,
+        idName: String?,
+        returnNotFoundOnNull: Boolean
+    ): DatabaseResult<Boolean> {
+        return dbHandler.withContextDispatcherWithException(
+            errorMessage = "Error at selectExist in ConjugationPatternRepository for idName: $idName",
+            returnNotFoundOnNull = returnNotFoundOnNull
+        ){
+            if(id != null){
+                queries.selectExistById(id).awaitAsOneOrNull()
+            }
+            else if(idName != null){
+                queries.selectExistByIdName(idName).awaitAsOneOrNull()
+            }
+            else false
+        }
+    }
+}

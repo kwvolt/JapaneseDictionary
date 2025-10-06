@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="32dp">
+
+    <!-- Toggle Button Group -->
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/script_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="32dp"
+        android:orientation="horizontal"
+        android:showDividers="middle"
+        android:divider="@drawable/divider_vertical"
+        android:dividerPadding="4dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dwp_conjugation_kanji_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:checkable="true"
+            android:text="@string/dwp_conjugation_toggle_kanji_furigana"
+            app:cornerRadius="5dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dwp_conjugation_furigana_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:checkable="true"
+            android:text="@string/dwp_conjugation_toggle_furigana"
+            app:cornerRadius="5dp" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <!-- Card View Container -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/dwp_definitionContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="2dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:showDividers="middle"
+            android:divider="@drawable/divider_horizontal">
+
+            <!-- Header Row -->
+            <LinearLayout
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_horizontal"
+                android:showDividers="middle"
+                android:divider="@drawable/divider_vertical"
+                android:background="?attr/colorPrimary">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/dwp_conjugation_form"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnPrimary" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/dwp_conjugation_short"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnPrimary" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/dwp_conjugation_long"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnPrimary" />
+            </LinearLayout>
+
+            <!-- Recycler View -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:listitem="@layout/dwp_conjugation_recycler_view_item" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

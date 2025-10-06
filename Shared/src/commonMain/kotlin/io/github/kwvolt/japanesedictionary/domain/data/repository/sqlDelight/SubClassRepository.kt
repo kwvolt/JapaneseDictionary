@@ -4,7 +4,7 @@ import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.database.SubClassQueries
+import io.github.kwvolt.japanesedictionary.domain.data.database.wordclass.SubClassQueries
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassRepositoryInterface
 
@@ -78,7 +78,7 @@ class SubClassRepository(
         idName: String,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){subClassQueries.updateIdName(idName, subClassId)}
+        return dbHandler.wrapQuery(itemId){subClassQueries.updateIdName(idName, subClassId)}.map { Unit }
     }
 
     override suspend fun updateDisplayText(
@@ -86,15 +86,15 @@ class SubClassRepository(
         displayText: String,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){subClassQueries.updateDisplayText(displayText, subClassId)}
+        return dbHandler.wrapQuery(itemId){subClassQueries.updateDisplayText(displayText, subClassId)}.map { Unit }
     }
 
     override suspend fun deleteRowByIdName(idName: String, itemId: String?): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){subClassQueries.deleteRowByIdName(idName)}
+        return dbHandler.wrapQuery(itemId){subClassQueries.deleteRowByIdName(idName)}.map { Unit }
     }
 
     override suspend fun deleteRowById(subClassId: Long, itemId: String?): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){subClassQueries.deleteRowById(subClassId)}
+        return dbHandler.wrapQuery(itemId){subClassQueries.deleteRowById(subClassId)}.map { Unit }
     }
 
 }

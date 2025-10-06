@@ -8,6 +8,14 @@ CREATE TABLE dictionary_entry_section (
     CONSTRAINT FK_dict_entry_section__dict_entry FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry (id)
 );
 
+/** fts table */
+CREATE VIRTUAL TABLE dictionary_entry_section_fts
+USING fts4 (
+  meaning TEXT,
+  content='dictionary_entry_section',
+  tokenize = 'unicode61'
+);
+
 insert {
     INSERT INTO dictionary_entry_section (dictionary_entry_id, meaning) VALUES (?, ?);
     SELECT last_insert_rowid();
@@ -27,3 +35,19 @@ DELETE FROM dictionary_entry_section WHERE id = ?;
 
 updateMeaning:
 UPDATE dictionary_entry_section SET meaning = ? WHERE id = ?;
+
+/** Triggers */
+CREATE TRIGGER dictionary_entry_section_ai AFTER INSERT ON dictionary_entry_section BEGIN
+  INSERT INTO dictionary_entry_section_fts(rowid, meaning)
+  VALUES (new.id, new.meaning);
+END;
+
+CREATE TRIGGER dictionary_entry_section_au AFTER UPDATE ON dictionary_entry_section BEGIN
+  UPDATE dictionary_entry_section_fts
+  SET meaning = new.meaning
+  WHERE rowid = old.id;
+END;
+
+CREATE TRIGGER dictionary_entry_section_ad AFTER DELETE ON dictionary_entry_section BEGIN
+  DELETE FROM dictionary_entry_section_fts WHERE rowid = old.id;
+END;

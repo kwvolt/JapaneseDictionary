@@ -4,16 +4,18 @@
     <string name="search_title">Search </string>
     <string name="cancel">Cancel </string>
     <string name="action_settings">Settings</string>
+
     <string name="generic_label">%1$s:</string>
     <string name="generic_add_button">Add %1$s</string>
     <string name="confirm_button">Confirm</string>
+
     <string name="deleteButtonDescription">delete the item</string>
     <string name="confirm">Confirm</string>
     <string name="main_class">Main Class:</string>
     <string name="sub_class">Sub Class:</string>
     <string name="undo">Undo</string>
     <string name="redo">Redo</string>
-    <string name="preview">preview</string>
+    <string name="preview">Preview</string>
     <string name="editTextDescription">Deletes the edit text from the list</string>
 
     <string name="unsaved_changes_title">Discard changes?</string>
@@ -22,6 +24,10 @@
 
     <string name="warning_delete_title">Delete value?</string>
     <string name="warning_delete_message">You are about to delete a note. Are you sure you want to delete?</string>
+
+
+    <string name="warning_delete_title_entry">Delete entry?</string>
+    <string name="warning_delete_message_entry">You are about to delete this entry. Are you sure you want to delete?</string>
 
     <string name="binding_null_error">Binding is null</string>
 
@@ -41,11 +47,63 @@
     <string name="delete">Delete</string>
     <string name="string_divider">──────────</string>
     <string name="dwp_bookmark">bookmark</string>
-    <string name="dwp_overflow_icon_content_description">More options</string>
-    <string name="dwp_edit_note_dialog_title">Edit Note</string>
+    <string name="overflow_icon_content_description">More options</string>
+    <string name="dwp_edit_note_dialog_title_update">Edit Note</string>
     <string name="note_dialog_error_note_unavailable">Sorry the value for this note is not available\n</string>
     <string name="ok">ok</string>
     <string name="error">Error</string>
     <string name="copy">copy</string>
     <string name="copied_to_clipboard">copied to clipboard</string>
+    <string name="dwp_edit_note_dialog_title_insert">Add Note</string>
+
+    <!-- Upsert Recycler -->
+    <string name="upsert_update_title">Updating</string>
+    <string name="upsert_insert_title">Inserting</string>
+
+    <!-- Upsert Recycler -label- -->
+    <string name="upsert_label_vh_word_class_label">Word Class</string>
+    <string name="upsert_label_vh_japanese_label">Primary Text</string>
+    <string name="upsert_label_vh_meaning_label">Meaning</string>
+    <string name="upsert_label_vh_kana_label">Hiragana/Katakana</string>
+    <string name="upsert_label_vh_dictionary_note_label">General Note</string>
+    <string name="upsert_label_vh_section_note_label">Specific Note</string>
+    <string name="upsert_label_vh_section_label">Section: %1$d</string>
+
+    <string name="upsert_label_vh_japanese_hint">• Example: 日本 or する</string>
+    <string name="upsert_label_vh_meaning_hint">• Example: Japanese Language for 日本語</string>
+    <string name="upsert_label_vh_kana_hint">• Example: にほんご for 日本語</string>
+
+    <!-- Upsert Recycler -edit text- -->
+    <string name="upsert_edit_vh_primary_text_hint">Enter word</string>
+    <string name="upsert_edit_vh_meaning_hint">Enter meaning</string>
+    <string name="upsert_edit_vh_kana_hint">Enter hiragana/katakana spelling</string>
+    <string name="upsert_edit_vh_entry_note_hint">Enter additional information on the general details</string>
+    <string name="upsert_edit_vh_section_note_hint">Enter additional information on the specific details</string>
+
+    <!-- Upsert Recycler -button- -->
+    <string name="upsert_button_vh_add_dictionary_note">Add General Note</string>
+    <string name="upsert_button_vh_add_kana">Add Kana</string>
+    <string name="upsert_button_vh_add_section">Add New Section</string>
+    <string name="upsert_button_vh_add_section_note">Add Section Note</string>
+    <string name="search_by">Search By</string>
+    <string name="setting">Setting</string>
+    <string name="dlu_expand_detail">View More</string>
+    <string name="bookmark_icon_content_description">bookmark</string>
+    <string name="move_to_detail_page_content_description">go to the detail page</string>
+    <string name="loading">Loading</string>
+    <string name="expand_search_filter_content_description">expand search filter</string>
+    <string name="bookmark">bookmark</string>
+    <string name="dlu_more_filter_button_text">more filter</string>
+    <string name="dlu_no_item">No Result Found</string>
+    <string name="nav_home_label">Home</string>
+    <string name="nav_bookmark_label">Bookmark</string>
+    <string name="nav_insert_label">Insert</string>
+    <string name="nav_setting_label">Setting</string>
+    <string name="dwp_preview_close">close dialog</string>
+    <string name="filter_search">filter serach</string>
+    <string name="dwp_conjugation_form">Form</string>
+    <string name="dwp_conjugation_short">Short</string>
+    <string name="dwp_conjugation_long">Long</string>
+    <string name="dwp_conjugation_toggle_kanji_furigana">Kanji + furigana</string>
+    <string name="dwp_conjugation_toggle_furigana">Furigana</string>
 </resources>

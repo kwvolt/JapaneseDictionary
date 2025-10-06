@@ -1,0 +1,25 @@
+package io.github.kwvolt.japanesedictionary.domain.model.items.item
+
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
+
+data class TextItem(
+    val inputTextType: InputTextType,
+    val inputTextValue: String,
+    override val itemProperties: GenericItemProperties
+) : BaseItem(itemProperties)
+
+data class WordClassItem(
+    val chosenMainClass: MainClassContainer,
+    val chosenSubClass: SubClassContainer,
+    override val itemProperties: GenericItemProperties,
+) : BaseItem(itemProperties)
+
+
+enum class InputTextType {
+    PRIMARY_TEXT,
+    MEANING,
+    KANA,
+    DICTIONARY_NOTE_DESCRIPTION,
+    SECTION_NOTE_DESCRIPTION
+}

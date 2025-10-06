@@ -1,0 +1,27 @@
+searchIdsByPrimaryText:
+SELECT de.id
+FROM dictionary_fts f
+INNER JOIN dictionary_entry de ON de.id = f.rowid
+WHERE dictionary_fts MATCH ?;
+
+searchIdsByKanaText:
+SELECT DISTINCT k.dictionary_entry_id
+FROM kana_fts f
+INNER JOIN kana k ON k.id = f.rowid
+WHERE f.wordText MATCH ?;
+
+searchIdsByMeaning:
+SELECT DISTINCT des.dictionary_entry_id
+FROM dictionary_entry_section_fts f
+INNER JOIN dictionary_entry_section des ON des.id = f.rowid
+WHERE f.meaning MATCH ?;
+
+searchIdsByWordClassId:
+SELECT de.id
+FROM dictionary_entry de
+WHERE de.word_class_id = ?;
+
+searchIdsByBookmark:
+SELECT de.id
+FROM dictionary_entry de
+WHERE de.is_bookmarked = ?;

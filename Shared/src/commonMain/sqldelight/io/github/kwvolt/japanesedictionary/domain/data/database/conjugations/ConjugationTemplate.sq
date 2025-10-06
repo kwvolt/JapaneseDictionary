@@ -1,0 +1,33 @@
+/**
+    CONJUGTION TEMPLATE
+*/
+CREATE TABLE conjugation_template(
+    id INTEGER NOT NULL PRIMARY KEY,
+    id_name TEXT NOT NULL,
+    display_text TEXT NOT NULL,
+    CONSTRAINT UQ_conj_template__id_name UNIQUE (id_name)
+);
+
+
+insert {
+    INSERT INTO conjugation_template (id_name, display_text) VALUES (?, ?);
+    SELECT last_insert_rowid();
+}
+
+update:
+UPDATE conjugation_template SET id_name = COALESCE(:id_name, id_name), display_text = COALESCE(:display_text, display_text) WHERE id = ?;
+
+delete:
+DELETE FROM conjugation_template WHERE id = ?;
+
+selectId:
+SELECT id FROM conjugation_template WHERE id_name = ?;
+
+selectRow:
+SELECT id_name, display_text FROM conjugation_template WHERE id = ?;
+
+selectExistById:
+SELECT COUNT(*)  > 0 FROM conjugation_template WHERE id =?;
+
+selectExistByIdName:
+SELECT COUNT(*)  > 0 FROM conjugation_template WHERE id_name =?;

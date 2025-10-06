@@ -1,6 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.data.validation
 
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
+import io.github.kwvolt.japanesedictionary.domain.model.items.item.BaseItem
 
 
 fun validJapanese(text:String):Boolean{

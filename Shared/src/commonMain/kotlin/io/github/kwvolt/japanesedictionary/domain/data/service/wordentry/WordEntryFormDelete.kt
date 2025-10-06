@@ -2,19 +2,19 @@ package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntryNoteRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntryRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntrySectionKanaInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntrySectionNoteRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.EntrySectionRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryNoteRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SectionKanaRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SectionNoteRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SectionRepositoryInterface
 
 class WordEntryFormDelete (
     private val dbHandler: DatabaseHandlerBase,
-    private val entryRepository: EntryRepositoryInterface,
-    private val entryNoteRepository: EntryNoteRepositoryInterface,
-    private val entrySectionRepository: EntrySectionRepositoryInterface,
-    private val entrySectionKanaRepository: EntrySectionKanaInterface,
-    private val entrySectionNoteRepository: EntrySectionNoteRepositoryInterface,
+    private val entryRepository: DictionaryRepositoryInterface,
+    private val entryNoteRepository: DictionaryNoteRepositoryInterface,
+    private val entrySectionRepository: SectionRepositoryInterface,
+    private val entrySectionKanaRepository: SectionKanaRepositoryInterface,
+    private val entrySectionNoteRepository: SectionNoteRepositoryInterface,
 ){
 
     suspend fun deletePrimaryText(dictionaryId: Long, itemId: String? = null): DatabaseResult<Unit>{

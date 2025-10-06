@@ -1,0 +1,45 @@
+/**
+    CONJUGTION PATTERN
+*/
+CREATE TABLE conjugation_pattern(
+    id INTEGER NOT NULL PRIMARY KEY,
+    id_name TEXT NOT NULL,
+    display_text TEXT NOT NULL,
+    description_text TEXT,
+    CONSTRAINT CK_LEN_conj_pattern__id_name CHECK (LENGTH(id_name) <= 50),
+    CONSTRAINT UQ_conj_pattern__id_name UNIQUE(id_name)
+);
+
+insert {
+    INSERT INTO conjugation_pattern (id_name, display_text, description_text) VALUES (?, ?, ?);
+    SELECT last_insert_rowid();
+}
+
+update:
+UPDATE conjugation_pattern
+SET
+    id_name = COALESCE(:id_name, id_name),
+    display_text = COALESCE(:display_text, display_text),
+    description_text = CASE
+        WHEN :description_text_provided THEN :description_text
+        ELSE description_text
+    END
+WHERE id = ?;
+
+delete:
+DELETE FROM conjugation_pattern WHERE id = ?;
+
+selectId:
+SELECT id FROM conjugation_pattern WHERE id_name = ?;
+
+selectRow:
+SELECT id_name, display_text FROM conjugation_pattern WHERE id = ?;
+
+selectExistById:
+SELECT COUNT(*) > 0 FROM conjugation_pattern WHERE id = ?;
+
+
+selectExistByIdName:
+SELECT COUNT(*)  > 0 FROM conjugation_pattern WHERE id_name = ?;
+
+

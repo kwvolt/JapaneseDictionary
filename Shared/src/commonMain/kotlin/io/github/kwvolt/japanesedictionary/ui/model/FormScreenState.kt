@@ -1,15 +1,20 @@
 package io.github.kwvolt.japanesedictionary.ui.model
 
 import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.BaseItem
-import io.github.kwvolt.japanesedictionary.domain.form.addUpdate.items.ErrorMessage
+import io.github.kwvolt.japanesedictionary.domain.model.items.item.DisplayItem
+import io.github.kwvolt.japanesedictionary.domain.model.items.item.ErrorMessage
 
 data class FormScreenState(
-    val items: List<BaseItem> = emptyList(),
+    val items: List<DisplayItem> = emptyList(),
     val errors: Map<ItemKey, ErrorMessage> = emptyMap(),
-    val isLoading: Boolean = false,
+    override val isLoading: Boolean = false,
     val canUndo: Boolean = false,
     val canRedo: Boolean = false,
-    val screenStateUnknownError: ScreenStateUnknownError? = null
-)
+    override val screenStateUnknownError: ScreenStateUnknownError? = null,
+    val confirmed: Long? = null
+): ScreenState(isLoading, screenStateUnknownError), ScreenStateErrorCopyable<FormScreenState>{
+    override fun copyWithError(error: ScreenStateUnknownError?): FormScreenState {
+        return copy(screenStateUnknownError = error)
+    }
+}
 

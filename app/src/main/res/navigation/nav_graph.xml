@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/dictionaryLookupFragment">
+
+    <action
+        android:id="@+id/action_global_detail"
+        app:destination="@+id/dictionaryDetailPageViewFragment" />
+
+    <action
+        android:id="@+id/action_global_lookup"
+        app:destination="@+id/dictionaryLookupFragment" />
+
+    <action
+        android:id="@+id/action_global_upsert"
+        app:destination="@+id/upsertRecyclerViewFragment" />
+
+    <fragment
+        android:id="@+id/dictionaryLookupFragment"
+        android:name="io.github.kwvolt.japanesedictionary.ui.dictionarylookup.DictionaryLookupFragment"
+        tools:layout="@layout/dlu_layout"
+        android:label="DictionaryLookupFragment" >
+        <action
+            android:id="@+id/action_lookup_to_upsert"
+            app:destination="@id/upsertRecyclerViewFragment" />
+        <action
+            android:id="@+id/action_lookup_to_detail"
+            app:destination="@id/dictionaryDetailPageViewFragment" />
+
+        <argument
+            android:name="searchTerm"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+
+        <argument
+            android:name="searchFilterWrapper"
+            app:argType="io.github.kwvolt.japanesedictionary.util.ParcelableSearchFilterWrapper"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/upsertRecyclerViewFragment"
+        android:name="io.github.kwvolt.japanesedictionary.ui.upsert.UpsertRecyclerViewFragment"
+        tools:layout="@layout/upsert_layout"
+        android:label="UpsertRecyclerViewFragment" >
+
+        <action
+            android:id="@+id/action_upsert_to_detail"
+            app:destination="@id/dictionaryDetailPageViewFragment" />
+
+        <argument
+            android:name="dictionaryId"
+            app:argType="long"
+            android:defaultValue="-1L"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/dictionaryDetailPageViewFragment"
+        android:name="io.github.kwvolt.japanesedictionary.ui.dictionarydetailpage.DictionaryDetailPageViewFragment"
+        android:label="DictionaryDetailPageViewFragment"
+        tools:layout="@layout/dwp_layout">
+        <action
+            android:id="@+id/action_detail_to_lookup"
+            app:destination="@id/dictionaryLookupFragment" />
+        <action
+            android:id="@+id/action_detail_to_upsert"
+            app:destination="@id/upsertRecyclerViewFragment" />
+
+
+        <argument
+            android:name="dictionaryId"
+            app:argType="long" />
+    </fragment>
+</navigation>

@@ -4,16 +4,27 @@
 CREATE TABLE kana (
     id INTEGER NOT NULL PRIMARY KEY,
     dictionary_entry_section_id INTEGER NOT NULL,
+    dictionary_entry_id INTEGER NOT NULL,
     wordText TEXT NOT NULL,
     CONSTRAINT FK_kana__dict_entry_section FOREIGN KEY (dictionary_entry_section_id) REFERENCES dictionary_entry_section(id),
-    CONSTRAINT UQIDX_kana__dict_entry_section_id__wordText UNIQUE(dictionary_entry_section_id, wordText)
+    CONSTRAINT FK_kana__dict_entry FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry(id),
+    CONSTRAINT UQIDX_kana__dict_entry_section_id__wordText UNIQUE(dictionary_entry_section_id, wordText),
+    CONSTRAINT UQIDX_kana__dict_entry_id__wordText UNIQUE(dictionary_entry_id, wordText)
 );
 
+/** fts table */
+CREATE VIRTUAL TABLE kana_fts
+USING fts4 (
+  wordText TEXT,
+  content='kana',
+  tokenize = 'unicode61'
+);
+
+
 insert {
-    INSERT INTO kana (dictionary_entry_section_id, wordText) VALUES (?, ?);
+    INSERT INTO kana (dictionary_entry_section_id, dictionary_entry_id, wordText) VALUES (?, ?, ?);
     SELECT last_insert_rowid();
 }
-
 selectId:
 SELECT id FROM kana WHERE dictionary_entry_section_id = ? AND wordText = ?;
 
@@ -29,3 +40,18 @@ UPDATE kana SET wordText = ? WHERE id = ?;
 deleteRow:
 DELETE FROM kana WHERE id = ?;
 
+/** Triggers */
+CREATE TRIGGER kana_ai AFTER INSERT ON kana BEGIN
+  INSERT INTO kana_fts(rowid, wordText)
+  VALUES (new.id, new.wordText);
+END;
+
+CREATE TRIGGER kana_au AFTER UPDATE ON kana BEGIN
+  UPDATE kana_fts
+  SET wordText = new.wordText
+  WHERE rowid = old.id;
+END;
+
+CREATE TRIGGER kana_ad AFTER DELETE ON kana BEGIN
+  DELETE FROM kana_fts WHERE rowid = old.id;
+END;

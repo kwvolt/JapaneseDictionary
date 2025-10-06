@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/upsert_edit_text_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:endIconDrawable="@drawable/delete_item"
+    app:endIconMode="custom"
+    app:errorEnabled="false"
+    app:hintEnabled="false">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/upsert_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start|top"
+        android:inputType="textMultiLine"
+        android:maxLines="5"
+        android:minLines="1"
+        android:overScrollMode="always"
+        android:scrollbars="vertical"
+        android:singleLine="false"
+        tools:text="Sample note input wfjoekfopwkefopkweopfkweo" />
+</com.google.android.material.textfield.TextInputLayout>

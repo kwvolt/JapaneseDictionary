@@ -1,0 +1,31 @@
+/**
+    CONJUGTION ACTION TYPE
+*/
+CREATE TABLE conjugation_preprocess(
+    id INTEGER NOT NULL PRIMARY KEY,
+    id_name TEXT NOT NULL,
+    CONSTRAINT CK_LEN_conj_preprocess__id_name CHECK (LENGTH(id_name) <= 50),
+    CONSTRAINT UQ_conj_preprocess__id_name UNIQUE(id_name)
+);
+insert {
+    INSERT INTO conjugation_preprocess (id_name) VALUES (?);
+    SELECT last_insert_rowid();
+}
+
+update:
+UPDATE conjugation_preprocess SET id_name = COALESCE(:id_name, id_name) WHERE id = ?;
+
+delete:
+DELETE FROM conjugation_preprocess WHERE id = ?;
+
+selectId:
+SELECT id FROM conjugation_preprocess WHERE id_name = ?;
+
+selectRow:
+SELECT id_name FROM conjugation_preprocess WHERE id = ?;
+
+selectExistById:
+SELECT COUNT(*)  > 0 FROM conjugation_preprocess WHERE id =?;
+
+selectExistByIdName:
+SELECT COUNT(*)  > 0 FROM conjugation_preprocess WHERE id_name =?;
