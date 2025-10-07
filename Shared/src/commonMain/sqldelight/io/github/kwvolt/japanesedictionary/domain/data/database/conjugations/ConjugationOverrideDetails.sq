@@ -1,29 +1,36 @@
 CREATE TABLE conjugation_override_detail (
-    id INTEGER PRIMARY KEY,
     conjugation_override_id INTEGER NOT NULL,
-    property_name TEXT NOT NULL,
-    property_value TEXT NOT NULL,
+    conjugation_override_property_id INTEGER NOT NULL,
+    property_value TEXT,
+    CONSTRAINT PK_conjugation_override_detail PRIMARY KEY (conjugation_override_id, conjugation_override_property_id),
     CONSTRAINT FK_conj_override_detail__conj_override FOREIGN KEY (conjugation_override_id) REFERENCES conjugation_override(id),
-    CONSTRAINT UQ_conj_override_detail__conj_override_id UNIQUE(conjugation_override_id)
+    CONSTRAINT FK_conj_override_detail__conj_override_property FOREIGN KEY (conjugation_override_property_id) REFERENCES conjugation_override_property(id)
 );
 
+
 insert {
-    INSERT INTO conjugation_override_detail (conjugation_override_id, property_name, property_value) VALUES (?, ? , ?);
+    INSERT INTO conjugation_override_detail (conjugation_override_id, conjugation_override_property_id, property_value) VALUES (?, ? , ?);
     SELECT last_insert_rowid();
 }
 
 update:
 UPDATE conjugation_override_detail SET
-    conjugation_override_id = COALESCE(:override_id, conjugation_override_id),
-    property_name = COALESCE(:property_name, property_name),
-    property_value = COALESCE(:property_value, property_value)
-    WHERE id = ?;
+    property_value = CASE
+         WHEN :property_value_provided THEN :property_value
+         ELSE property_value
+    END
+    WHERE conjugation_override_id = ? AND conjugation_override_property_id = ?;
 
 delete:
-DELETE FROM conjugation_override_detail WHERE id = ?;
+DELETE FROM conjugation_override_detail WHERE conjugation_override_id = ? AND conjugation_override_property_id = ?;
 
-selectId:
-SELECT id FROM conjugation_override_detail WHERE conjugation_override_id = ? AND property_name = ? AND property_value = ?;
+deleteAll:
+DELETE FROM conjugation_override_detail WHERE conjugation_override_id = ?;
 
 selectRow:
-SELECT conjugation_override_id, property_name, property_value FROM conjugation_override_detail WHERE id = ?;
+SELECT property_value FROM conjugation_override_detail WHERE conjugation_override_id = ? AND conjugation_override_property_id = ?;
+
+selectAllByOverrideId:
+SELECT cop.id_name AS property_name, property_value FROM conjugation_override_detail cod
+    INNER JOIN conjugation_override_property cop ON cod.conjugation_override_property_id = cop.id
+WHERE conjugation_override_id = ?;

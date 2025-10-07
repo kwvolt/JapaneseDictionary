@@ -32,16 +32,16 @@ abstract class DatabaseHandlerBase {
         val semaphore = Semaphore(maxConcurrent)
         return coroutineScope {
             batches.forEach { batch ->
-                batch.map {
-                    semaphore.withPermit {
-                        async { task(it) }
+                val jobs = batch.map { item ->
+                    async {
+                        semaphore.withPermit {
+                            task(item)
+                        }
                     }
-                }.also {
-                    // Wait for all tasks in this batch to complete
-                    it.awaitAll()
                 }
+                jobs.awaitAll()
             }
-            return@coroutineScope DatabaseResult.Success(Unit)
+            DatabaseResult.Success(Unit)
         }
     }
 
@@ -66,16 +66,16 @@ abstract class DatabaseHandlerBase {
         val semaphore = Semaphore(maxConcurrent)
         return coroutineScope {
             batches.forEach { batch ->
-                batch.map {
-                    semaphore.withPermit {
-                        async { task(it) }
+                val jobs = batch.map { item ->
+                    async {
+                        semaphore.withPermit {
+                            task(item)
+                        }
                     }
-                }.also {
-                    // Wait for all tasks in this batch to complete
-                    it.awaitAll()
                 }
+                jobs.awaitAll()
             }
-            return@coroutineScope DatabaseResult.Success(Unit)
+            DatabaseResult.Success(Unit)
         }
     }
 
@@ -139,6 +139,16 @@ abstract class DatabaseHandlerBase {
     // Method to perform a transaction
     abstract suspend fun <T> performTransaction(block: suspend () -> DatabaseResult<T>): DatabaseResult<T>
 
+    suspend fun <T> requireTransaction(block: suspend () -> DatabaseResult<T>): DatabaseResult<T>{
+        if (coroutineContext[TransactionContext]?.inTransaction != true) {
+            return DatabaseResult.UnknownError(
+                IllegalStateException("This function must be called within a transaction"),
+                "This function must be called within a transaction"
+            )
+        }
+        return block()
+    }
+
     // Method to close the database connection
     abstract fun close()
 }
@@ -148,3 +158,7 @@ class TransactionContext private constructor(val inTransaction: Boolean) : Abstr
         val Active = TransactionContext(true)
     }
 }
+
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.SOURCE)
+annotation class RequiresTransaction

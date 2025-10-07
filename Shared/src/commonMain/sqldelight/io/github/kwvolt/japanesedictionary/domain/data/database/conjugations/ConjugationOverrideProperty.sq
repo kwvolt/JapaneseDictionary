@@ -1,0 +1,28 @@
+CREATE TABLE conjugation_override_property (
+    id INTEGER NOT NULL PRIMARY KEY,
+    id_name TEXT NOT NULL
+);
+
+
+insert {
+    INSERT INTO conjugation_override_property ( id_name) VALUES (?);
+    SELECT last_insert_rowid();
+}
+
+update:
+UPDATE  conjugation_override_property SET id_name = COALESCE(:id_name, id_name) WHERE id = ?;
+
+delete:
+DELETE FROM  conjugation_override_property WHERE id = ?;
+
+selectId:
+SELECT id FROM  conjugation_override_property WHERE id_name = ?;
+
+selectRow:
+SELECT id_name FROM  conjugation_override_property WHERE id = ?;
+
+selectExistById:
+SELECT COUNT(*)  > 0 FROM  conjugation_override_property WHERE id =?;
+
+selectExistByIdName:
+SELECT COUNT(*)  > 0 FROM  conjugation_override_property WHERE id_name =?;

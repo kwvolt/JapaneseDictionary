@@ -1,9 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.data.database
 
 import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
-import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationError
-import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationResult
-import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationType
 
 sealed class DatabaseResult<out T> {
     data class Success<T>(val value: T) : DatabaseResult<T>()
@@ -31,7 +28,7 @@ sealed class DatabaseResult<out T> {
         NotFound -> NotFound
     }
 
-    inline fun blankMap(transform: (T) -> Unit): DatabaseResult<Unit> = when (this) {
+    inline fun toUnit(transform: (T) -> Unit = {}): DatabaseResult<Unit> = when (this) {
         is Success -> Success(transform(value))
         is UnknownError -> this
         is InvalidInput -> this

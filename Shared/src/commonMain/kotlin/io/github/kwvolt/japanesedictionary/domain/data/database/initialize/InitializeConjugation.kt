@@ -13,6 +13,7 @@ import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.StemR
 class InitializeConjugation (
     private val databaseHandler: DatabaseHandlerBase,
     private val conjugationUpsert: ConjugationUpsert,
+    private val conjugationTemplateInserter: ConjugationTemplateInserter
 ) {
     suspend fun initialize(): DatabaseResult<Unit> {
         // patterns
@@ -167,8 +168,10 @@ class InitializeConjugation (
         }
         verbSuffixSwapResult.returnOnFailure { return it.mapErrorTo() }
 
+        //override property
+
         // conjugation template
-        val conjugationTemplate = ConjugationTemplateInserter().defineTemplate("RU_CONJUGATION", "る Verb Conjugation") {
+        conjugationTemplateInserter.defineTemplate("RU_CONJUGATION", "る Verb Conjugation") {
             insert {
                 withPreprocess(StemRule.DROP_RU) {
                     getOrInsertConjugation("CONJUNCTIVE"){ nullSuffix(null)}
@@ -221,10 +224,13 @@ class InitializeConjugation (
                         shortSuffix("ます")
                     }
                 }
-
+            }
+        }.returnOnFailure { return it.mapErrorTo() }
+        conjugationTemplateInserter.defineTemplate("U_CONJUGATION", "う Verb Conjugation") {
+            insert {
                 withPreprocess(StemRule.REPLACE_SUFFIX) {
                     getOrInsertConjugation("CONJUNCTIVE") {
-                        nullSuffix(null){
+                        nullSuffix(null) {
                             linkVerbSuffixSwap("う", "い")
                             linkVerbSuffixSwap("く", "き")
                             linkVerbSuffixSwap("ぐ", "ぎ")
@@ -249,8 +255,8 @@ class InitializeConjugation (
                             linkVerbSuffixSwap("る", "れ")
                         }
                     }
-                    getOrInsertConjugation("CONDITIONAL"){
-                        nullSuffix("ば")   {
+                    getOrInsertConjugation("CONDITIONAL") {
+                        nullSuffix("ば") {
                             linkVerbSuffixSwap("う", "え")
                             linkVerbSuffixSwap("く", "け")
                             linkVerbSuffixSwap("ぐ", "げ")
@@ -260,9 +266,9 @@ class InitializeConjugation (
                             linkVerbSuffixSwap("ぶ", "ば")
                             linkVerbSuffixSwap("む", "め")
                             linkVerbSuffixSwap("る", "れ")
-                        }                     
+                        }
                     }
-                    getOrInsertConjugation("TE_FORM"){
+                    getOrInsertConjugation("TE_FORM") {
                         shortSuffix("て") {
                             linkVerbSuffixSwap("う", "っ")
                             linkVerbSuffixSwap("く", "い")
@@ -286,7 +292,7 @@ class InitializeConjugation (
                             linkVerbSuffixSwap("る", "り")
                         }
                     }
-                    getOrInsertConjugation("TA_FORM"){
+                    getOrInsertConjugation("TA_FORM") {
                         shortSuffix("た") {
                             linkVerbSuffixSwap("う", "っ")
                             linkVerbSuffixSwap("く", "い")
@@ -310,7 +316,7 @@ class InitializeConjugation (
                             linkVerbSuffixSwap("る", "り")
                         }
                     }
-                    getOrInsertConjugation("PRESENT_NEGATIVE"){
+                    getOrInsertConjugation("PRESENT_NEGATIVE") {
                         shortSuffix("ない") {
                             linkVerbSuffixSwap("う", "わ")
                             linkVerbSuffixSwap("く", "か")
@@ -334,7 +340,7 @@ class InitializeConjugation (
                             linkVerbSuffixSwap("る", "り")
                         }
                     }
-                    getOrInsertConjugation("PAST_NEGATIVE"){
+                    getOrInsertConjugation("PAST_NEGATIVE") {
                         shortSuffix("なかった") {
                             linkVerbSuffixSwap("う", "わ")
                             linkVerbSuffixSwap("く", "か")
@@ -358,7 +364,7 @@ class InitializeConjugation (
                             linkVerbSuffixSwap("る", "り")
                         }
                     }
-                    getOrInsertConjugation("VOLITIONAL"){
+                    getOrInsertConjugation("VOLITIONAL") {
                         shortSuffix("う") {
                             linkVerbSuffixSwap("う", "お")
                             linkVerbSuffixSwap("く", "こ")
@@ -382,7 +388,7 @@ class InitializeConjugation (
                             linkVerbSuffixSwap("る", "り")
                         }
                     }
-                    getOrInsertConjugation("PASSIVE"){
+                    getOrInsertConjugation("PASSIVE") {
                         shortSuffix("れる") {
                             linkVerbSuffixSwap("う", "わ")
                             linkVerbSuffixSwap("く", "か")
@@ -406,7 +412,7 @@ class InitializeConjugation (
                             linkVerbSuffixSwap("る", "ら")
                         }
                     }
-                    getOrInsertConjugation("CAUSATIVE"){
+                    getOrInsertConjugation("CAUSATIVE") {
                         shortSuffix("せる") {
                             linkVerbSuffixSwap("う", "わ")
                             linkVerbSuffixSwap("く", "か")
@@ -430,8 +436,8 @@ class InitializeConjugation (
                             linkVerbSuffixSwap("る", "ら")
                         }
                     }
-                    getOrInsertConjugation("CAUSATIVE_PASSIVE"){
-                        shortSuffix("される"){
+                    getOrInsertConjugation("CAUSATIVE_PASSIVE") {
+                        shortSuffix("される") {
                             linkVerbSuffixSwap("う", "わ")
                             linkVerbSuffixSwap("く", "か")
                             linkVerbSuffixSwap("ぐ", "が")
@@ -454,7 +460,7 @@ class InitializeConjugation (
                             linkVerbSuffixSwap("る", "ら")
                         }
                     }
-                    getOrInsertConjugation("POTENTIAL"){
+                    getOrInsertConjugation("POTENTIAL") {
                         shortSuffix("る") {
                             linkVerbSuffixSwap("う", "え")
                             linkVerbSuffixSwap("く", "け")
@@ -478,7 +484,7 @@ class InitializeConjugation (
                             linkVerbSuffixSwap("る", "れ")
                         }
                     }
-                    getOrInsertConjugation("POLITE"){
+                    getOrInsertConjugation("POLITE") {
                         longSuffix("ます") {
                             linkVerbSuffixSwap("う", "い")
                             linkVerbSuffixSwap("く", "き")
@@ -493,12 +499,7 @@ class InitializeConjugation (
                     }
                 }
             }
-        }
-        conjugationTemplate.returnOnFailure { return it.mapErrorTo() }
-
-        //override
-
-
+        }.returnOnFailure { return it.mapErrorTo() }
 
         return DatabaseResult.Success(Unit)
 

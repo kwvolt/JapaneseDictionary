@@ -60,7 +60,7 @@ class UpsertViewModel(
 
     suspend fun loadExistingItemForm(dictionaryEntryId: Long) {
         _uiState.update { it.copy(isLoading = true) }
-        val result = _wordEntryFormBuilder.buildDetailedFormData(dictionaryEntryId, _formItemManager).blankMap { data ->
+        val result = _wordEntryFormBuilder.buildDetailedFormData(dictionaryEntryId, _formItemManager).toUnit { data ->
             val commandManager = FormCommandManager(data)
             _wordFormHandler = WordFormHandler(commandManager)
         }
