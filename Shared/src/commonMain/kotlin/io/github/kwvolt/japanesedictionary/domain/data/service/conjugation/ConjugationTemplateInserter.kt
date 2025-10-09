@@ -2,8 +2,6 @@ package io.github.kwvolt.japanesedictionary.domain.data.service.conjugation
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.database.getOrReturn
-import io.github.kwvolt.japanesedictionary.domain.data.database.returnOnFailure
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationPatternRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationPreprocessRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationRepositoryInterface
@@ -42,8 +40,8 @@ class ConjugationTemplateInserter(
         if(templateIdName.isBlank() && templateDisplayText.isBlank()) return DatabaseResult.UnknownError(
             IllegalArgumentException("requires defineTemplate to be called first"))
         val conjugationTemplateResult: DatabaseResult<Long> = dbHandler.performTransaction {
-            val innerConjugationTemplateResult: DatabaseResult<Long> = conjugationTemplateRepository.insert(templateIdName, templateDisplayText).returnOnFailure { return@performTransaction it.mapErrorTo() }
-            conjugation().returnOnFailure { return@performTransaction it.mapErrorTo() }
+            val innerConjugationTemplateResult: DatabaseResult<Long> = conjugationTemplateRepository.insert(templateIdName, templateDisplayText).returnOnFailure<Long> { return@performTransaction it }
+            conjugation().returnOnFailure<Long> { return@performTransaction it }
             innerConjugationTemplateResult
         }
         return conjugationTemplateResult
@@ -53,7 +51,7 @@ class ConjugationTemplateInserter(
         stemRule: StemRule,
         block: suspend CTScopedPreprocessedInserter.() -> DatabaseResult<Long>
     ): DatabaseResult<Long> {
-        val processId: Long = getProcessId(stemRule).getOrReturn { return it.mapErrorTo() }
+        val processId: Long = getProcessId(stemRule).getOrReturn { return it }
         val scopedBuilder = CTScopedPreprocessedInserter(this, processId)
         val result = scopedBuilder.block()
         return result
@@ -68,7 +66,7 @@ class ConjugationTemplateInserter(
         val conjugationResult: DatabaseResult<Long> = conjugationRepository.selectId(conjugationPatternId, conjugationPreprocessId, conjugationSuffixId, returnNotFoundOnNull = true)
         val conjugationId: Long = when(conjugationResult){
             is DatabaseResult.Success -> conjugationResult.value
-            is DatabaseResult.NotFound -> conjugationRepository.insert(conjugationPatternId, conjugationPreprocessId, conjugationSuffixId).getOrReturn { return it.mapErrorTo() }
+            is DatabaseResult.NotFound -> conjugationRepository.insert(conjugationPatternId, conjugationPreprocessId, conjugationSuffixId).getOrReturn { return it }
             else -> return conjugationResult.mapErrorTo()
         }
         block?.invoke(CTScopedVerbSuffixSwapInserter(this, conjugationId))
@@ -100,7 +98,7 @@ class ConjugationTemplateInserter(
     }
 
     suspend fun linkVerbSuffixSwap(conjugationId: Long, original: String, replacement: String): DatabaseResult<Unit>{
-        val verbSuffixSwapId: Long = verbSuffixSwapRepository.selectId(original, replacement).getOrReturn { return it.mapErrorTo() }
+        val verbSuffixSwapId: Long = verbSuffixSwapRepository.selectId(original, replacement).getOrReturn { return it }
         return verbSuffixSwapRepository.insertLinkVerbSuffixSwapToConjugation(verbSuffixSwapId,conjugationId)
     }
 }
@@ -129,7 +127,7 @@ class CTScopedPreprocessedInserter(
         conjugationPatternIdName: String,
         conjugationSuffix: suspend CTScopedSuffixInserter.() -> DatabaseResult<Long>
     ): DatabaseResult<Long> {
-        val patternId: Long = base.getPatternId(conjugationPatternIdName).getOrReturn { return it.mapErrorTo() }
+        val patternId: Long = base.getPatternId(conjugationPatternIdName).getOrReturn { return it }
         return conjugationSuffix(CTScopedSuffixInserter(base, patternId, processId))
     }
 }
@@ -154,16 +152,16 @@ class CTScopedSuffixInserter(
     private val conjugationPreprocessId: Long
 ) {
     suspend fun nullSuffix(text: String?, swap: (suspend CTScopedVerbSuffixSwapInserter.() -> Unit)?=null): DatabaseResult<Long> {
-        val suffixId = base.getSuffixId(text, null).getOrReturn { return it.mapErrorTo() }
+        val suffixId = base.getSuffixId(text, null).getOrReturn { return it }
         return base.getOrInsertConjugation(conjugationPatternId, conjugationPreprocessId, suffixId, swap)
     }
     suspend fun shortSuffix(text: String?, swap: (suspend CTScopedVerbSuffixSwapInserter.() -> Unit)?=null): DatabaseResult<Long> {
-        val suffixId = base.getSuffixId(text, true).getOrReturn { return it.mapErrorTo() }
+        val suffixId = base.getSuffixId(text, true).getOrReturn { return it }
         return base.getOrInsertConjugation(conjugationPatternId, conjugationPreprocessId, suffixId, swap)
 
     }
     suspend fun longSuffix(text: String?, swap: (suspend CTScopedVerbSuffixSwapInserter.() -> Unit)?=null): DatabaseResult<Long> {
-        val suffixId = base.getSuffixId(text, false).getOrReturn { return it.mapErrorTo() }
+        val suffixId = base.getSuffixId(text, false).getOrReturn { return it }
         return base.getOrInsertConjugation(conjugationPatternId, conjugationPreprocessId, suffixId, swap)
     }
 }

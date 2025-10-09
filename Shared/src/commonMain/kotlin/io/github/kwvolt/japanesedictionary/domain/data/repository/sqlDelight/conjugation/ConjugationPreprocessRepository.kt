@@ -25,18 +25,18 @@ class ConjugationPreprocessRepository(
         idName: String,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
             queries.update(idName, id)
-        }.map {  }
+        }
     }
 
     override suspend fun delete(
         id: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
             queries.delete(id)
-        }.map {  }
+        }
     }
 
     override suspend fun selectId(

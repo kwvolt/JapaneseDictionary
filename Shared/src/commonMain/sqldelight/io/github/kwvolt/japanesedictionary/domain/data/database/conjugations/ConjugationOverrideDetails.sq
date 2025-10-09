@@ -8,10 +8,8 @@ CREATE TABLE conjugation_override_detail (
 );
 
 
-insert {
-    INSERT INTO conjugation_override_detail (conjugation_override_id, conjugation_override_property_id, property_value) VALUES (?, ? , ?);
-    SELECT last_insert_rowid();
-}
+insert:
+INSERT INTO conjugation_override_detail (conjugation_override_id, conjugation_override_property_id, property_value) VALUES (?, ? , ?);
 
 update:
 UPDATE conjugation_override_detail SET

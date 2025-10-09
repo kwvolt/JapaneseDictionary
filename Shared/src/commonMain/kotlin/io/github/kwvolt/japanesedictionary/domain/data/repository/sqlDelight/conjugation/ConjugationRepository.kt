@@ -30,15 +30,15 @@ class ConjugationRepository(
         conjugationSuffixId: Long?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
             queries.update(conjugationPatternId, conjugationPreprocessId, conjugationSuffixId, id)
-        }.map {  }
+        }
     }
 
     override suspend fun delete(id: Long, returnNotFoundOnNull: Boolean): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
             queries.delete(id)
-        }.map {  }
+        }
     }
 
     override suspend fun selectId(

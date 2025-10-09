@@ -29,18 +29,18 @@ class VerbSuffixSwapRepository(
         replacement: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
             queries.update(original, replacement, id)
-        }.map {  }
+        }
     }
 
     override suspend fun delete(
         id: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
             queries.delete(id)
-        }.map {  }
+        }
     }
 
     override suspend fun selectId(
@@ -79,9 +79,9 @@ class VerbSuffixSwapRepository(
         conjugationId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
             linkQueries.delete(verbSuffixSwapId, conjugationId)
-        }.map{}
+        }
     }
 
     override suspend fun selectVerbSwapSuffixId(

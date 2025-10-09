@@ -30,13 +30,13 @@ class ConjugationTemplateRepository(
         displayText: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
             queries.update(idName, displayText, id)
-        }.map {}
+        }
     }
 
     override suspend fun delete(id: Long, returnNotFoundOnNull: Boolean): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) { queries.delete(id) }.map {}
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) { queries.delete(id) }
     }
 
     override suspend fun selectId(
@@ -90,9 +90,9 @@ class ConjugationTemplateRepository(
         conjugationId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
             linkQueries.delete(conjugationId,conjugationTemplateId)
-        }.map{}
+        }
     }
 
     override suspend fun selectConjugationIdByConjugationTemplateId(

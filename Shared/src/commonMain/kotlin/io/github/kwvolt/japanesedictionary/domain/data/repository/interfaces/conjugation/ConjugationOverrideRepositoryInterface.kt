@@ -22,7 +22,7 @@ interface ConjugationOverrideRepositoryInterface {
     suspend fun selectId(dictionaryEntryId: Long, conjugationId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
     suspend fun selectRow(conjugationOverrideId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<ConjugationOverrideContainer>
 
-    suspend fun insertPropertyValue(conjugationOverrideId: Long, overridePropertyId: Long, propertyValue: String? = null, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
+    suspend fun insertPropertyValue(conjugationOverrideId: Long, overridePropertyId: Long, propertyValue: String? = null, returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
     suspend fun updatePropertyValue(
         conjugationOverrideId: Long,
         overridePropertyId: Long,
@@ -38,6 +38,7 @@ interface ConjugationOverrideRepositoryInterface {
     suspend fun deleteProperty(id: Long ,returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
     suspend fun selectPropertyId(idName: String, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
     suspend fun selectPropertyRow(id: Long ,returnNotFoundOnNull: Boolean = false): DatabaseResult<ConjugationOverridePropertyContainer>
+    suspend fun selectPropertyExist(id: Long?, idName: String?, returnNotFoundOnNull: Boolean = false): DatabaseResult<Boolean>
 }
 
 data class ConjugationOverrideContainer(

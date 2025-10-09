@@ -41,24 +41,25 @@ sealed class DatabaseResult<out T> {
         is InvalidInput -> this
         NotFound -> NotFound
     }
-}
 
-inline fun <T> DatabaseResult<T>.returnOnFailure(
-    errorTo : (DatabaseResult<T>) -> DatabaseResult<T>
-) : DatabaseResult<T>{
-    return when (this) {
-        is DatabaseResult.Success -> this
-        else -> errorTo(this)
+    inline fun <R> returnOnFailure(
+        errorTo : (DatabaseResult<R>) -> DatabaseResult<Nothing>
+    ) : DatabaseResult<T>{
+        return when (this) {
+            is Success -> this
+            else -> errorTo(this.mapErrorTo())
+        }
+    }
+
+    inline fun <R> getOrReturn(
+        errorTo : (DatabaseResult<R>) -> Nothing
+    ) : T{
+        return when (this) {
+            is Success -> value
+            else -> errorTo(this.mapErrorTo())
+        }
     }
 }
 
-inline fun <T> DatabaseResult<T>.getOrReturn(
-    errorTo : (DatabaseResult<T>) -> T
-) : T{
-    return when (this) {
-        is DatabaseResult.Success -> value
-        else -> errorTo(this)
-    }
-}
 
 data class DatabaseError(val type: DatabaseErrorType)

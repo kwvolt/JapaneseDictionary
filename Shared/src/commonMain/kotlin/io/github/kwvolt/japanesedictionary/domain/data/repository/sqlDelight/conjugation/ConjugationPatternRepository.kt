@@ -31,13 +31,13 @@ class ConjugationPatternRepository(
         descriptionText: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
             queries.update(idName, displayText, descriptionTextProvided, descriptionText, id)
-        }.map {}
+        }
     }
 
     override suspend fun delete(id: Long, returnNotFoundOnNull: Boolean): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) { queries.delete(id) }.map {}
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) { queries.delete(id) }
     }
 
     override suspend fun selectId(idName: String, returnNotFoundOnNull: Boolean): DatabaseResult<Long> {
@@ -87,9 +87,9 @@ class ConjugationPatternRepository(
         conjugationVariantId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
             variantQueries.delete(conjugationPatternId, conjugationVariantId)
-        }.map{}
+        }
     }
 
     override suspend fun selectIsVariantOf(

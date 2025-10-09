@@ -9,7 +9,6 @@ import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.Con
 import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.ConjugationOverridePropertyQueries
 import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.ConjugationOverrideQueries
 import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.conjugationOverride.SelectRow
-import io.github.kwvolt.japanesedictionary.domain.data.database.getOrReturn
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationOverrideContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationOverridePropertyContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationOverrideRepositoryInterface
@@ -41,7 +40,7 @@ class ConjugationOverrideRepository(
         overrideNote: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
             queries.update(
                 dictionaryEntryId,
                 conjugationId,
@@ -49,7 +48,7 @@ class ConjugationOverrideRepository(
                 overrideNote,
                 conjugationOverrideId
             )
-        }.toUnit()
+        }
     }
 
     /**
@@ -64,10 +63,10 @@ class ConjugationOverrideRepository(
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.requireTransaction {
-            dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
+            dbHandler.wrapRowCountQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
                 queries.delete(conjugationOverrideId)
                 detailsQueries.deleteAll(conjugationOverrideId)
-            }.toUnit()
+            }
         }
     }
 
@@ -89,7 +88,7 @@ class ConjugationOverrideRepository(
             queries.selectRow(conjugationOverrideId).awaitAsOneOrNull()
         }
         val propertyValues: Map<ConjugationOverrideProperty, String?>
-            = selectPropertyValues(conjugationOverrideId).getOrReturn { return it.mapErrorTo() }
+            = selectPropertyValues(conjugationOverrideId).getOrReturn { return it }
 
         return selectRowResult.map { row ->
             ConjugationOverrideContainer(
@@ -107,9 +106,9 @@ class ConjugationOverrideRepository(
         overridePropertyId: Long,
         propertyValue: String?,
         returnNotFoundOnNull: Boolean
-    ): DatabaseResult<Long> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
-            detailsQueries.insert(conjugationOverrideId, overridePropertyId, propertyValue).awaitAsOneOrNull()
+    ): DatabaseResult<Unit> {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
+            detailsQueries.insert(conjugationOverrideId, overridePropertyId, propertyValue)
         }
     }
 
@@ -120,13 +119,13 @@ class ConjugationOverrideRepository(
         propertyValue: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
             detailsQueries.update(
                 propertyValueProvided,
                 propertyValue,
                 conjugationOverrideId,
                 overridePropertyId)
-        }.toUnit()
+        }
     }
 
     override suspend fun deletePropertyValue(
@@ -134,11 +133,11 @@ class ConjugationOverrideRepository(
         overridePropertyId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
             detailsQueries.delete(
                 conjugationOverrideId,
                 overridePropertyId)
-        }.toUnit()
+        }
     }
 
     override suspend fun selectPropertyValue(
@@ -194,16 +193,16 @@ class ConjugationOverrideRepository(
         idName: String,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
             propertyQueries.update(idName, id)
-        }.toUnit()
+        }
     }
 
     override suspend fun deleteProperty(
         id: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
+        return dbHandler.wrapRowCountQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
             propertyQueries.delete(id)
         }.toUnit()
     }
@@ -224,5 +223,21 @@ class ConjugationOverrideRepository(
         return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
             propertyQueries.selectRow(id).awaitAsOneOrNull()
         }.map { ConjugationOverridePropertyContainer(id, it) }
+    }
+
+    override suspend fun selectPropertyExist(
+        id: Long?,
+        idName: String?,
+        returnNotFoundOnNull: Boolean
+    ): DatabaseResult<Boolean> {
+        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
+            if(id != null){
+                propertyQueries.selectExistById(id).awaitAsOneOrNull()
+            }
+            else if(idName != null){
+                propertyQueries.selectExistByIdName(idName).awaitAsOneOrNull()
+            }
+            else false
+        }
     }
 }
