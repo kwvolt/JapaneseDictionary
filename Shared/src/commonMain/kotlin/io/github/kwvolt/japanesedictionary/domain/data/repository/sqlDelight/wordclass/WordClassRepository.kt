@@ -1,11 +1,11 @@
-package io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight
+package io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.wordclass
 
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.database.wordclass.WordClassQueries
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordClassIdContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordClassRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.WordClassIdContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.WordClassRepositoryInterface
 
 class WordClassRepository(
     private val dbHandler: DatabaseHandlerBase,

@@ -5,11 +5,13 @@ CREATE TABLE conjugation_suffix (
     id INTEGER NOT NULL PRIMARY KEY,
     suffix_text TEXT,
     is_short_form INTEGER,
-    CONSTRAINT CK_BOOL_conjugation_suffix__is_short_from CHECK (is_short_form IN (0, 1))
+    is_positve INTEGER,
+    CONSTRAINT CK_BOOL_conjugation_suffix__is_short_from CHECK (is_short_form IN (0, 1)),
+    CONSTRAINT CK_BOOL_conjugation_suffix__is_positve CHECK (is_positve IN (0, 1))
 );
 
 insert {
-    INSERT INTO conjugation_suffix (suffix_text, is_short_form) VALUES (?, ?);
+    INSERT INTO conjugation_suffix (suffix_text, is_short_form, is_positve) VALUES (?, ?, ?);
     SELECT last_insert_rowid();
 }
 
@@ -22,6 +24,10 @@ UPDATE conjugation_suffix SET
     is_short_form = CASE
        WHEN :is_short_form_provided THEN :is_short_form
        ELSE is_short_form
+    END,
+    is_positve = CASE
+       WHEN :is_positve_provided THEN :is_positve
+       ELSE is_positve
     END
 WHERE id = ?;
 
@@ -29,10 +35,10 @@ delete:
 DELETE FROM conjugation_suffix WHERE id = ?;
 
 selectId:
-SELECT id FROM conjugation_suffix WHERE suffix_text = ? AND is_short_form = ?;
+SELECT id FROM conjugation_suffix WHERE suffix_text = ? AND is_short_form = ? AND  is_positve =? ;
 
 selectRow:
-SELECT suffix_text, is_short_form FROM conjugation_suffix WHERE id = ?;
+SELECT suffix_text, is_short_form, is_positve FROM conjugation_suffix WHERE id = ?;
 
 selectExistById:
 SELECT COUNT(*) > 0 FROM conjugation_suffix WHERE id = ?;

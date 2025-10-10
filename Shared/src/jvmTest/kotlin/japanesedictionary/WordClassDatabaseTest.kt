@@ -5,10 +5,10 @@ import app.cash.sqldelight.db.SqlDriver
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandler
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.database.DriverFactory
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.MainClassRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.SubClassRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.WordClassRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.wordclass.MainClassRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.wordclass.SubClassRepository
+import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.wordclass.WordClassRepository
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordclass.WordClassBuilder
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordclass.WordClassUpsert
 import kotlinx.coroutines.runBlocking

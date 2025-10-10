@@ -1,8 +1,8 @@
 package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryEntryContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionarySectionContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionaryEntryContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionarySectionContainer
 import io.github.kwvolt.japanesedictionary.domain.data.service.user.UserFetcher
 import io.github.kwvolt.japanesedictionary.domain.model.FormItemManager
 import io.github.kwvolt.japanesedictionary.domain.model.SimplifiedWordEntryFormData
@@ -48,19 +48,14 @@ class WordEntryFormBuilder(
             }
 
             // Await results
-            val dictionaryEntry: DictionaryEntryContainer = dictionaryEntryDeferred.await().getOrReturn {
-                return@coroutineScope  it.mapErrorTo()
-            }
-            val entryNoteItemMap: PersistentMap<String, TextItem> = entryNotesDeferred.await().getOrReturn {
-                return@coroutineScope it.mapErrorTo()
-            }
-            val entrySectionMap: PersistentMap<Int, WordSectionFormData> = entrySectionsDeferred.await().getOrReturn {
-                return@coroutineScope it.mapErrorTo()
-            }
+            val dictionaryEntry: DictionaryEntryContainer = dictionaryEntryDeferred.await().getOrReturn<WordEntryFormData> { return@coroutineScope  it }
+            val entryNoteItemMap: PersistentMap<String, TextItem> = entryNotesDeferred.await().getOrReturn<WordEntryFormData> { return@coroutineScope it }
+            val entrySectionMap: PersistentMap<Int, WordSectionFormData> = entrySectionsDeferred.await().getOrReturn<WordEntryFormData> { return@coroutineScope it }
 
-            val wordClassItem: WordClassItem = wordEntryFormItemFetcher.fetchEntryWordClassItem(dictionaryEntry.wordClassId).getOrReturn {
-                return@coroutineScope it.mapErrorTo()
-            }
+            val wordClassItem: WordClassItem =
+                wordEntryFormItemFetcher.fetchEntryWordClassItem(dictionaryEntry.wordClassId).getOrReturn<WordEntryFormData> {
+                    return@coroutineScope it
+                }
 
             val primaryTextItem = TextItem(
                 InputTextType.PRIMARY_TEXT,
@@ -85,7 +80,7 @@ class WordEntryFormBuilder(
     ): DatabaseResult<PersistentMap<Int, WordSectionFormData>> {
         val sectionList: List<DictionarySectionContainer> =
             wordEntryFormFetcher.fetchDictionarySectionContainerList(dictionaryEntryId).getOrReturn {
-                return it.mapErrorTo()
+                return it
             }
         val resultMap: MutableMap<Int, WordSectionFormData> = mutableMapOf()
         for (container in sectionList) {
@@ -96,7 +91,7 @@ class WordEntryFormBuilder(
                     container.meaning,
                     sectionId
                 ).getOrReturn {
-                    return it.mapErrorTo()
+                    return it
                 }
             resultMap[sectionId] = sectionData
         }
@@ -129,21 +124,21 @@ class WordEntryFormBuilder(
         val bookmarkResult = bookmarkDeferred.await()
         val entrySectionsResult = entrySectionsDeferred.await()
 
-        val dictionaryEntry: DictionaryEntryContainer = dictionaryEntryResult.getOrReturn {
-            return@coroutineScope it.mapErrorTo()
+        val dictionaryEntry: DictionaryEntryContainer = dictionaryEntryResult.getOrReturn<SimplifiedWordEntryFormData> {
+            return@coroutineScope it
         }
 
         // fetch items
-        val wordClass: WordClassItem = wordEntryFormItemFetcher.fetchEntryWordClassItem(dictionaryEntry.wordClassId).getOrReturn {
-            return@coroutineScope it.mapErrorTo()
+        val wordClass: WordClassItem = wordEntryFormItemFetcher.fetchEntryWordClassItem(dictionaryEntry.wordClassId).getOrReturn<SimplifiedWordEntryFormData> {
+            return@coroutineScope it
         }
 
-        val isBookmark: Boolean = bookmarkResult.getOrReturn {
-            return@coroutineScope bookmarkResult.mapErrorTo()
+        val isBookmark: Boolean = bookmarkResult.getOrReturn<SimplifiedWordEntryFormData> {
+            return@coroutineScope it
         }
 
-        val entrySections: List<SimplifiedWordSectionFormData> = entrySectionsResult.getOrReturn {
-            return@coroutineScope entrySectionsResult.mapErrorTo()
+        val entrySections: List<SimplifiedWordSectionFormData> = entrySectionsResult.getOrReturn<SimplifiedWordEntryFormData> {
+            return@coroutineScope it
         }
 
         val primaryTextItem = TextItem(
@@ -167,7 +162,7 @@ class WordEntryFormBuilder(
         dictionaryEntryId: Long
     ): DatabaseResult<List<SimplifiedWordSectionFormData>> {
         val sectionList: List<DictionarySectionContainer> = wordEntryFormFetcher.fetchDictionarySectionContainerList(dictionaryEntryId).getOrReturn {
-            return it.mapErrorTo()
+            return it
         }
 
         val resultList: MutableList<SimplifiedWordSectionFormData> = mutableListOf()
@@ -179,7 +174,7 @@ class WordEntryFormBuilder(
                     container.meaning,
                     section
                 ).getOrReturn {
-                    return it.mapErrorTo()
+                    return it
                 }
             resultList.add(sectionData)
         }
@@ -216,12 +211,12 @@ class WordEntryFormBuilder(
             }
         }
 
-        val kanaItems: PersistentMap<String, TextItem> = kanaDeferred.await().getOrReturn {
-            return@coroutineScope it.mapErrorTo()
+        val kanaItems: PersistentMap<String, TextItem> = kanaDeferred.await().getOrReturn<WordSectionFormData> {
+            return@coroutineScope it
         }
 
-        val noteItems: PersistentMap<String, TextItem> = noteDeferred.await().getOrReturn {
-            return@coroutineScope it.mapErrorTo()
+        val noteItems: PersistentMap<String, TextItem> = noteDeferred.await().getOrReturn<WordSectionFormData> {
+            return@coroutineScope it
         }
 
         DatabaseResult.Success(
@@ -252,9 +247,7 @@ class WordEntryFormBuilder(
         }
         // Limit concurrent tasks
         val kanaResult: DatabaseResult<PersistentList<TextItem>> = kanaDeferred.await()
-        val kanaItems: PersistentList<TextItem> = kanaResult.getOrReturn {
-            return@coroutineScope it.mapErrorTo()
-        }
+        val kanaItems: PersistentList<TextItem> = kanaResult.getOrReturn<SimplifiedWordSectionFormData> { return@coroutineScope it }
 
         DatabaseResult.Success(
             SimplifiedWordSectionFormData(
@@ -274,14 +267,5 @@ class WordEntryFormBuilder(
         block: suspend WordEntryFormItemFetcher.()-> DatabaseResult<T>
     ): Deferred<DatabaseResult<T>>{
         return async { block(wordEntryFormItemFetcher) }
-    }
-
-    private inline fun <T> DatabaseResult<T>.getOrReturn(
-        errorTo : (DatabaseResult<T>) -> T
-    ) : T{
-        return when (this) {
-            is DatabaseResult.Success -> value
-            else -> errorTo(this)
-        }
     }
 }

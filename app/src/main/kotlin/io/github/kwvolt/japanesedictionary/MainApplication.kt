@@ -6,12 +6,7 @@ import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandler
 import io.github.kwvolt.japanesedictionary.domain.data.database.DriverFactory
 import io.github.kwvolt.japanesedictionary.domain.data.database.initialize.InitialWordClass
 import io.github.kwvolt.japanesedictionary.domain.data.database.initialize.InitializeWordEntries
-import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.MainClassRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.SubClassRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.WordClassRepository
 import io.github.kwvolt.japanesedictionary.domain.data.service.ServiceContainer
-import io.github.kwvolt.japanesedictionary.domain.data.service.wordclass.WordClassUpsert
-import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormUpsertValidation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

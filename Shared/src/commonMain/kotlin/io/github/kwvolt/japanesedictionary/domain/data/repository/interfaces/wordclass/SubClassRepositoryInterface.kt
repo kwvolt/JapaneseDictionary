@@ -1,4 +1,4 @@
-package io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces
+package io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 

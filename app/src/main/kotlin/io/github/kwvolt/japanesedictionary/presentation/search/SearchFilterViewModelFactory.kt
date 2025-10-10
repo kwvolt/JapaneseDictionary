@@ -5,12 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import io.github.kwvolt.japanesedictionary.DatabaseProviderInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.MainClassRepository
-import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.SubClassRepository
 import io.github.kwvolt.japanesedictionary.domain.data.service.ServiceContainer
-import io.github.kwvolt.japanesedictionary.domain.data.service.wordclass.WordClassBuilder
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.handler.WordClassDataManager
 import io.github.kwvolt.japanesedictionary.domain.model.SearchFilter
 import io.github.kwvolt.japanesedictionary.presentation.search.SearchFilterViewModel.Companion.KEY_SEARCH_FILTER

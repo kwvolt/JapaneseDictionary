@@ -3,7 +3,7 @@ package io.github.kwvolt.japanesedictionary.util
 import android.content.Context
 import android.widget.ArrayAdapter
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordChildClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.WordChildClassContainer
 
 object WordClassBindUtil {
     fun bindWordClassItem(

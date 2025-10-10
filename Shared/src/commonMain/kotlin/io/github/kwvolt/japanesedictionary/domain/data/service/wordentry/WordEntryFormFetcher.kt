@@ -1,16 +1,16 @@
 package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryEntryContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryEntryNoteContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionarySectionNoteContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionarySectionKanaContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryNoteRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionarySectionContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SectionKanaRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SectionNoteRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SectionRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionaryEntryContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionaryEntryNoteContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionarySectionNoteContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionarySectionKanaContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionaryNoteRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionaryRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionarySectionContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.SectionKanaRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.SectionNoteRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.SectionRepositoryInterface
 import io.github.kwvolt.japanesedictionary.util.CoroutineEnvironment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore

@@ -1,10 +1,9 @@
 package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
-import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryEntryNoteContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionarySectionKanaContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionarySectionNoteContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionaryEntryNoteContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionarySectionKanaContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionarySectionNoteContainer
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordclass.WordClassFetcher
 import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
 import io.github.kwvolt.japanesedictionary.domain.model.items.item.InputTextType

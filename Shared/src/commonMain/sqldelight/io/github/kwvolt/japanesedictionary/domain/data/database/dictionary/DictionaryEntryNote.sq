@@ -20,7 +20,7 @@ SELECT note_description FROM dictionary_entry_note WHERE id = ?;
 selectNotesByEntryId:
 SELECT id, note_description FROM dictionary_entry_note WHERE dictionary_entry_id = ?;
 
-updateNoteDescription:
+update:
 UPDATE dictionary_entry_note SET note_description = ? WHERE id = ?;
 
 deleteRow:

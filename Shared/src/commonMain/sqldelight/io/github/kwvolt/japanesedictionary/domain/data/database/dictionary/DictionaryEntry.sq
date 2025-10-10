@@ -31,17 +31,15 @@ SELECT id FROM dictionary_entry WHERE primary_text = ?;
 selectRow:
 SELECT word_class_id, primary_text FROM dictionary_entry WHERE id = ?;
 
-deleteRow:
+delete:
 DELETE FROM dictionary_entry WHERE id = ?;
 
-updateWordClass:
-UPDATE dictionary_entry SET word_class_id = ? WHERE id = ?;
+update:
+UPDATE dictionary_entry SET
+    word_class_id = COALESCE(:word_class_id, word_class_id),
+    primary_text = COALESCE(:primary_text, primary_text)
+WHERE id = ?;
 
-updatePrimaryText:
-UPDATE dictionary_entry SET primary_text = ? WHERE id = ?;
-
-updateWordClassIdAndPrimaryText:
-UPDATE dictionary_entry SET word_class_id = ?, primary_text = ? WHERE id = ?;
 
 /** Triggers */
 CREATE TRIGGER dictionary_entry_ai AFTER INSERT ON dictionary_entry BEGIN

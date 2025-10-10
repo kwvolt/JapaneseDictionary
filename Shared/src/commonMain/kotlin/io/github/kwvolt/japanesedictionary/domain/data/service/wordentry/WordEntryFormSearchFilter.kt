@@ -1,8 +1,8 @@
 package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionarySearchRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordClassRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionarySearchRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.WordClassRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.handler.WordClassDataManager
 import io.github.kwvolt.japanesedictionary.domain.model.SearchFilter
 import io.github.kwvolt.japanesedictionary.domain.model.SearchType
@@ -18,7 +18,7 @@ class WordEntryFormSearchFilter(
                     _wordClassRepository.selectIdByMainClassIdAndSubClassId(mainClassId, subClassId)
                 when(wordClassResult){
                     is DatabaseResult.Success -> { wordClassResult.value }
-                    else -> return wordClassResult.mapErrorTo<Long, List<Long>>()
+                    else -> return wordClassResult.mapErrorTo()
                 }
             } else {
                 WordClassDataManager.NO_ID
@@ -30,47 +30,30 @@ class WordEntryFormSearchFilter(
 
         val idList: MutableList<Long> = mutableListOf()
 
-        if(searchLocation == SearchType.KANJI || searchLocation == SearchType.ALL){
-            val result: DatabaseResult<List<Long>> = _dictionarySearchRepository.searchIdsByPrimaryText(searchTerm)
-            when(result){
-                is DatabaseResult.Success -> idList.innerJoin(result.value)
-                else -> return result.mapErrorTo<List<Long>, List<Long>>()
-            }
-        }
+        idList.searchFilter(searchLocation == SearchType.KANJI || searchLocation == SearchType.ALL,
+            searchQuery = {_dictionarySearchRepository.searchIdsByPrimaryText(searchTerm)},
+            errorTo = { return it }
+        )
 
-        if(searchLocation == SearchType.KANA || searchLocation == SearchType.ALL){
-            val result: DatabaseResult<List<Long>> = _dictionarySearchRepository.searchIdsByKana(searchTerm)
-            when(result){
-                is DatabaseResult.Success -> idList.innerJoin(result.value)
-                else -> return result.mapErrorTo<List<Long>, List<Long>>()
-            }
-        }
+        idList.searchFilter(searchLocation == SearchType.KANA || searchLocation == SearchType.ALL,
+            searchQuery = {_dictionarySearchRepository.searchIdsByKana(searchTerm)},
+            errorTo = { return it }
+        )
 
-        if(searchLocation == SearchType.MEANING || searchLocation == SearchType.ALL){
-            val result: DatabaseResult<List<Long>> = _dictionarySearchRepository.searchIdsByMeaning(searchTerm)
-            when(result){
-                is DatabaseResult.Success -> idList.innerJoin(result.value)
-                else ->  return result.mapErrorTo<List<Long>, List<Long>>()
-            }
-        }
+        idList.searchFilter(searchLocation == SearchType.MEANING || searchLocation == SearchType.ALL,
+            searchQuery = { _dictionarySearchRepository.searchIdsByMeaning(searchTerm)},
+            errorTo = { return it }
+        )
 
-        if(wordClassId != WordClassDataManager.NO_ID){
-            val result: DatabaseResult<List<Long>> = _dictionarySearchRepository.searchIdsByWordClassId(wordClassId)
-            when(result){
-                is DatabaseResult.Success -> idList.innerJoin(result.value)
-                else ->  return result.mapErrorTo<List<Long>, List<Long>>()
-            }
-        }
+        idList.searchFilter(wordClassId != WordClassDataManager.NO_ID,
+            searchQuery = { _dictionarySearchRepository.searchIdsByWordClassId(wordClassId)},
+            errorTo = { return it }
+        )
 
-        if(searchBookmark){
-            val result: DatabaseResult<List<Long>> = _dictionarySearchRepository.searchIdsByIsBookmark(
-                true
-            )
-            when(result){
-                is DatabaseResult.Success -> idList.innerJoin(result.value)
-                else ->  return result.mapErrorTo<List<Long>,List<Long>>()
-            }
-        }
+        idList.searchFilter(searchBookmark,
+            searchQuery = { _dictionarySearchRepository.searchIdsByIsBookmark(true)},
+            errorTo = { return it }
+        )
         return DatabaseResult.Success(idList.toList().sorted())
     }
 
@@ -81,6 +64,19 @@ class WordEntryFormSearchFilter(
             val intersection = this.intersect(otherList.toSet())
             this.clear()
             this.addAll(intersection)
+        }
+    }
+
+    private suspend inline fun MutableList<Long>.searchFilter(
+        condition: Boolean,
+        searchQuery: suspend() -> DatabaseResult<List<Long>>,
+        errorTo: (DatabaseResult<List<Long>>) -> Nothing) {
+        if(condition){
+            val result: DatabaseResult<List<Long>> = searchQuery()
+            when(result){
+                is DatabaseResult.Success -> innerJoin(result.value)
+                else ->  errorTo(result.mapErrorTo())
+            }
         }
     }
 }

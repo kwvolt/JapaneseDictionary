@@ -2,9 +2,9 @@ package io.github.kwvolt.japanesedictionary.domain.data.service.wordclass
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordClassRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.WordClassRepositoryInterface
 
 class WordClassUpsert(
     private val dbHandler: DatabaseHandlerBase,

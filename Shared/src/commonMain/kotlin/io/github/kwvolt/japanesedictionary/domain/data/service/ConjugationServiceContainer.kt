@@ -1,7 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.data.service
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandler
-import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.ConjugationPatternVariantQueries
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationOverrideRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationPatternRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationPreprocessRepositoryInterface

@@ -2,8 +2,8 @@ package io.github.kwvolt.japanesedictionary.presentation.search
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassContainer
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.handler.WordClassDataManager
 import io.github.kwvolt.japanesedictionary.domain.model.SearchFilter
 import io.github.kwvolt.japanesedictionary.domain.model.SearchType

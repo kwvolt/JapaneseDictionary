@@ -2,8 +2,8 @@ package io.github.kwvolt.japanesedictionary.domain.data.service.conjugation
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryEntryContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionaryEntryContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionaryRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationPatternContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationPatternRepositoryInterface
@@ -30,7 +30,7 @@ class ConjugationFetcher(
     suspend fun fetchConjugationsForm(dictionaryId: Long): DatabaseResult<Map<String, Map<String, ConjugationForm>>> = coroutineScope {
 
         val dictionaryResult: DatabaseResult<DictionaryEntryContainer> = dictionaryRepository.selectRow(dictionaryId)
-        val primaryText: String = dictionaryResult.getOrReturn { return@coroutineScope it.mapErrorTo() }.primaryText
+        val primaryText: String = dictionaryResult.getOrReturn { return@coroutineScope it }.primaryText
 
         //val dictLinkConjTemplateResult: DatabaseResult<Long> = dictionaryLinkConjugationTemplateRepository.selectConjugationTemplateId(dictionaryId)
         //val conjugationTemplateId: Long = dictLinkConjTemplateResult.getOrReturn { return@coroutineScope it.mapErrorTo() }
@@ -136,7 +136,9 @@ enum class SpellingType(private val value: String) {
 enum class ConjugationOverrideProperty(private val value: String){
     SPELLING_TYPE("SPELLING_TYPE"),
     STEM_REPLACEMENT("STEM_REPLACEMENT"),
-    SUFFIX_OVERRIDE("SUFFIX_OVERRIDE");
+    STEM_RULE("STEM_RULE"),
+    SUFFIX_OVERRIDE("SUFFIX_OVERRIDE"),
+    VERB_SUFFIX_SWAP("SUFFIX_SWAP");
 
     override fun toString(): String = value
 

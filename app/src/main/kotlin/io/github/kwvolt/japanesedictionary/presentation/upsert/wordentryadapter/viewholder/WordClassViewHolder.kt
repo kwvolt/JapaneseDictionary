@@ -1,13 +1,10 @@
 package io.github.kwvolt.japanesedictionary.presentation.upsert.wordentryadapter.viewholder
 
 import android.view.View
-import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import io.github.kwvolt.japanesedictionary.databinding.UpsertRecyclerviewWordClassItemBinding
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordChildClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassContainer
 import io.github.kwvolt.japanesedictionary.domain.model.items.item.DisplayItem
 import io.github.kwvolt.japanesedictionary.domain.model.items.item.ErrorMessage
 import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem

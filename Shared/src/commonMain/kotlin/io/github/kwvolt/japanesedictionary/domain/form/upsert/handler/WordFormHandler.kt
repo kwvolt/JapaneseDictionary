@@ -1,6 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.form.upsert.handler
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassContainer
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.AddSectionNoteItemCommand
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.AddEntryNoteItemCommand
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.AddKanaItemCommand

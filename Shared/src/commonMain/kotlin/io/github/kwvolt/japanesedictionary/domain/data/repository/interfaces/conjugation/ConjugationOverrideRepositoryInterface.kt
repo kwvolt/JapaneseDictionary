@@ -5,6 +5,7 @@ import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.Conju
 
 interface ConjugationOverrideRepositoryInterface {
     suspend fun insert(
+        idName: String,
         dictionaryEntryId: Long,
         conjugationId: Long,
         overrideNote: String? = null,
@@ -12,6 +13,7 @@ interface ConjugationOverrideRepositoryInterface {
     ): DatabaseResult<Long>
     suspend fun update(
         conjugationOverrideId: Long,
+        idName: String? = null,
         dictionaryEntryId: Long? = null,
         conjugationId: Long? = null,
         overrideNoteProvided: Boolean = false,
@@ -19,8 +21,10 @@ interface ConjugationOverrideRepositoryInterface {
         returnNotFoundOnNull: Boolean = false
     ): DatabaseResult<Unit>
     suspend fun delete(conjugationOverrideId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
-    suspend fun selectId(dictionaryEntryId: Long, conjugationId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
+    suspend fun selectId(idName: String, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
     suspend fun selectRow(conjugationOverrideId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<ConjugationOverrideContainer>
+    suspend fun selectAllByDictionaryEntryIdAndConjugationId(dictionaryEntryId: Long, conjugationId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<List<ConjugationOverrideContainer>>
+    suspend fun selectExist(id: Long?, idName: String?, returnNotFoundOnNull: Boolean = false): DatabaseResult<Boolean>
 
     suspend fun insertPropertyValue(conjugationOverrideId: Long, overridePropertyId: Long, propertyValue: String? = null, returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
     suspend fun updatePropertyValue(
@@ -33,6 +37,8 @@ interface ConjugationOverrideRepositoryInterface {
     suspend fun selectPropertyValue(conjugationOverrideId: Long, overridePropertyId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<String?>
     suspend fun selectPropertyValues(conjugationOverrideId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Map<ConjugationOverrideProperty, String?>>
 
+
+    // property
     suspend fun insertProperty(idName: String, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
     suspend fun updateProperty(id: Long, idName: String, returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
     suspend fun deleteProperty(id: Long ,returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
@@ -43,6 +49,7 @@ interface ConjugationOverrideRepositoryInterface {
 
 data class ConjugationOverrideContainer(
     val id: Long,
+    val idName: String,
     val dictionaryEntryId: Long,
     val conjugationId: Long,
     val overrideNote: String? = null,

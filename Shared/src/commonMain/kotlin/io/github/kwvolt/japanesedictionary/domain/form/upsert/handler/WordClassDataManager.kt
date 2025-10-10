@@ -1,8 +1,8 @@
 package io.github.kwvolt.japanesedictionary.domain.form.upsert.handler
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassContainer
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordclass.WordClassBuilder
 import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
 import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem

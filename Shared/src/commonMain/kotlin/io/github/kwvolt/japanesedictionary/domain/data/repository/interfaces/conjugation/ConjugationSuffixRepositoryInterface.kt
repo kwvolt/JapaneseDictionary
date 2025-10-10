@@ -6,24 +6,28 @@ interface ConjugationSuffixRepositoryInterface {
     suspend fun insert(
         suffixText: String? = null,
         isShortForm: Boolean? = null,
+        isPositive: Boolean? = null,
         returnNotFoundOnNull: Boolean = false
     ): DatabaseResult<Long>
     suspend fun update(
         id: Long,
         suffixTextProvided: Boolean,
-        isShortFormProvided: Boolean,
         suffixText: String? = null,
+        isShortFormProvided: Boolean,
         isShortForm: Boolean? = null,
+        isPositiveProvided: Boolean,
+        isPositive: Boolean? = null,
         returnNotFoundOnNull: Boolean = false
     ): DatabaseResult<Unit>
     suspend fun delete(id: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
     suspend fun selectId(
         suffixText: String?,
         isShortForm: Boolean?,
+        isPositive: Boolean?,
         returnNotFoundOnNull: Boolean = false
     ): DatabaseResult<Long>
     suspend fun selectRow(id: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<ConjugationSuffixContainer>
     suspend fun selectExist(id: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Boolean>
 }
 
-data class ConjugationSuffixContainer(val id: Long, val suffixText: String?, val isShortForm: Boolean?)
+data class ConjugationSuffixContainer(val id: Long, val suffixText: String?, val isShortForm: Boolean?, val isPositive: Boolean?)

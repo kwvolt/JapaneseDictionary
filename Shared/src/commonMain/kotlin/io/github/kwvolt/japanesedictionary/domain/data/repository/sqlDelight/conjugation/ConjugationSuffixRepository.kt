@@ -14,19 +14,22 @@ class ConjugationSuffixRepository(
     override suspend fun insert(
         suffixText: String?,
         isShortForm: Boolean?,
+        isPositive: Boolean?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
-            queries.insert(suffixText, isShortForm?.let {if(it) 1 else 0 }).awaitAsOneOrNull()
+            queries.insert(suffixText, isShortForm?.let {if(it) 1 else 0 }, isPositive?.let {if(it) 1 else 0 }).awaitAsOneOrNull()
         }
     }
 
     override suspend fun update(
         id: Long,
         suffixTextProvided: Boolean,
-        isShortFormProvided: Boolean,
         suffixText: String?,
+        isShortFormProvided: Boolean,
         isShortForm: Boolean?,
+        isPositiveProvided: Boolean,
+        isPositive: Boolean?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
@@ -34,7 +37,10 @@ class ConjugationSuffixRepository(
                 suffixTextProvided,
                 suffixText,
                 isShortFormProvided,
-                isShortForm?.let{if(it) 1 else 0}, id
+                isShortForm?.let{if(it) 1 else 0},
+                isPositiveProvided,
+                isPositive?.let{if(it) 1 else 0},
+                id
             )
         }
     }
@@ -46,10 +52,11 @@ class ConjugationSuffixRepository(
     override suspend fun selectId(
         suffixText: String?,
         isShortForm: Boolean?,
+        isPositive: Boolean?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
-            queries.selectId(suffixText, isShortForm?.let{if(it) 1 else 0}).awaitAsOneOrNull()
+            queries.selectId(suffixText, isShortForm?.let{if(it) 1 else 0}, isPositive?.let{if(it) 1 else 0}).awaitAsOneOrNull()
         }
     }
 
@@ -63,7 +70,8 @@ class ConjugationSuffixRepository(
             ConjugationSuffixContainer(
                 id,
                 it.suffix_text,
-                it.is_short_form == 1L
+                it.is_short_form == 1L,
+                it.is_positve== 1L
             )
         }
     }

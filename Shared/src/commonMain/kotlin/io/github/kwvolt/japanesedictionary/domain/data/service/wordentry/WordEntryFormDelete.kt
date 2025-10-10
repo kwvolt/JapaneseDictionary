@@ -2,11 +2,11 @@ package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryNoteRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.DictionaryRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SectionKanaRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SectionNoteRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SectionRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionaryNoteRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionaryRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.SectionKanaRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.SectionNoteRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.SectionRepositoryInterface
 
 class WordEntryFormDelete (
     private val dbHandler: DatabaseHandlerBase,
@@ -16,30 +16,23 @@ class WordEntryFormDelete (
     private val entrySectionKanaRepository: SectionKanaRepositoryInterface,
     private val entrySectionNoteRepository: SectionNoteRepositoryInterface,
 ){
-
     suspend fun deletePrimaryText(dictionaryId: Long, itemId: String? = null): DatabaseResult<Unit>{
-        return entryRepository.deleteRow(dictionaryId, itemId)
+        return entryRepository.delete(dictionaryId, itemId)
     }
-
     suspend fun deleteEntryNote(dictionaryNoteId: Long, itemId: String? = null): DatabaseResult<Unit>{
         return entryNoteRepository.deleteRow(dictionaryNoteId, itemId)
     }
-
     suspend fun deleteSectionMeaning(meaningId: Long, itemId: String? = null): DatabaseResult<Unit>{
-        return entrySectionRepository.deleteRow(meaningId, itemId)
+        return entrySectionRepository.delete(meaningId, itemId)
     }
-
     suspend fun deleteSectionKana(kanaId: Long, itemId: String? = null): DatabaseResult<Unit>{
-        return entrySectionKanaRepository.deleteRow(kanaId, itemId)
+        return entrySectionKanaRepository.delete(kanaId, itemId)
     }
-
     suspend fun deleteSectionNote(sectionNoteId: Long, itemId: String? = null): DatabaseResult<Unit>{
-        return entrySectionNoteRepository.deleteRow(sectionNoteId, itemId)
+        return entrySectionNoteRepository.delete(sectionNoteId, itemId)
     }
-
     suspend fun deleteWordEntryFormData(dictionaryEntryId: Long): DatabaseResult<Unit> {
         val entryNoteIdList: DatabaseResult<List<Long>> = entryNoteRepository.selectAllById(dictionaryEntryId).flatMapList{ item -> item.id}
-
         val sectionIdList: DatabaseResult<List<Long>> = entrySectionRepository.selectAllByEntryId(dictionaryEntryId).flatMapList{ item -> item.id}
 
         val kanaNestedList: MutableList<List<Long>> = mutableListOf()
@@ -48,23 +41,20 @@ class WordEntryFormDelete (
         when(sectionIdList){
             is DatabaseResult.Success -> {
                 for(sectionId: Long in sectionIdList.value){
-                    val kanaResult: DatabaseResult<List<Long>> = entrySectionKanaRepository.selectAllBySectionId(sectionId).flatMapList{ item -> item.id}
-                    when(kanaResult){
-                        is DatabaseResult.Success -> {
-                            kanaNestedList.add(kanaResult.value)
-                        }
-                        else -> return kanaResult.mapErrorTo<List<Long>, Unit>()
-                    }
-                    val sectionNoteResult: DatabaseResult<List<Long>> = entrySectionNoteRepository.selectAllBySectionId(sectionId).flatMapList{ item -> item.id}
-                    when(sectionNoteResult){
-                        is DatabaseResult.Success -> {
-                            sectionNoteNestedList.add(sectionNoteResult.value)
-                        }
-                        else -> return sectionNoteResult.mapErrorTo<List<Long>, Unit>()
-                    }
+                    val kanaList: List<Long> =
+                        entrySectionKanaRepository.selectAllBySectionId(sectionId)
+                            .flatMapList{ item -> item.id}
+                            .getOrReturn { return it }
+                    kanaNestedList.add(kanaList)
+
+                    val sectionNoteList: List<Long>
+                        = entrySectionNoteRepository.selectAllBySectionId(sectionId)
+                            .flatMapList{ item -> item.id}
+                            .getOrReturn { return it }
+                    sectionNoteNestedList.add(sectionNoteList)
                 }
             }
-            else -> return sectionIdList.mapErrorTo<List<Long>, Unit>()
+            else -> return sectionIdList.mapErrorTo()
         }
 
         val kanaList : List<Long> = kanaNestedList.flatten()
@@ -74,22 +64,22 @@ class WordEntryFormDelete (
         return dbHandler.performTransaction {
             // entry section note
             for(sectionNoteId in sectionNoteList){
-                val result = entrySectionNoteRepository.deleteRow(sectionNoteId)
+                val result = entrySectionNoteRepository.delete(sectionNoteId)
                 if(result.isFailure){
-                    return@performTransaction result.mapErrorTo<Unit, Unit>()
+                    return@performTransaction result.mapErrorTo()
                 }
             }
             for(kanaId in kanaList){
-                val result = entrySectionKanaRepository.deleteRow(kanaId)
+                val result = entrySectionKanaRepository.delete(kanaId)
                 if(result.isFailure){
-                    return@performTransaction result.mapErrorTo<Unit, Unit>()
+                    return@performTransaction result.mapErrorTo()
                 }
             }
 
             for(sectionId in sectionIdList.value){
-                val result =  entrySectionRepository.deleteRow(sectionId)
+                val result =  entrySectionRepository.delete(sectionId)
                 if(result.isFailure){
-                    return@performTransaction result.mapErrorTo<Unit, Unit>()
+                    return@performTransaction result.mapErrorTo()
                 }
             }
 
@@ -98,16 +88,16 @@ class WordEntryFormDelete (
                     for(entryNoteId in entryNoteIdList.value){
                         val result =  entryNoteRepository.deleteRow(entryNoteId)
                         if(result.isFailure){
-                            return@performTransaction result.mapErrorTo<Unit, Unit>()
+                            return@performTransaction result.mapErrorTo()
                         }
                     }
                 }
-                else -> return@performTransaction entryNoteIdList.mapErrorTo<List<Long>, Unit>()
+                else -> return@performTransaction entryNoteIdList.mapErrorTo()
             }
 
-            val dictionaryResult = entryRepository.deleteRow(dictionaryEntryId)
+            val dictionaryResult = entryRepository.delete(dictionaryEntryId)
             if(dictionaryResult.isFailure){
-                return@performTransaction dictionaryResult.mapErrorTo<Unit, Unit>()
+                return@performTransaction dictionaryResult.mapErrorTo()
             }
             DatabaseResult.Success(Unit)
         }

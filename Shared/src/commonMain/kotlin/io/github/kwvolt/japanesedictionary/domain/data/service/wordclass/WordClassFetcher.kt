@@ -1,12 +1,12 @@
 package io.github.kwvolt.japanesedictionary.domain.data.service.wordclass
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordClassIdContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.WordClassRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.WordClassIdContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.WordClassRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.model.items.WordEntryTable
 import io.github.kwvolt.japanesedictionary.domain.model.items.item.ItemProperties
 import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem

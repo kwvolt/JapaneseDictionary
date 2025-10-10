@@ -51,7 +51,7 @@ class InitializeWordEntries(
                 formItemManager
             )
 
-            wordEntryFormUpsertValidation .wordEntryForm(wordEntryFormData, emptyList())
+            wordEntryFormUpsertValidation.wordEntryForm(wordEntryFormData, emptyList())
         }
     }
 

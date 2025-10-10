@@ -3,8 +3,8 @@ package io.github.kwvolt.japanesedictionary.presentation.upsert
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassContainer
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.ValidUpsertResult
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormBuilder
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormItemFetcher

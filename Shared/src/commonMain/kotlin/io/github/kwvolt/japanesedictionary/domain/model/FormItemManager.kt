@@ -1,7 +1,7 @@
 package io.github.kwvolt.japanesedictionary.domain.model
 
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.MainClassContainer
-import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.SubClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassContainer
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassContainer
 import io.github.kwvolt.japanesedictionary.ui.upsert.FormKeys
 import io.github.kwvolt.japanesedictionary.domain.model.items.item.ButtonAction
 import io.github.kwvolt.japanesedictionary.domain.model.items.item.ButtonItem
