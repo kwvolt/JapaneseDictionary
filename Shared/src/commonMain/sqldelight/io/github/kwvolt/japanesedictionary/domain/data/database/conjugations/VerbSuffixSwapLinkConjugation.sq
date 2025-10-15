@@ -2,8 +2,8 @@
     VERB SUFFIX SWAP LINK CONJUGATION
 */
 CREATE TABLE verb_suffix_swap_lk_conjugation(
-        conjugation_id INTEGER,
-        verb_suffix_swap_id INTEGER,
+        conjugation_id INTEGER NOT NULL,
+        verb_suffix_swap_id INTEGER NOT NULL,
         CONSTRAINT PK_vss_lk_conjugation PRIMARY KEY (conjugation_id, verb_suffix_swap_id),
         CONSTRAINT FK_vss_lk_conjugation__conjugation FOREIGN KEY (conjugation_id) REFERENCES conjugation (id),
         CONSTRAINT FK_vss_lk_conjugation__vss FOREIGN KEY (verb_suffix_swap_id) REFERENCES verb_suffix_swap (id)
@@ -15,5 +15,10 @@ INSERT INTO verb_suffix_swap_lk_conjugation (conjugation_id, verb_suffix_swap_id
 delete:
 DELETE FROM verb_suffix_swap_lk_conjugation WHERE verb_suffix_swap_id = ? AND conjugation_id = ?;
 
-selectVerbSwapSuffixId:
+selectVerbSwapSuffixIds:
 SELECT verb_suffix_swap_id FROM verb_suffix_swap_lk_conjugation WHERE conjugation_id = ?;
+
+selectReplacement:
+SELECT vss.replacement FROM verb_suffix_swap_lk_conjugation vss_lk_conj
+    INNER JOIN verb_suffix_swap vss ON vss_lk_conj.verb_suffix_swap_id = vss.id
+WHERE conjugation_id = ? AND vss.original = ?;

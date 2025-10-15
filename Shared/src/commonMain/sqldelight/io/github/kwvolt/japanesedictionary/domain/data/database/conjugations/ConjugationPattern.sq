@@ -33,7 +33,7 @@ selectId:
 SELECT id FROM conjugation_pattern WHERE id_name = ?;
 
 selectRow:
-SELECT id_name, display_text FROM conjugation_pattern WHERE id = ?;
+SELECT id_name, display_text, description_text FROM conjugation_pattern WHERE id = ?;
 
 selectExistById:
 SELECT COUNT(*) > 0 FROM conjugation_pattern WHERE id = ?;

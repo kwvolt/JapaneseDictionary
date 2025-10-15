@@ -2,8 +2,8 @@
     CONJUGTION LINK CONJUGATION TEMPLATE
 */
 CREATE TABLE conjugation_lk_conjugation_template(
-        conjugation_id INTEGER,
-        conjugation_template_id INTEGER,
+        conjugation_id INTEGER NOT NULL,
+        conjugation_template_id INTEGER NOT NULL,
         CONSTRAINT PK_conjugation_lk_conjugation_template PRIMARY KEY (conjugation_id, conjugation_template_id),
         CONSTRAINT FK_conjugation_lk_conjugation_template__conjugation FOREIGN KEY (conjugation_id) REFERENCES conjugation (id),
         CONSTRAINT FK_conjugation_lk_conjugation_template__conjugation_template FOREIGN KEY (conjugation_template_id) REFERENCES conjugation_template (id)

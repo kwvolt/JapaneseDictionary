@@ -70,8 +70,8 @@ class ConjugationSuffixRepository(
             ConjugationSuffixContainer(
                 id,
                 it.suffix_text,
-                it.is_short_form == 1L,
-                it.is_positve== 1L
+                it.is_short_form?.let{ isShortForm: Long? -> isShortForm == 1L },
+                it.is_positve?.let{ isPositive: Long? -> isPositive== 1L }
             )
         }
     }

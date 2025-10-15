@@ -3,17 +3,20 @@
 */
 CREATE TABLE  dictionary_entry_lk_conjugation_template(
     dictionary_entry_id INTEGER NOT NULL PRIMARY KEY,
-    conjugation_template_id INTEGER,
-    furigana TEXT,
+    conjugation_template_id INTEGER NOT NULL,
+    kana TEXT,
     CONSTRAINT FK_dictionary_lk_conjugation_template__dictionary FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry (id),
     CONSTRAINT FK_dictionary_lk_conjugation_template__conjugation_template FOREIGN KEY (conjugation_template_id) REFERENCES conjugation_template (id)
 );
 
 insert:
-INSERT INTO dictionary_entry_lk_conjugation_template (dictionary_entry_id, conjugation_template_id) VALUES (?, ?);
+INSERT INTO dictionary_entry_lk_conjugation_template (dictionary_entry_id, conjugation_template_id, kana) VALUES (?, ?, ?);
+
+update:
+UPDATE dictionary_entry_lk_conjugation_template SET kana  = ? WHERE dictionary_entry_id = ? AND conjugation_template_id = ?;
 
 delete:
 DELETE FROM dictionary_entry_lk_conjugation_template WHERE conjugation_template_id = ? AND dictionary_entry_id = ?;
 
 selectRow:
-SELECT conjugation_template_id, furigana FROM dictionary_entry_lk_conjugation_template WHERE dictionary_entry_id = ?;
+SELECT conjugation_template_id, kana FROM dictionary_entry_lk_conjugation_template WHERE dictionary_entry_id = ?;

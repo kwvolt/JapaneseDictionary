@@ -8,12 +8,13 @@ import io.github.kwvolt.japanesedictionary.domain.data.database.RequiresTransact
 import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.ConjugationOverrideDetailsQueries
 import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.ConjugationOverridePropertyQueries
 import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.ConjugationOverrideQueries
-import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.SelectAllByDictionaryEntryIdAndConjugationId
-import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.conjugationOverride.SelectRow
+import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.SelectAllByConjugationTemplateIdAndConjugationId
+import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.SelectRowById
+import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.SelectRowByKeys
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationOverrideContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationOverridePropertyContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationOverrideRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.ConjugationOverrideProperty
+import io.github.kwvolt.japanesedictionary.domain.model.conjugation.ConjugationOverrideProperty
 
 class ConjugationOverrideRepository(
     private val dbHandler: DatabaseHandlerBase,
@@ -23,21 +24,22 @@ class ConjugationOverrideRepository(
 ): ConjugationOverrideRepositoryInterface {
 
     override suspend fun insert(
-        idName: String,
-        dictionaryEntryId: Long,
+        isKanji: Boolean?,
+        conjugationTemplateId: Long,
         conjugationId: Long,
         overrideNote: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
-            queries.insert(idName, dictionaryEntryId, conjugationId, overrideNote).awaitAsOneOrNull()
+            queries.insert(isKanji?.let{ if(isKanji) 1 else 0}, conjugationTemplateId, conjugationId, overrideNote).awaitAsOneOrNull()
         }
     }
 
     override suspend fun update(
         conjugationOverrideId: Long,
-        idName: String?,
-        dictionaryEntryId: Long?,
+        isKanjiProvided: Boolean,
+        isKanji: Boolean?,
+        conjugationTemplateId: Long?,
         conjugationId: Long?,
         overrideNoteProvided: Boolean,
         overrideNote: String?,
@@ -45,8 +47,9 @@ class ConjugationOverrideRepository(
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
             queries.update(
-                idName,
-                dictionaryEntryId,
+                isKanjiProvided,
+                isKanji?.let{ if(isKanji) 1 else 0},
+                conjugationTemplateId,
                 conjugationId,
                 overrideNoteProvided,
                 overrideNote,
@@ -75,20 +78,22 @@ class ConjugationOverrideRepository(
     }
 
     override suspend fun selectId(
-        idName: String,
+        isKanji: Boolean?,
+        conjugationTemplateId: Long,
+        conjugationId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
-            queries.selectId(idName).awaitAsOneOrNull()
+            queries.selectId(isKanji?.let{ if(isKanji) 1 else 0}, conjugationTemplateId, conjugationId).awaitAsOneOrNull()
         }
     }
 
-    override suspend fun selectRow(
+    override suspend fun selectRowById(
         conjugationOverrideId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<ConjugationOverrideContainer> {
-        val selectRowResult: DatabaseResult<SelectRow> = dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
-            queries.selectRow(conjugationOverrideId).awaitAsOneOrNull()
+        val selectRowResult: DatabaseResult<SelectRowById> = dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
+            queries.selectRowById(conjugationOverrideId).awaitAsOneOrNull()
         }
         val propertyValues: Map<ConjugationOverrideProperty, String?>
             = selectPropertyValues(conjugationOverrideId).getOrReturn { return it }
@@ -96,8 +101,8 @@ class ConjugationOverrideRepository(
         return selectRowResult.map { row ->
             ConjugationOverrideContainer(
                 conjugationOverrideId,
-                row.id_name,
-                row.dictionary_entry_id,
+                row.is_kanji?.let {it == 1L},
+                row.conjugation_template_id,
                 row.conjugation_id,
                 row.override_note,
                 propertyValues
@@ -105,22 +110,43 @@ class ConjugationOverrideRepository(
         }
     }
 
-    override suspend fun selectAllByDictionaryEntryIdAndConjugationId(
-        dictionaryEntryId: Long,
+    override suspend fun selectRowByKeys(
+        isKanji: Boolean?,
+        conjugationTemplateId: Long,
+        conjugationId: Long,
+        returnNotFoundOnNull: Boolean
+    ): DatabaseResult<ConjugationOverrideContainer> {
+        val selectRowResult: DatabaseResult<SelectRowByKeys> = dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
+            queries.selectRowByKeys(isKanji?.let{ if(it) 1 else 0 }, conjugationTemplateId, conjugationId).awaitAsOneOrNull()
+        }
+        return selectRowResult.map { row ->
+            val propertyValues: Map<ConjugationOverrideProperty, String?> = selectPropertyValues(row.id).getOrReturn { return it }
+            ConjugationOverrideContainer(
+                row.id,
+                isKanji,
+                conjugationTemplateId,
+                conjugationId,
+                row.override_note,
+                propertyValues
+            )
+        }
+    }
+
+    override suspend fun selectAllByConjugationTemplateIdAndConjugationId(
+        conjugationTemplateId: Long,
         conjugationId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<List<ConjugationOverrideContainer>> {
-        val selectRowResult: DatabaseResult<List<SelectAllByDictionaryEntryIdAndConjugationId>> = dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
-            queries.selectAllByDictionaryEntryIdAndConjugationId(dictionaryEntryId, conjugationId).awaitAsList()
+        val selectRowResult: DatabaseResult<List<SelectAllByConjugationTemplateIdAndConjugationId>> = dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
+            queries.selectAllByConjugationTemplateIdAndConjugationId(conjugationTemplateId, conjugationId).awaitAsList()
         }
-
         return selectRowResult.map { rows ->
             rows.map { row ->
                 val propertyValues: Map<ConjugationOverrideProperty, String?> = selectPropertyValues(row.id).getOrReturn { return it }
                 ConjugationOverrideContainer(
                     row.id,
-                    row.id_name,
-                    dictionaryEntryId,
+                    row.is_kanji?.let {it == 1L},
+                    conjugationTemplateId,
                     conjugationId,
                     row.override_note,
                     propertyValues
@@ -129,21 +155,6 @@ class ConjugationOverrideRepository(
         }
     }
 
-    override suspend fun selectExist(
-        id: Long?,
-        idName: String?,
-        returnNotFoundOnNull: Boolean
-    ): DatabaseResult<Boolean> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
-            if(id != null){
-                queries.selectExistById(id).awaitAsOneOrNull()
-            }
-            else if(idName != null){
-                queries.selectExistByIdName(idName).awaitAsOneOrNull()
-            }
-            else false
-        }
-    }
     override suspend fun insertPropertyValue(
         conjugationOverrideId: Long,
         overridePropertyId: Long,

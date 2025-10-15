@@ -52,7 +52,7 @@ class ConjugationPatternRepository(
         return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
             queries.selectRow(id).awaitAsOneOrNull()
         }.map {
-            ConjugationPatternContainer(id, it.id_name, it.display_text)
+            ConjugationPatternContainer(id, it.id_name, it.display_text, it.description_text)
         }
     }
 

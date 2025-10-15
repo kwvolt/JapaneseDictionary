@@ -1,30 +1,31 @@
 package io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.ConjugationOverrideProperty
+import io.github.kwvolt.japanesedictionary.domain.model.conjugation.ConjugationOverrideProperty
 
 interface ConjugationOverrideRepositoryInterface {
     suspend fun insert(
-        idName: String,
-        dictionaryEntryId: Long,
+        isKanji: Boolean? = null,
+        conjugationTemplateId: Long,
         conjugationId: Long,
         overrideNote: String? = null,
         returnNotFoundOnNull: Boolean = false
     ): DatabaseResult<Long>
     suspend fun update(
         conjugationOverrideId: Long,
-        idName: String? = null,
-        dictionaryEntryId: Long? = null,
+        isKanjiProvided: Boolean = false,
+        isKanji: Boolean? = null,
+        conjugationTemplateId: Long? = null,
         conjugationId: Long? = null,
         overrideNoteProvided: Boolean = false,
         overrideNote: String? = null,
         returnNotFoundOnNull: Boolean = false
     ): DatabaseResult<Unit>
     suspend fun delete(conjugationOverrideId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
-    suspend fun selectId(idName: String, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
-    suspend fun selectRow(conjugationOverrideId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<ConjugationOverrideContainer>
-    suspend fun selectAllByDictionaryEntryIdAndConjugationId(dictionaryEntryId: Long, conjugationId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<List<ConjugationOverrideContainer>>
-    suspend fun selectExist(id: Long?, idName: String?, returnNotFoundOnNull: Boolean = false): DatabaseResult<Boolean>
+    suspend fun selectId(isKanji: Boolean? = null, conjugationTemplateId: Long, conjugationId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
+    suspend fun selectRowById(conjugationOverrideId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<ConjugationOverrideContainer>
+    suspend fun selectRowByKeys(isKanji: Boolean? = null, conjugationTemplateId: Long, conjugationId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<ConjugationOverrideContainer>
+    suspend fun selectAllByConjugationTemplateIdAndConjugationId(conjugationTemplateId: Long, conjugationId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<List<ConjugationOverrideContainer>>
 
     suspend fun insertPropertyValue(conjugationOverrideId: Long, overridePropertyId: Long, propertyValue: String? = null, returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
     suspend fun updatePropertyValue(
@@ -49,8 +50,8 @@ interface ConjugationOverrideRepositoryInterface {
 
 data class ConjugationOverrideContainer(
     val id: Long,
-    val idName: String,
-    val dictionaryEntryId: Long,
+    val isKanji: Boolean? = null,
+    val conjugationTemplateId: Long,
     val conjugationId: Long,
     val overrideNote: String? = null,
     val overrideProperty: Map<ConjugationOverrideProperty, String?>

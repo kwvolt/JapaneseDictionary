@@ -99,8 +99,9 @@ class ConjugationTemplateRepository(
         conjugationTemplateId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<List<Long>> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
-            linkQueries.selectConjugationIdByConjugationTemplateId(conjugationTemplateId).awaitAsList()
-        }.map { listOf()}
+        return dbHandler.selectAll(returnNotFoundOnNull = returnNotFoundOnNull,
+            queryBlock = { linkQueries.selectConjugationIdByConjugationTemplateId(conjugationTemplateId).awaitAsList() },
+            mapper = { it }
+        )
     }
 }

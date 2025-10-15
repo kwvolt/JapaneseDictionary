@@ -8,8 +8,8 @@ CREATE TABLE kana (
     wordText TEXT NOT NULL,
     CONSTRAINT FK_kana__dict_entry_section FOREIGN KEY (dictionary_entry_section_id) REFERENCES dictionary_entry_section(id),
     CONSTRAINT FK_kana__dict_entry FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry(id),
-    CONSTRAINT UQIDX_kana__dict_entry_section_id__wordText UNIQUE(dictionary_entry_section_id, wordText),
-    CONSTRAINT UQIDX_kana__dict_entry_id__wordText UNIQUE(dictionary_entry_id, wordText)
+    CONSTRAINT UQ_kana__dict_entry_section_id__wordText UNIQUE(dictionary_entry_section_id, wordText),
+    CONSTRAINT UQ_kana__dict_entry_id__wordText UNIQUE(dictionary_entry_id, wordText)
 );
 
 /** fts table */

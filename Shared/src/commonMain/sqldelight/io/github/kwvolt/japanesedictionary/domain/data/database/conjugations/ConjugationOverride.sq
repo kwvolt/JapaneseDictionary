@@ -1,23 +1,27 @@
 CREATE TABLE conjugation_override (
     id INTEGER NOT NULL PRIMARY KEY,
-    id_name TEXT NOT NULL,
-    dictionary_entry_id INTEGER NOT NULL,
+    is_kanji INTEGER,
+    conjugation_template_id INTEGER NOT NULL,
     conjugation_id INTEGER NOT NULL,
     override_note TEXT,
-    CONSTRAINT FK_conj_override__dictionary_entry FOREIGN KEY (dictionary_entry_id) REFERENCES dictionary_entry(id),
+    CONSTRAINT FK_conj_override__conjugation_template FOREIGN KEY (conjugation_template_id) REFERENCES conjugation_template(id),
     CONSTRAINT FK_conj_override__conjugation FOREIGN KEY (conjugation_id) REFERENCES conjugation(id),
-    CONSTRAINT UQ_conj_override__id_name UNIQUE(id_name)
+    CONSTRAINT UQ_conj_override__conjugation_template_id_conjugation_id_is_kanji UNIQUE(conjugation_template_id, conjugation_id, is_kanji),
+    CONSTRAINT CK_BOOL_conj_override__is_kanji CHECK (is_kanji IN (0, 1))
 );
 
 insert {
-    INSERT INTO conjugation_override (id_name, dictionary_entry_id, conjugation_id, override_note) VALUES (?,?, ?, ?);
+    INSERT INTO conjugation_override (is_kanji, conjugation_template_id, conjugation_id, override_note) VALUES (?,?, ?, ?);
     SELECT last_insert_rowid();
 }
 
 update:
 UPDATE conjugation_override SET
-    id_name = COALESCE(:id_name, id_name),
-    dictionary_entry_id = COALESCE(:dictionary_entry_id, dictionary_entry_id),
+     is_kanji = CASE
+        WHEN :is_kanji_provided THEN :is_kanji
+        ELSE is_kanji
+    END,
+    conjugation_template_id = COALESCE(:conjugation_template_id, conjugation_template_id),
     conjugation_id = COALESCE(:conjugation_id, conjugation_id),
     override_note = CASE
         WHEN :override_note_provided THEN :override_note
@@ -29,17 +33,14 @@ delete:
 DELETE FROM conjugation_override WHERE id = ?;
 
 selectId:
-SELECT id FROM conjugation_override WHERE id_name = ?;
+SELECT id FROM conjugation_override WHERE is_kanji = ? AND conjugation_template_id = ? AND conjugation_id = ?;
 
-selectRow:
-SELECT id_name, dictionary_entry_id, conjugation_id, override_note FROM conjugation_override WHERE id = ?;
+selectRowById:
+SELECT is_kanji, conjugation_template_id, conjugation_id, override_note FROM conjugation_override WHERE id = ?;
 
-selectAllByDictionaryEntryIdAndConjugationId:
-SELECT id, id_name, override_note FROM conjugation_override WHERE dictionary_entry_id = ? AND conjugation_id = ?;
+selectRowByKeys:
+SELECT id, override_note FROM conjugation_override WHERE is_kanji = ? AND conjugation_template_id = ? AND conjugation_id = ?;
 
-selectExistById:
-SELECT COUNT(*)  > 0 FROM conjugation_override WHERE id =?;
-
-selectExistByIdName:
-SELECT COUNT(*)  > 0 FROM conjugation_override WHERE id_name =?;
+selectAllByConjugationTemplateIdAndConjugationId:
+SELECT id, is_kanji, override_note FROM conjugation_override WHERE conjugation_template_id = ? AND conjugation_id = ?;
 

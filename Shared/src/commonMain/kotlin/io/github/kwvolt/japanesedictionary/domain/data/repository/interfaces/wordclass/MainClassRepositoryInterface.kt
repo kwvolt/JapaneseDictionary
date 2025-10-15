@@ -4,23 +4,19 @@ import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 
 interface MainClassRepositoryInterface {
 
-    suspend fun insert(idName: String, displayText: String, itemId: String? = null): DatabaseResult<Long>
+    suspend fun insert(idName: String, displayText: String, returnNotFoundOnNull: Boolean = false, itemId: String? = null): DatabaseResult<Long>
 
-    suspend fun selectId(idName: String, itemId: String? = null): DatabaseResult<Long>
+    suspend fun selectId(idName: String, returnNotFoundOnNull: Boolean = false, itemId: String? = null): DatabaseResult<Long>
 
-    suspend fun selectRowById(mainClassId: Long, itemId: String? = null): DatabaseResult<MainClassContainer>
+    suspend fun selectRowById(mainClassId: Long, returnNotFoundOnNull: Boolean = false, itemId: String? = null): DatabaseResult<MainClassContainer>
 
-    suspend fun selectRowByIdName(idName: String, itemId: String? = null): DatabaseResult<MainClassContainer>
+    suspend fun selectRowByIdName(idName: String, returnNotFoundOnNull: Boolean = false, itemId: String? = null): DatabaseResult<MainClassContainer>
 
-    suspend fun selectAll(itemId: String? = null): DatabaseResult<List<MainClassContainer>>
+    suspend fun selectAll(returnNotFoundOnNull: Boolean = false, itemId: String? = null): DatabaseResult<List<MainClassContainer>>
 
-    suspend fun updateIdName(mainClassId: Long, idName: String, itemId: String? = null): DatabaseResult<Unit>
+    suspend fun update(mainClassId: Long, idName: String? = null, displayText: String? = null, returnNotFoundOnNull: Boolean = false, itemId: String? = null): DatabaseResult<Unit>
 
-    suspend fun updateDisplayText(mainClassId: Long, displayText: String, itemId: String? = null): DatabaseResult<Unit>
-
-    suspend fun deleteRowByIdName(idName: String, itemId: String? = null): DatabaseResult<Unit>
-
-    suspend fun  deleteRowById(mainClassId: Long, itemId: String? = null): DatabaseResult<Unit>
+    suspend fun delete(mainClassId: Long, returnNotFoundOnNull: Boolean = false, itemId: String? = null): DatabaseResult<Unit>
 }
 
 data class MainClassContainer(

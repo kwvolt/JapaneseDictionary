@@ -112,7 +112,7 @@ class WordEntryFormUpsert(
         return wordClassRepository.selectIdByMainClassIdAndSubClassId(
             wordClassItem.chosenMainClass.id,
             wordClassItem.chosenSubClass.id,
-            wordClassItem.itemProperties.getIdentifier()
+            itemId = wordClassItem.itemProperties.getIdentifier()
         ).flatMap{
             wordClassId: Long ->
             dbHandler.performTransaction {

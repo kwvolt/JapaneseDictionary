@@ -29,7 +29,7 @@ class WordClassBuilder(
         for ((mainClassId, deferredResult) in deferredMap) {
             when (val result = deferredResult.await()) {
                 is DatabaseResult.Success -> resultMap[mainClassId] = result.value
-                else -> return@coroutineScope result.mapErrorTo<List<SubClassContainer>, Map<Long, List<SubClassContainer>>>()
+                else -> return@coroutineScope result.mapErrorTo()
             }
         }
         DatabaseResult.Success(resultMap)

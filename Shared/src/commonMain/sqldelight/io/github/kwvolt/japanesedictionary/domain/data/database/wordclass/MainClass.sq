@@ -26,14 +26,8 @@ SELECT id, display_text FROM main_class WHERE id_name = ?;
 selectAll:
 SELECT id, id_name, display_text FROM main_class;
 
-updateIdName:
-UPDATE main_class SET id_name = ? WHERE id = ?;
+update:
+UPDATE main_class SET id_name = COALESCE(:id_name, id_name) AND display_text = COALESCE(:display_text, display_text) WHERE id = ?;
 
-updateDisplayText:
-UPDATE main_class SET display_text = ? WHERE id = ?;
-
-deleteRowByIdName:
-DELETE FROM main_class WHERE id_name = ?;
-
-deleteRowById:
+delete:
 DELETE FROM main_class WHERE id = ?;

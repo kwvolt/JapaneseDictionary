@@ -16,49 +16,49 @@ class WordClassRepository(
     override suspend fun insertByMainClassIdAndSubClassId(
         mainClassId: Long,
         subClassId: Long,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Long> {
-        return dbHandler.wrapQuery(itemId){wordClassQueries.insertByMainClassIdAndSubClassId(mainClassId, subClassId).awaitAsOneOrNull()}
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){wordClassQueries.insertByMainClassIdAndSubClassId(mainClassId, subClassId).awaitAsOneOrNull()}
     }
 
     override suspend fun insertByMainClassIdNameAndSubClassIdName(
         mainClassIdName: String,
         subClassIdName: String,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Long> {
-        return dbHandler.wrapQuery(itemId){wordClassQueries.insertByMainClassIdNameAndSubClassIdName(mainClassIdName, subClassIdName).awaitAsOneOrNull()}
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){wordClassQueries.insertByMainClassIdNameAndSubClassIdName(mainClassIdName, subClassIdName).awaitAsOneOrNull()}
     }
 
     override suspend fun selectIdByMainClassIdAndSubClassId(
         mainClassId: Long,
         subClassId: Long,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Long> {
-        return dbHandler.withContextDispatcherWithException(itemId,
-            "Error at selectIdByMainClassIdNameAndSubClassIdName For value mainClassId: $mainClassId and subClassId: $subClassId"
-        ){wordClassQueries.selectIdByMainClassIdAndSubClassId(mainClassId, subClassId).awaitAsOneOrNull()
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){
+            wordClassQueries.selectIdByMainClassIdAndSubClassId(mainClassId, subClassId).awaitAsOneOrNull()
         }
     }
 
     override suspend fun selectIdByMainClassIdNameAndSubClassIdName(
         mainClassIdName: String,
         subClassIdName: String,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Long> {
-        return dbHandler.withContextDispatcherWithException(itemId,
-            "Error at selectIdByMainClassIdNameAndSubClassIdName For value mainClassIdName: $mainClassIdName and subClassIdName: $subClassIdName"
-        ){
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){
             wordClassQueries.selectIdByMainClassIdNameAndSubClassIdName(mainClassIdName, subClassIdName).awaitAsOneOrNull()
         }
     }
 
     override suspend fun selectRow(
         wordClassId: Long,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<WordClassIdContainer> {
-        return dbHandler.withContextDispatcherWithException(itemId,
-            "Error at selectWordClassMainClassIdAndSubClassIdByWordClassId For value wordClassId: $wordClassId"
-        ){
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){
             wordClassQueries.selectRow(wordClassId).awaitAsOneOrNull()
         }.map { result -> WordClassIdContainer(wordClassId, result.main_class_id, result.sub_class_id) }
     }
@@ -66,41 +66,46 @@ class WordClassRepository(
     override suspend fun updateMainClassId(
         wordClassId: Long,
         mainClassId: Long,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){wordClassQueries.updateMainClassId(wordClassId, mainClassId)}.map { Unit }
+        return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){wordClassQueries.updateMainClassId(wordClassId, mainClassId)}.map { Unit }
     }
 
     override suspend fun updateSubClassId(
         wordClassId: Long,
         subClassId: Long,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){wordClassQueries.updateSubClassId(wordClassId, subClassId)}.map { Unit }
+        return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){wordClassQueries.updateSubClassId(wordClassId, subClassId)}
     }
 
     override suspend fun updateMainClassIdAndSubClassId(
         wordClassId: Long,
         mainClassId: Long,
         subClassId: Long,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){wordClassQueries.updateMainClassIdAndSubClassId(mainClassId, subClassId, wordClassId)}.map { Unit }
+        return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){wordClassQueries.updateMainClassIdAndSubClassId(mainClassId, subClassId, wordClassId)}
     }
 
     override suspend fun deleteRowByWordClassId(
         wordClassId: Long,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){wordClassQueries.deleteRowByWordClassId(wordClassId)}.map { Unit }
+        return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){wordClassQueries.deleteRowByWordClassId(wordClassId)}
     }
 
     override suspend fun deleteRowByMainClassIdAndSubClassId(
         mainClassId: Long,
         subClassId: Long,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){wordClassQueries.deleteRowByMainClassIdAndSubClassId(mainClassId, subClassId)}.map { Unit }
+        return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){wordClassQueries.deleteRowByMainClassIdAndSubClassId(mainClassId, subClassId)}
     }
 
 }

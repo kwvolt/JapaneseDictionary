@@ -2,14 +2,12 @@ package io.github.kwvolt.japanesedictionary.domain.data.database.initialize
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
-import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.ConjugationOverrideProperty
 import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.ConjugationUpsert
 import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.ConjugationPatternUpsertContainer
 import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.ConjugationTemplateInserter
 import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.ProvidedValue
-import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.SpellingType
-import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.StemRule
-import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.UpsertOrDelete
+import io.github.kwvolt.japanesedictionary.domain.model.conjugation.ConjugationOverrideProperty
+import io.github.kwvolt.japanesedictionary.domain.model.conjugation.StemRule
 
 class InitializeConjugation (
     private val databaseHandler: DatabaseHandlerBase,
@@ -68,7 +66,10 @@ class InitializeConjugation (
                     )
                 )
             ).returnOnFailure<Unit> { return@performTransaction it }
+            conjugationUpsert.upsertPattern(idNameValue = ProvidedValue.Value("PROGRESSIVE"), displayTextValue = ProvidedValue.Value("Progressive"))
+                .returnOnFailure<Unit> { return@performTransaction it }
             DatabaseResult.Success(Unit)
+
         }
         patternResult.returnOnFailure { return it }
 
@@ -90,11 +91,15 @@ class InitializeConjugation (
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("う"), replacementValue = ProvidedValue.Value("お"))
                 .returnOnFailure<Unit> { return@performTransaction it }
-            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("う"), replacementValue = ProvidedValue.Value("っ"))
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("う"), replacementValue = ProvidedValue.Value("って"))
+                .returnOnFailure<Unit> { return@performTransaction it }
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("う"), replacementValue = ProvidedValue.Value("った"))
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("う"), replacementValue = ProvidedValue.Value("わ"))
                 .returnOnFailure<Unit> { return@performTransaction it }
-            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("く"), replacementValue = ProvidedValue.Value("い"))
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("く"), replacementValue = ProvidedValue.Value("いた"))
+                .returnOnFailure<Unit> { return@performTransaction it }
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("く"), replacementValue = ProvidedValue.Value("いて"))
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("く"), replacementValue = ProvidedValue.Value("か"))
                 .returnOnFailure<Unit> { return@performTransaction it }
@@ -104,7 +109,9 @@ class InitializeConjugation (
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("く"), replacementValue = ProvidedValue.Value("こ"))
                 .returnOnFailure<Unit> { return@performTransaction it }
-            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("ぐ"), replacementValue = ProvidedValue.Value("い"))
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("ぐ"), replacementValue = ProvidedValue.Value("いて"))
+                .returnOnFailure<Unit> { return@performTransaction it }
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("ぐ"), replacementValue = ProvidedValue.Value("いた"))
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("ぐ"), replacementValue = ProvidedValue.Value("が"))
                 .returnOnFailure<Unit> { return@performTransaction it }
@@ -118,6 +125,10 @@ class InitializeConjugation (
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("す"), replacementValue = ProvidedValue.Value("し"))
                 .returnOnFailure<Unit> { return@performTransaction it }
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("す"), replacementValue = ProvidedValue.Value("して"))
+                .returnOnFailure<Unit> { return@performTransaction it }
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("す"), replacementValue = ProvidedValue.Value("した"))
+                .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("す"), replacementValue = ProvidedValue.Value("せ"))
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("す"), replacementValue = ProvidedValue.Value("ぞ"))
@@ -128,7 +139,9 @@ class InitializeConjugation (
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("つ"), replacementValue = ProvidedValue.Value("ち"))
                 .returnOnFailure<Unit> { return@performTransaction it }
-            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("つ"), replacementValue = ProvidedValue.Value("っ"))
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("つ"), replacementValue = ProvidedValue.Value("って"))
+                .returnOnFailure<Unit> { return@performTransaction it }
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("つ"), replacementValue = ProvidedValue.Value("った"))
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("つ"), replacementValue = ProvidedValue.Value("て"))
                 .returnOnFailure<Unit> { return@performTransaction it }
@@ -142,7 +155,9 @@ class InitializeConjugation (
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("ぬ"), replacementValue = ProvidedValue.Value("の"))
                 .returnOnFailure<Unit> { return@performTransaction it }
-            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("ぬ"), replacementValue = ProvidedValue.Value("ん"))
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("ぬ"), replacementValue = ProvidedValue.Value("んで"))
+                .returnOnFailure<Unit> { return@performTransaction it }
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("ぬ"), replacementValue = ProvidedValue.Value("んだ"))
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("ぶ"), replacementValue = ProvidedValue.Value("ち"))
                 .returnOnFailure<Unit> { return@performTransaction it }
@@ -154,7 +169,9 @@ class InitializeConjugation (
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("ぶ"), replacementValue = ProvidedValue.Value("ぼ"))
                 .returnOnFailure<Unit> { return@performTransaction it }
-            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("ぶ"), replacementValue = ProvidedValue.Value("ん"))
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("ぶ"), replacementValue = ProvidedValue.Value("んで"))
+                .returnOnFailure<Unit> { return@performTransaction it }
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("ぶ"), replacementValue = ProvidedValue.Value("んだ"))
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("む"), replacementValue = ProvidedValue.Value("ま"))
                 .returnOnFailure<Unit> { return@performTransaction it }
@@ -164,9 +181,13 @@ class InitializeConjugation (
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("む"), replacementValue = ProvidedValue.Value("も"))
                 .returnOnFailure<Unit> { return@performTransaction it }
-            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("む"), replacementValue = ProvidedValue.Value("ん"))
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("む"), replacementValue = ProvidedValue.Value("んで"))
                 .returnOnFailure<Unit> { return@performTransaction it }
-            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("る"), replacementValue = ProvidedValue.Value("っ"))
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("む"), replacementValue = ProvidedValue.Value("んだ"))
+                .returnOnFailure<Unit> { return@performTransaction it }
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("る"), replacementValue = ProvidedValue.Value("って"))
+                .returnOnFailure<Unit> { return@performTransaction it }
+            conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("る"), replacementValue = ProvidedValue.Value("った"))
                 .returnOnFailure<Unit> { return@performTransaction it }
             conjugationUpsert.upsertVerbSuffixSwap(originalValue = ProvidedValue.Value("る"), replacementValue = ProvidedValue.Value("ら"))
                 .returnOnFailure<Unit> { return@performTransaction it }
@@ -182,6 +203,12 @@ class InitializeConjugation (
         // conjugation template
         conjugationTemplateInserter.defineTemplate("RU_CONJUGATION", "る Verb Conjugation") {
             insert {
+                withPreprocess(StemRule.NOTHING){
+                    getOrInsertConjugation("TO_CONDITIONAL") {
+                        suffix("と", NEITHER_FORM, IS_NEITHER)
+                    }
+                }
+
                 withPreprocess(StemRule.DROP_RU) {
                     getOrInsertConjugation("CONJUNCTIVE") {
                         suffix(null, SHORT_FORM, IS_NEITHER)
@@ -196,20 +223,14 @@ class InitializeConjugation (
                     }
 
                     getOrInsertConjugation("TARA_CONDITIONAL") {
-                        suffix("と", NEITHER_FORM, IS_NEITHER)
-                    }
-
-                    getOrInsertConjugation("TO_CONDITIONAL") {
                         suffix("たら", NEITHER_FORM, IS_NEITHER)
                     }
 
                     getOrInsertConjugation("TE_FORM") {
-                        suffix("て", SHORT_FORM, IS_NEITHER)
-                        suffix("まして", LONG_FORM, IS_NEITHER)
+                        suffix("て", NEITHER_FORM, IS_NEITHER)
                     }
                     getOrInsertConjugation("TA_FORM") {
                         suffix("た", SHORT_FORM, IS_POSITIVE)
-                        suffix("ました", LONG_FORM, IS_POSITIVE)
                     }
                     getOrInsertConjugation("PRESENT_NEGATIVE") {
                         suffix("ない", SHORT_FORM, IS_NEGATIVE)
@@ -253,6 +274,13 @@ class InitializeConjugation (
                     }
                     getOrInsertConjugation("POLITE") {
                         suffix("ます", LONG_FORM, IS_POSITIVE)
+                        suffix("ません", LONG_FORM, IS_NEGATIVE)
+                    }
+                    getOrInsertConjugation("PROGRESSIVE") {
+                        suffix("ている", SHORT_FORM, IS_POSITIVE)
+                        suffix("ています", LONG_FORM, IS_POSITIVE)
+                        suffix("ていない", SHORT_FORM, IS_NEGATIVE)
+                        suffix("ていません", LONG_FORM, IS_NEGATIVE)
                     }
                 }
             }
@@ -283,15 +311,27 @@ class InitializeConjugation (
             )
 
             val uToTe: Map<String, String> = mapOf(
-                "う" to "っ",
-                "く" to "い",
-                "ぐ" to "い",
-                "す" to "し",
-                "つ" to "っ",
-                "ぬ" to "ん",
-                "ぶ" to "ん",
-                "む" to "ん",
-                "る" to "っ"
+                "う" to "って",
+                "く" to "いて",
+                "ぐ" to "いて",
+                "す" to "して",
+                "つ" to "って",
+                "ぬ" to "んで",
+                "ぶ" to "んで",
+                "む" to "んで",
+                "る" to "って"
+            )
+
+            val uToTa: Map<String, String> = mapOf(
+                "う" to "った",
+                "く" to "いた",
+                "ぐ" to "いた",
+                "す" to "した",
+                "つ" to "った",
+                "ぬ" to "んだ",
+                "ぶ" to "んだ",
+                "む" to "んだ",
+                "る" to "った"
             )
 
             val uToA: Map<String, String> = mapOf(
@@ -318,34 +358,38 @@ class InitializeConjugation (
                 "る" to "ろ"
             )
             insert {
+                withPreprocess(StemRule.NOTHING){
+                    getOrInsertConjugation("TO_CONDITIONAL") {
+                        suffix("と", NEITHER_FORM, IS_NEITHER)
+                    }
+
+                    getOrInsertConjugation("IMPERATIVE") {
+                        suffix("な", SHORT_FORM, IS_NEGATIVE)
+                    }
+                }
+
                 withPreprocess(StemRule.REPLACE_SUFFIX) {
                     getOrInsertConjugation("CONJUNCTIVE") {
                         suffix(null, SHORT_FORM, IS_NEITHER, swap = { linkVerbSuffixSwap(uToI) })
-                    }
-                    getOrInsertConjugation("IMPERATIVE") {
-                        suffix(null, SHORT_FORM, IS_POSITIVE)
-                        suffix("な", SHORT_FORM, IS_NEGATIVE)
                     }
                     getOrInsertConjugation("CONDITIONAL") {
                         suffix("ば", NEITHER_FORM, IS_POSITIVE, swap = { linkVerbSuffixSwap(uToE) })
                         suffix("なければ", NEITHER_FORM, IS_NEGATIVE, swap = { linkVerbSuffixSwap(uToE) })
                     }
 
-                    getOrInsertConjugation("TARA_CONDITIONAL") {
-                        suffix("たら", NEITHER_FORM, IS_NEITHER, swap = { linkVerbSuffixSwap(uToE) })
+                    getOrInsertConjugation("IMPERATIVE") {
+                        suffix(null, SHORT_FORM, IS_POSITIVE, swap = { linkVerbSuffixSwap(uToE) })
                     }
 
-                    getOrInsertConjugation("TO_CONDITIONAL") {
-                        suffix("と", NEITHER_FORM, IS_NEITHER, swap = { linkVerbSuffixSwap(uToE) })
+                    getOrInsertConjugation("TARA_CONDITIONAL") {
+                        suffix("ら", NEITHER_FORM, IS_NEITHER, swap = { linkVerbSuffixSwap(uToTa) })
                     }
 
                     getOrInsertConjugation("TE_FORM") {
-                        suffix("て", SHORT_FORM, IS_NEITHER, swap = { linkVerbSuffixSwap(uToTe) })
-                        suffix("まして", LONG_FORM, IS_NEITHER, swap = { linkVerbSuffixSwap(uToTe) })
+                        suffix(null, NEITHER_FORM, IS_NEITHER, swap = { linkVerbSuffixSwap(uToTe) })
                     }
                     getOrInsertConjugation("TA_FORM") {
-                        suffix("た", SHORT_FORM, IS_POSITIVE, swap = { linkVerbSuffixSwap(uToTe) })
-                        suffix("ました", LONG_FORM, IS_POSITIVE, swap = { linkVerbSuffixSwap(uToI) })
+                        suffix(null, SHORT_FORM, IS_POSITIVE, swap = { linkVerbSuffixSwap(uToTa) })
                     }
                     getOrInsertConjugation("PRESENT_NEGATIVE") {
                         suffix("ない", SHORT_FORM, IS_NEGATIVE, swap = { linkVerbSuffixSwap(uToA) })
@@ -387,6 +431,12 @@ class InitializeConjugation (
                         suffix("ます", LONG_FORM, IS_POSITIVE, swap = { linkVerbSuffixSwap(uToI) })
                         suffix("ません", LONG_FORM, IS_NEGATIVE, swap = { linkVerbSuffixSwap(uToI) })
                     }
+                    getOrInsertConjugation("PROGRESSIVE") {
+                        suffix("いる", SHORT_FORM, IS_POSITIVE, swap = { linkVerbSuffixSwap(uToTe) })
+                        suffix("います", LONG_FORM, IS_POSITIVE, swap = { linkVerbSuffixSwap(uToTe) })
+                        suffix("いない", SHORT_FORM, IS_NEGATIVE, swap = { linkVerbSuffixSwap(uToTe) })
+                        suffix("いません", LONG_FORM, IS_NEGATIVE, swap = { linkVerbSuffixSwap(uToTe) })
+                    }
                 }
             }
         }.returnOnFailure { return it }
@@ -402,167 +452,169 @@ class InitializeConjugation (
         }
         propertyResult.returnOnFailure { return it }
 
-        //override
         conjugationTemplateInserter.defineTemplate("KURU_CONJUGATION", "くる Conjugation") {
-            // temporary (example)
-            val kuruId: Long = 1
-
             val kiKana: Map<ConjugationOverrideProperty, String?> = mapOf(
-                ConjugationOverrideProperty.STEM_REPLACEMENT to "き",
-                ConjugationOverrideProperty.SPELLING_TYPE to SpellingType.FURIGANA.toString()
+                ConjugationOverrideProperty.IRREGULAR to "くる",
+                ConjugationOverrideProperty.IRREGULAR_REPLACEMENT to "きる"
             )
             val koKana: Map<ConjugationOverrideProperty, String?> = mapOf(
-                ConjugationOverrideProperty.STEM_REPLACEMENT to "こ",
-                ConjugationOverrideProperty.SPELLING_TYPE to SpellingType.FURIGANA.toString()
+                ConjugationOverrideProperty.IRREGULAR_REPLACEMENT to "こる",
+                ConjugationOverrideProperty.IRREGULAR to "くる"
             )
+
             insert {
+                withPreprocess(StemRule.NOTHING) {
+                    getOrInsertConjugation("TO_CONDITIONAL") {
+                        suffix("と", NEITHER_FORM, IS_NEITHER) {
+                        }
+                    }
+                }
                 withPreprocess(StemRule.DROP_RU) {
                     getOrInsertConjugation("CONJUNCTIVE") {
-                        suffix(null, SHORT_FORM, IS_NEITHER){
-                            insertOverride("KURU_CONJUNCTIVE_KANA", kuruId, "Irregular Verb", kiKana)
+                        suffix(null, SHORT_FORM, IS_NEITHER) {
+                            insertOverride(KANA, "Irregular Verb", kiKana)
                         }
                     }
                     getOrInsertConjugation("IMPERATIVE") {
-                        suffix("ろ", SHORT_FORM, IS_POSITIVE){
-                            insertOverride("KURU_IMPERATIVE_POSITIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("い", SHORT_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
                         suffix("るな", SHORT_FORM, IS_NEGATIVE) {
-                            insertOverride("KURU_IMPERATIVE_NEGATIVE_KANA", kuruId, "Irregular Verb", kiKana)
                         }
                     }
                     getOrInsertConjugation("CONDITIONAL") {
                         suffix("れば", NEITHER_FORM, IS_POSITIVE)
-                        suffix("なければ", NEITHER_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_CONDITIONAL_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("なければ", NEITHER_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
                     }
 
                     getOrInsertConjugation("TARA_CONDITIONAL") {
-                        suffix("と", NEITHER_FORM, IS_NEITHER){
-                            insertOverride("KURU_TARA_CONDITIONAL_KANA", kuruId, "Irregular Verb", kiKana)
-                        }
-                    }
-
-                    getOrInsertConjugation("TO_CONDITIONAL") {
-                        suffix("たら", NEITHER_FORM, IS_NEITHER){
-                            insertOverride("KURU_TO_CONDITIONAL_KANA", kuruId, "Irregular Verb", kiKana)
+                        suffix("たら", NEITHER_FORM, IS_NEITHER) {
+                            insertOverride(KANA, "Irregular Verb", kiKana)
                         }
                     }
 
                     getOrInsertConjugation("TE_FORM") {
-                        suffix("て", SHORT_FORM, IS_NEITHER){
-                            insertOverride("KURU_TE_FORM_SHORT_KANA", kuruId, "Irregular Verb", kiKana)
-                        }
-                        suffix("まして", LONG_FORM, IS_NEITHER){
-                            insertOverride("KURU_TE_FORM_LONG_KANA", kuruId, "Irregular Verb", kiKana)
+                        suffix("て", NEITHER_FORM, IS_NEITHER) {
+                            insertOverride(KANA, "Irregular Verb", kiKana)
                         }
                     }
                     getOrInsertConjugation("TA_FORM") {
-                        suffix("た", SHORT_FORM, IS_POSITIVE){
-                            insertOverride("KURU_TA_FORM_SHORT_KANA", kuruId, "Irregular Verb", kiKana)
-                        }
-                        suffix("ました", LONG_FORM, IS_POSITIVE){
-                            insertOverride("KURU_TA_FORM_LONG_KANA", kuruId, "Irregular Verb", kiKana)
+                        suffix("た", SHORT_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", kiKana)
                         }
                     }
                     getOrInsertConjugation("PRESENT_NEGATIVE") {
-                        suffix("ない", SHORT_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_PRESENT_NEGATIVE_SHORT_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("ない", SHORT_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("ません", LONG_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_PRESENT_NEGATIVE_LONG_KANA", kuruId, "Irregular Verb", kiKana)
+                        suffix("ません", LONG_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", kiKana)
                         }
                     }
                     getOrInsertConjugation("PAST_NEGATIVE") {
-                        suffix("なかった", SHORT_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_PAST_NEGATIVE_SHORT_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("なかった", SHORT_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("ませんでした", LONG_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_PAST_NEGATIVE_LONG_KANA", kuruId, "Irregular Verb", kiKana)
+                        suffix("ませんでした", LONG_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", kiKana)
                         }
                     }
                     getOrInsertConjugation("VOLITIONAL") {
-                        suffix("よう", SHORT_FORM, IS_POSITIVE){
-                            insertOverride("KURU_VOLITIONAL_SHORT_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("よう", SHORT_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("ましょう", LONG_FORM, IS_POSITIVE){
-                            insertOverride("KURU_VOLITIONAL_LONG_KANA", kuruId, "Irregular Verb", kiKana)
+                        suffix("ましょう", LONG_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", kiKana)
                         }
                     }
                     getOrInsertConjugation("PASSIVE") {
-                        suffix("られる", SHORT_FORM, IS_POSITIVE){
-                            insertOverride("KURU_PASSIVE_SHORT_POSITIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("られる", SHORT_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("られます", LONG_FORM, IS_POSITIVE){
-                            insertOverride("KURU_PASSIVE_LONG_POSITIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("られます", LONG_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("られない", SHORT_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_PASSIVE_SHORT_NEGATIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("られない", SHORT_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("られません", LONG_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_PASSIVE_LONG_NEGATIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("られません", LONG_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
                     }
                     getOrInsertConjugation("CAUSATIVE") {
-                        suffix("させる", SHORT_FORM, IS_POSITIVE){
-                            insertOverride("KURU_CAUSATIVE_SHORT_POSITIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("させる", SHORT_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("させます", LONG_FORM, IS_POSITIVE){
-                            insertOverride("KURU_CAUSATIVE_LONG_POSITIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("させます", LONG_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("させない", SHORT_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_CAUSATIVE_SHORT_NEGATIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("させない", SHORT_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("させません", LONG_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_CAUSATIVE_LONG_NEGATIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("させません", LONG_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
                     }
                     getOrInsertConjugation("CAUSATIVE_PASSIVE") {
-                        suffix("させられる", SHORT_FORM, IS_POSITIVE){
-                            insertOverride("KURU_CAUSATIVE_PASSIVE_SHORT_POSITIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("させられる", SHORT_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("させられます", LONG_FORM, IS_POSITIVE){
-                            insertOverride("KURU_CAUSATIVE_PASSIVE_LONG_POSITIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("させられます", LONG_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("させられない", SHORT_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_CAUSATIVE_PASSIVE_SHORT_NEGATIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("させられない", SHORT_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("させられません", LONG_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_CAUSATIVE_PASSIVE_LONG_NEGATIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("させられません", LONG_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
                     }
                     getOrInsertConjugation("POTENTIAL") {
-                        suffix("られる", SHORT_FORM, IS_POSITIVE){
-                            insertOverride("KURU_POTENTIAL_SHORT_POSITIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("られる", SHORT_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("られます", LONG_FORM, IS_POSITIVE){
-                            insertOverride("KURU_POTENTIAL_LONG_POSITIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("られます", LONG_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("られない", SHORT_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_POTENTIAL_SHORT_NEGATIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("られない", SHORT_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("られません", LONG_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_POTENTIAL_LONG_NEGATIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("られません", LONG_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
                     }
                     getOrInsertConjugation("POTENTIAL_RA_LESS") {
-                        suffix("れる", SHORT_FORM, IS_POSITIVE){
-                            insertOverride("KURU_POTENTIAL_RA_LESS_POSITIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("れる", SHORT_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
-                        suffix("れない", SHORT_FORM, IS_NEGATIVE){
-                            insertOverride("KURU_POTENTIAL_RA_LESS_NEGATIVE_KANA", kuruId, "Irregular Verb", koKana)
+                        suffix("れない", SHORT_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", koKana)
                         }
                     }
                     getOrInsertConjugation("POLITE") {
-                        suffix("ます", LONG_FORM, IS_POSITIVE){
-                            insertOverride("KURU_POLITE_KANA", kuruId, "Irregular Verb", kiKana)
+                        suffix("ます", LONG_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", kiKana)
+                        }
+                    }
+                    getOrInsertConjugation("PROGRESSIVE") {
+                        suffix("ている", SHORT_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", kiKana)
+                        }
+                        suffix("ています", LONG_FORM, IS_POSITIVE) {
+                            insertOverride(KANA, "Irregular Verb", kiKana)
+                        }
+                        suffix("ていない", SHORT_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", kiKana)
+                        }
+                        suffix("ていません", LONG_FORM, IS_NEGATIVE) {
+                            insertOverride(KANA, "Irregular Verb", kiKana)
                         }
                     }
                 }
             }
         }.returnOnFailure { return it }
-
-
         return DatabaseResult.Success(Unit)
     }
 
@@ -574,5 +626,9 @@ class InitializeConjugation (
         const val IS_POSITIVE: Boolean = true
         const val IS_NEGATIVE: Boolean = false
         val IS_NEITHER: Boolean? = null
+
+        const val KANJI: Boolean = true
+        const val KANA: Boolean = false
+        val BOTH: Boolean? = null
     }
 }

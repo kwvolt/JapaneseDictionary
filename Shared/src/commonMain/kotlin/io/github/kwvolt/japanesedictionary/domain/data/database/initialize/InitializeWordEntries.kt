@@ -2,6 +2,7 @@ package io.github.kwvolt.japanesedictionary.domain.data.database.initialize
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordclass.WordClassFetcher
+import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.ValidUpsertResult
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormUpsertValidation
 import io.github.kwvolt.japanesedictionary.domain.model.FormItemManager
 import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
@@ -14,7 +15,8 @@ import kotlinx.collections.immutable.toPersistentMap
 
 class InitializeWordEntries(
     private val wordEntryFormUpsertValidation: WordEntryFormUpsertValidation,
-    private val wordClassFetcher: WordClassFetcher) {
+    private val wordClassFetcher: WordClassFetcher
+) {
     val kanjiPool = listOf(
         '日', '一', '国', '人', '年', '大', '十', '二', '本', '中',
         '長', '出', '三', '時', '行', '見', '月', '後', '前', '生',
@@ -65,7 +67,7 @@ class InitializeWordEntries(
         return combinations.toList()
     }
 
-    private fun buildWordEntryForm(
+    internal fun buildWordEntryForm(
         wordClassItem: WordClassItem,
         primaryText: String,
         noteList: List<String>,

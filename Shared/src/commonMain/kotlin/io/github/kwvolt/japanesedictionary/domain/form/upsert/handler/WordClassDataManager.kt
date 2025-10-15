@@ -27,7 +27,7 @@ class WordClassDataManager(private val wordClassBuilder: WordClassBuilder, priva
                         result.value
                     }
                 }
-                else -> return result.mapErrorTo<Map<Long, List<SubClassContainer>>,Unit>()
+                else -> return result.mapErrorTo()
             }
             _mainClassData = updatedMainClasses
             _subClassMapData = updatedSubMap

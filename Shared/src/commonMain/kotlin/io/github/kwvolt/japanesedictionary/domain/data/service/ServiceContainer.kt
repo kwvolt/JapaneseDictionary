@@ -36,61 +36,62 @@ import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEnt
 
 class ServiceContainer(private val dbHandler: DatabaseHandler) {
     private val queries = dbHandler.queries
-    private val dictionaryRepository: DictionaryRepositoryInterface by lazy {
+    internal val dictionaryRepository: DictionaryRepositoryInterface by lazy {
         DictionaryRepository(
             dbHandler,
-            queries.dictionaryEntryQueries
+            queries.dictionaryEntryQueries,
+            queries.dictionaryEntryLinkConjugationTemplateQueries
         )
     }
-    private val dictionaryNoteRepository: DictionaryNoteRepositoryInterface by lazy {
+    internal val dictionaryNoteRepository: DictionaryNoteRepositoryInterface by lazy {
         DictionaryNoteRepository(
             dbHandler,
             queries.dictionaryEntryNoteQueries
         )
     }
-    private val dictionarySearchRepository: DictionarySearchRepositoryInterface by lazy {
+    internal val dictionarySearchRepository: DictionarySearchRepositoryInterface by lazy {
         DictionarySearchRepository(
             dbHandler,
             queries.dictionarySearchQueries
         )
     }
-    private val dictionaryUserRepository: DictionaryUserRepositoryInterface by lazy {
+    internal val dictionaryUserRepository: DictionaryUserRepositoryInterface by lazy {
         DictionaryUserRepository(
             dbHandler,
             queries.dictionaryUserQueries
         )
     }
-    private val sectionRepository: SectionRepositoryInterface by lazy {
+    internal val sectionRepository: SectionRepositoryInterface by lazy {
         SectionRepository(
             dbHandler,
             queries.dictionaryEntrySectionQueries
         )
     }
-    private val sectionKanaRepository: SectionKanaRepositoryInterface by lazy{
+    internal val sectionKanaRepository: SectionKanaRepositoryInterface by lazy{
         SectionKanaRepository(
             dbHandler,
             queries.dictionaryEntrySectionKanaQueries
         )
     }
-    private val sectionNoteRepository: SectionNoteRepositoryInterface by lazy{
+    internal val sectionNoteRepository: SectionNoteRepositoryInterface by lazy{
         SectionNoteRepository(
             dbHandler,
             queries.dictionaryEntrySectionNoteQueries
         )
     }
-    private val mainClassRepository: MainClassRepositoryInterface by lazy {
+    internal val mainClassRepository: MainClassRepositoryInterface by lazy {
         MainClassRepository(
             dbHandler,
             queries.mainClassQueries
         )
     }
-    private val subClassRepository: SubClassRepositoryInterface by lazy {
+    internal val subClassRepository: SubClassRepositoryInterface by lazy {
         SubClassRepository(
             dbHandler,
             queries.subClassQueries
         )
     }
-    private val wordClassRepository: WordClassRepositoryInterface by lazy {
+    internal val wordClassRepository: WordClassRepositoryInterface by lazy {
         WordClassRepository(
             dbHandler,
             queries.wordClassQueries

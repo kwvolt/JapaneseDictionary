@@ -22,4 +22,4 @@ interface ConjugationPatternRepositoryInterface {
     suspend fun selectCheckLinkExist(conjugationPatternId: Long, conjugationVariantId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Boolean>
 }
 
-data class ConjugationPatternContainer(val id: Long, val idName: String, val displayText: String)
+data class ConjugationPatternContainer(val id: Long, val idName: String, val displayText: String, val descriptionText: String? = null)

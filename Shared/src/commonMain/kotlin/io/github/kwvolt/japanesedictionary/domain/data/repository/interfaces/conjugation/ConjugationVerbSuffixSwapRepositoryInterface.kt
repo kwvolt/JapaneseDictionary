@@ -10,7 +10,8 @@ interface ConjugationVerbSuffixSwapRepositoryInterface {
     suspend fun selectRow(id: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<ConjugationVerbSuffixSwapContainer>
     suspend fun insertLinkVerbSuffixSwapToConjugation(verbSuffixSwapId: Long, conjugationId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
     suspend fun deleteLinkVerbSuffixSwapToConjugation(verbSuffixSwapId: Long, conjugationId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
-    suspend fun selectVerbSwapSuffixId(conjugationId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
+    suspend fun selectVerbSwapSuffixIds(conjugationId: Long, returnNotFoundOnNull: Boolean = false): DatabaseResult<List<Long>>
+    suspend fun selectReplacement(conjugationId: Long, original: String, returnNotFoundOnNull: Boolean = false): DatabaseResult<String>
 }
 
 data class ConjugationVerbSuffixSwapContainer(val id: Long, val original: String, val replacement: String)

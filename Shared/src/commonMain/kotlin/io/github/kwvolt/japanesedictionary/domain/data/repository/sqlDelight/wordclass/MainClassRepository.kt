@@ -16,72 +16,67 @@ class MainClassRepository(
     override suspend fun insert(
         idName: String,
         displayText: String,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Long> {
-        return dbHandler.wrapQuery(itemId){mainClassQueries.insert(idName, displayText).awaitAsOneOrNull()}
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){mainClassQueries.insert(idName, displayText).awaitAsOneOrNull()}
     }
 
-    override suspend fun selectId(idName: String, itemId: String?): DatabaseResult<Long> {
-        return dbHandler.withContextDispatcherWithException(itemId,
-            "Error at selectId in MainClassRepository For value idName: $idName"
-        ) {
+    override suspend fun selectId(
+        idName: String,
+        returnNotFoundOnNull: Boolean,
+        itemId: String?
+    ): DatabaseResult<Long> {
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull) {
                 mainClassQueries.selectId(idName).awaitAsOneOrNull()
         }
     }
 
     override suspend fun selectRowById(
         mainClassId: Long,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<MainClassContainer> {
-        return dbHandler.withContextDispatcherWithException(itemId,
-            "Error at selectRowById in MainClassRepository For value mainClassId: $mainClassId"
-        ) {
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull) {
             mainClassQueries.selectRowById(mainClassId).awaitAsOneOrNull()
         }.map { result -> MainClassContainer(mainClassId, result.id_name, result.display_text)}
     }
 
     override suspend fun selectRowByIdName(
         idName: String,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<MainClassContainer> {
-        return dbHandler.withContextDispatcherWithException(itemId,
-            "Error at selectRowByIdName in MainClassRepository For value idName: $idName"
-        ) {
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull) {
             mainClassQueries.selectRowByIdName(idName).awaitAsOneOrNull()
-        }.map { result -> MainClassContainer(result.id, idName, result.display_text)
-
-        }
+        }.map { result -> MainClassContainer(result.id, idName, result.display_text) }
     }
 
-    override suspend fun selectAll(itemId: String?): DatabaseResult<List<MainClassContainer>> {
-        return dbHandler.selectAll(itemId,
-            "Error in selectAll in MainClassRepository",
+    override suspend fun selectAll(
+        returnNotFoundOnNull: Boolean,
+        itemId: String?
+    ): DatabaseResult<List<MainClassContainer>> {
+        return dbHandler.selectAll(itemId, returnNotFoundOnNull,
             queryBlock = { mainClassQueries.selectAll().awaitAsList() },
             mapper = { item -> MainClassContainer(item.id, item.id_name, item.display_text) }
         )
     }
 
-    override suspend fun updateIdName(
+    override suspend fun update(
         mainClassId: Long,
-        idName: String,
+        idName: String?,
+        displayText: String?,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){mainClassQueries.updateIdName(idName, mainClassId)}.map { Unit }
+        return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){mainClassQueries.update(idName,displayText, mainClassId)}
     }
 
-    override suspend fun updateDisplayText(
+    override suspend fun delete(
         mainClassId: Long,
-        displayText: String,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){mainClassQueries.updateDisplayText(displayText, mainClassId)}.map { Unit }
-    }
-
-    override suspend fun deleteRowByIdName(idName: String, itemId: String?): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){mainClassQueries.deleteRowByIdName(idName)}.map { Unit }
-    }
-
-    override suspend fun deleteRowById(mainClassId: Long, itemId: String?): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){mainClassQueries.deleteRowById(mainClassId)}.map { Unit }
+        return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){mainClassQueries.delete(mainClassId)}
     }
 }

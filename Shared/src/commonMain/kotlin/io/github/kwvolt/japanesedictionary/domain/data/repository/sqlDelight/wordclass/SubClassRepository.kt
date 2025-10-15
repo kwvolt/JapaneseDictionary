@@ -17,45 +17,45 @@ class SubClassRepository(
         mainClassID: Long,
         idName: String,
         displayText: String,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Long> {
-        return dbHandler.wrapQuery(itemId){subClassQueries.insertLinkToMainClass(idName, displayText, mainClassID).awaitAsOneOrNull()}
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){subClassQueries.insertLinkToMainClass(idName, displayText, mainClassID).awaitAsOneOrNull()}
     }
 
     override suspend fun insert(
         idName: String,
         displayText: String,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Long> {
-        return dbHandler.wrapQuery(itemId){subClassQueries.insert(idName, displayText).awaitAsOneOrNull()}
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){subClassQueries.insert(idName, displayText).awaitAsOneOrNull()}
     }
 
-    override suspend fun selectId(idName: String, itemId: String?): DatabaseResult<Long> {
-        return dbHandler.withContextDispatcherWithException(itemId,
-            "Error at selectSubClassId For value idName: $idName"
-        ) {
-            subClassQueries.selectId(idName).awaitAsOneOrNull()
+    override suspend fun selectId(
+        idName: String,
+        returnNotFoundOnNull: Boolean,
+        itemId: String?
+    ): DatabaseResult<Long> {
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull) {subClassQueries.selectId(idName).awaitAsOneOrNull()
         }
     }
 
     override suspend fun selectRowById(
         subClassId: Long,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<SubClassContainer> {
-        return dbHandler.withContextDispatcherWithException(itemId,
-            "Error at selectSubClassById For value subClassId: $subClassId"
-        ) {
-            subClassQueries.selectRowById(subClassId).awaitAsOneOrNull()
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull) {subClassQueries.selectRowById(subClassId).awaitAsOneOrNull()
         }.map { result -> SubClassContainer(subClassId, result.id_name, result.display_text) }
     }
 
     override suspend fun selectRowByIdName(
         idName: String,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<SubClassContainer> {
-        return dbHandler.withContextDispatcherWithException(itemId,
-            "Error at selectSubClassByIdName For value idName: $idName"
-        ) {
+        return dbHandler.wrapQuery(itemId, returnNotFoundOnNull) {
             subClassQueries.selectRowByIdName(idName).awaitAsOneOrNull()
         }.map { result -> SubClassContainer(result.id, idName, result.display_text)
         }
@@ -63,38 +63,32 @@ class SubClassRepository(
 
     override suspend fun selectAllByMainClassId(
         mainClassId: Long,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<List<SubClassContainer>> {
-        return dbHandler.selectAll(itemId,
-            "Error at selectAllSubClassByMainClassId For value mainClassId: $mainClassId",
+        return dbHandler.selectAll(itemId, returnNotFoundOnNull,
             queryBlock = { subClassQueries.selectAllByMainClassId(mainClassId).awaitAsList() },
             mapper = {result -> SubClassContainer(result.id, result.id_name, result.display_text) }
         )
     }
 
-
-    override suspend fun updateIdName(
+    override suspend fun update(
         subClassId: Long,
-        idName: String,
+        idName: String?,
+        displayText: String?,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){subClassQueries.updateIdName(idName, subClassId)}.map { Unit }
+        return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){subClassQueries.update(idName, displayText, subClassId)}
     }
 
-    override suspend fun updateDisplayText(
+
+    override suspend fun delete(
         subClassId: Long,
-        displayText: String,
+        returnNotFoundOnNull: Boolean,
         itemId: String?
     ): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){subClassQueries.updateDisplayText(displayText, subClassId)}.map { Unit }
-    }
-
-    override suspend fun deleteRowByIdName(idName: String, itemId: String?): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){subClassQueries.deleteRowByIdName(idName)}.map { Unit }
-    }
-
-    override suspend fun deleteRowById(subClassId: Long, itemId: String?): DatabaseResult<Unit> {
-        return dbHandler.wrapQuery(itemId){subClassQueries.deleteRowById(subClassId)}.map { Unit }
+        return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){subClassQueries.delete(subClassId)}
     }
 
 }

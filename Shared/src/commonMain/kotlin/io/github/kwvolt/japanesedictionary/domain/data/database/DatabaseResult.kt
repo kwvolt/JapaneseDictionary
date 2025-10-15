@@ -61,5 +61,15 @@ sealed class DatabaseResult<out T> {
     }
 }
 
+inline fun <T, R> DatabaseResult<T>.getOrDefaultOrReturn(
+    onNotFound: () -> T,
+    errorTo: (DatabaseResult<R>) -> Nothing
+): T {
+    return when (this) {
+        is DatabaseResult.Success -> value
+        is DatabaseResult.NotFound -> onNotFound()
+        else -> errorTo(this.mapErrorTo())
+    }
+}
 
 data class DatabaseError(val type: DatabaseErrorType)

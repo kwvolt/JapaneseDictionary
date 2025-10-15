@@ -40,14 +40,9 @@ SELECT id_name, display_text FROM sub_class WHERE id = ?;
 selectRowByIdName:
 SELECT id, display_text FROM sub_class WHERE id_name = ?;
 
-updateIdName:
-UPDATE sub_class SET id_name = ? WHERE id = ?;
 
-updateDisplayText:
-UPDATE sub_class SET display_text = ? WHERE id = ?;
+update:
+UPDATE sub_class SET id_name = COALESCE(:id_name, id_name) AND display_text = COALESCE(:display_text, display_text) WHERE id = ?;
 
-deleteRowByIdName:
-DELETE FROM sub_class WHERE id_name = ?;
-
-deleteRowById:
+delete:
 DELETE FROM sub_class WHERE id = ?;

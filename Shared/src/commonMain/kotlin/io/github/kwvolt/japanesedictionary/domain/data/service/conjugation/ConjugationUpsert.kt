@@ -10,6 +10,7 @@ import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.con
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationSuffixRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationTemplateRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationVerbSuffixSwapRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.model.conjugation.ConjugationOverrideProperty
 
 class ConjugationUpsert(
     private val dbHandler: DatabaseHandlerBase,
@@ -172,41 +173,52 @@ class ConjugationUpsert(
     @RequiresTransaction
     suspend fun upsertOverride(
         conjugationOverrideId: Long? = null,
-        idNameValue: ProvidedValue<String> = ProvidedValue.ValueNotProvided,
-        dictionaryEntryIdValue: ProvidedValue<Long> = ProvidedValue.ValueNotProvided,
+        isKanjiValue: OptionalProvidedValue<Boolean> = ProvidedValue.ValueNotProvided,
+        conjugationTemplateIdValue: ProvidedValue<Long> = ProvidedValue.ValueNotProvided,
         conjugationIdValue: ProvidedValue<Long> = ProvidedValue.ValueNotProvided,
         overrideNoteValue: OptionalProvidedValue<String> = ProvidedValue.ValueNotProvided,
         overridePropertiesValue: ProvidedValue<Map<ConjugationOverrideProperty, UpsertOrDelete<OptionalProvidedValue<String>>>> = ProvidedValue.ValueNotProvided,
     ): DatabaseResult<Long> {
         return dbHandler.requireTransaction {
-            val dictionaryEntryId: Long? = dictionaryEntryIdValue.getOrNull()
+            val (isKanji: Boolean? ,isKanjiProvided: Boolean) = isKanjiValue.getValueWithPresenceFlag()
+            val conjugationTemplateId: Long? = conjugationTemplateIdValue.getOrNull()
             val conjugationId: Long? = conjugationIdValue.getOrNull()
             val overrideProperties = overridePropertiesValue.getOrNull()
-            upsertWithIdAndIdName(
+
+            upsertWithId(
                 conjugationOverrideId,
-                idNameValue,
-                doesExistResult = { idName: String? -> conjugationOverrideRepository.selectExist(conjugationOverrideId, idName) },
-                insert = { idName: String ->
-                    val insertDictionaryEntryId: Long = getOrFail(dictionaryEntryId, "dictionaryEntryId is required") { return@upsertWithIdAndIdName it }
-                    val insertConjugationId: Long = getOrFail(conjugationId, "conjugationId is required") { return@upsertWithIdAndIdName it }
+                selectId = {
+                    if (conjugationTemplateId != null && conjugationId != null) {
+                        conjugationOverrideRepository.selectId(
+                            isKanji,
+                            conjugationTemplateId,
+                            conjugationId
+                        )
+                    }else {
+                        DatabaseResult.NotFound
+                    }
+                },
+                insert = {
+                    val insertDictionaryEntryId: Long = getOrFail(conjugationTemplateId, "conjugationTemplateId is required") { return@upsertWithId it }
+                    val insertConjugationId: Long = getOrFail(conjugationId, "conjugationId is required") { return@upsertWithId it }
                     val overrideNote: String? = overrideNoteValue.getOrNull()
-                    conjugationOverrideRepository.insert(idName, insertDictionaryEntryId, insertConjugationId, overrideNote)
+                    conjugationOverrideRepository.insert(isKanji, insertDictionaryEntryId, insertConjugationId, overrideNote)
                         .flatMap { insertedId ->
                             processOverrideProperties(insertedId, overrideProperties)
                                 .map { insertedId }
                         }
                 },
-                update={ id: Long, idName: String? ->
-                    val idName = getOrFail(idName, "idName is required") { return@upsertWithIdAndIdName it }
+                update={ id: Long ->
                     val (overrideNote: String?, overrideNoteProvided: Boolean) = overrideNoteValue.getValueWithPresenceFlag()
                     conjugationOverrideRepository.update(
                         id,
-                        idName,
-                        dictionaryEntryId,
+                        isKanjiProvided,
+                        isKanji,
+                        conjugationTemplateId,
                         conjugationId,
                         overrideNoteProvided,
                         overrideNote
-                    ).returnOnFailure { return@upsertWithIdAndIdName it }
+                    ).returnOnFailure { return@upsertWithId it }
                     processOverrideProperties(id, overrideProperties).map { id }
                 }
             )

@@ -16,28 +16,29 @@ import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.con
 import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.conjugation.ConjugationTemplateRepository
 import io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.conjugation.VerbSuffixSwapRepository
 import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.ConjugationTemplateInserter
+import io.github.kwvolt.japanesedictionary.domain.data.service.conjugation.ConjugationUpsert
 
 class ConjugationServiceContainer(private val dbHandler: DatabaseHandler) {
     private val queries = dbHandler.queries
-    private val conjugationPatternRepository: ConjugationPatternRepositoryInterface by lazy {
+    internal val conjugationPatternRepository: ConjugationPatternRepositoryInterface by lazy {
         ConjugationPatternRepository(dbHandler, queries.conjugationPatternQueries, queries.conjugationPatternVariantQueries)
     }
-    private val conjugationPreprocessRepository: ConjugationPreprocessRepositoryInterface by lazy {
+    internal val conjugationPreprocessRepository: ConjugationPreprocessRepositoryInterface by lazy {
         ConjugationPreprocessRepository(dbHandler, queries.conjugationPreprocessQueries)
     }
-    private val conjugationOverrideRepository: ConjugationOverrideRepositoryInterface by lazy {
+    internal val conjugationOverrideRepository: ConjugationOverrideRepositoryInterface by lazy {
         ConjugationOverrideRepository(dbHandler, queries.conjugationOverrideQueries, queries.conjugationOverrideDetailsQueries, queries.conjugationOverridePropertyQueries)
     }
-    private val conjugationRepository: ConjugationRepositoryInterface by lazy {
+    internal val conjugationRepository: ConjugationRepositoryInterface by lazy {
         ConjugationRepository(dbHandler, queries.conjugationQueries)
     }
-    private val conjugationSuffixRepository: ConjugationSuffixRepositoryInterface by lazy {
+    internal val conjugationSuffixRepository: ConjugationSuffixRepositoryInterface by lazy {
         ConjugationSuffixRepository(dbHandler, queries.conjugationSuffixQueries)
     }
-    private val conjugationTemplateRepository: ConjugationTemplateRepositoryInterface by lazy {
+    internal val conjugationTemplateRepository: ConjugationTemplateRepositoryInterface by lazy {
         ConjugationTemplateRepository(dbHandler, queries.conjugationTemplateQueries, queries.conjugationTemplateLinkConjugationQueries)
     }
-    private val verbSuffixSwapRepository: ConjugationVerbSuffixSwapRepositoryInterface by lazy {
+    internal val verbSuffixSwapRepository: ConjugationVerbSuffixSwapRepositoryInterface by lazy {
         VerbSuffixSwapRepository(dbHandler, queries.verbSuffixSwapQueries, queries.verbSuffixSwapLinkConjugationQueries)
     }
 
@@ -49,7 +50,29 @@ class ConjugationServiceContainer(private val dbHandler: DatabaseHandler) {
             conjugationSuffixRepository,
             verbSuffixSwapRepository,
             conjugationRepository,
+            conjugationOverrideRepository,
             conjugationTemplateRepository
         )
+    }
+
+    val conjugationUpsert: ConjugationUpsert by lazy {
+        ConjugationUpsert(
+            dbHandler,
+            conjugationPatternRepository,
+            conjugationPreprocessRepository,
+            conjugationSuffixRepository,
+            verbSuffixSwapRepository,
+            conjugationRepository,
+            conjugationOverrideRepository,
+            conjugationTemplateRepository
+        )
+    }
+
+    fun <T> getServices(block: ConjugationServiceContainer.() -> T) : T {
+        return block(this)
+    }
+
+    suspend fun <T> withServices(block: ConjugationServiceContainer.() -> T) : T {
+        return block(this)
     }
 }

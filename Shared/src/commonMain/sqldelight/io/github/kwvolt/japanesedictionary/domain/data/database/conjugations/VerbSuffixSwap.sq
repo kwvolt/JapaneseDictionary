@@ -5,8 +5,8 @@ CREATE TABLE verb_suffix_swap(
     id INTEGER NOT NULL PRIMARY KEY,
     original TEXT NOT NULL,
     replacement TEXT NOT NULL,
-    CONSTRAINT CK_LEN_vss__original CHECK (LENGTH(original) <= 1),
-    CONSTRAINT CK_LEN_vss__replacement CHECK (LENGTH(replacement) <= 1),
+    CONSTRAINT CK_LEN_vss__original CHECK (LENGTH(original) <= 2),
+    CONSTRAINT CK_LEN_vss__replacement CHECK (LENGTH(replacement) <= 2),
     CONSTRAINT UQ_vss__original_replacement UNIQUE(original, replacement)
 );
 

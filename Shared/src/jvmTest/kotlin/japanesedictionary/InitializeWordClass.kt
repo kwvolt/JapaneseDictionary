@@ -11,7 +11,7 @@ class InitializeWordClass(
     suspend fun createWordClass(): DatabaseResult<Unit>{
         val result = databaseHandler.performTransaction {
             val particle = wordClassUpsert.initializeWordClass("PARTICLE", "Particle")
-            if(particle.isFailure) { return@performTransaction particle.mapErrorTo<Unit, Unit>() }
+            if(particle.isFailure) { return@performTransaction particle.mapErrorTo() }
 
             val adverb = wordClassUpsert.initializeWordClass(
                 "ADVERB", "Adverb", mapOf(
@@ -23,19 +23,19 @@ class InitializeWordClass(
                     "NEGATIVE" to "Negative"
                 )
             )
-            if(adverb.isFailure) { return@performTransaction adverb.mapErrorTo<Unit, Unit>() }
+            if(adverb.isFailure) { return@performTransaction adverb.mapErrorTo() }
 
             val adjectivalNoun = wordClassUpsert.initializeWordClass("ADJECTIVAL_NOUN", "Adjectival Noun")
-            if(adjectivalNoun.isFailure) { return@performTransaction adjectivalNoun.mapErrorTo<Unit, Unit>() }
+            if(adjectivalNoun.isFailure) { return@performTransaction adjectivalNoun.mapErrorTo() }
 
             val conjunction = wordClassUpsert.initializeWordClass("CONJUNCTION", "Conjunction")
-            if(conjunction.isFailure) { return@performTransaction conjunction.mapErrorTo<Unit, Unit>() }
+            if(conjunction.isFailure) { return@performTransaction conjunction.mapErrorTo() }
 
             val interjection = wordClassUpsert.initializeWordClass("INTERJECTION", "Interjection")
-            if(interjection.isFailure) { return@performTransaction interjection.mapErrorTo<Unit, Unit>() }
+            if(interjection.isFailure) { return@performTransaction interjection.mapErrorTo() }
 
             val number = wordClassUpsert.initializeWordClass("NUMBER", "Number")
-            if(number.isFailure) { return@performTransaction number.mapErrorTo<Unit, Unit>() }
+            if(number.isFailure) { return@performTransaction number.mapErrorTo() }
 
             val pronoun = wordClassUpsert.initializeWordClass(
                 "PRONOUN", "Pronoun", mapOf(
@@ -45,7 +45,7 @@ class InitializeWordClass(
                 )
             )
             if(pronoun.isFailure){
-                return@performTransaction pronoun.mapErrorTo<Unit, Unit>()
+                return@performTransaction pronoun.mapErrorTo()
             }
 
             val noun = wordClassUpsert.initializeWordClass(
@@ -57,7 +57,7 @@ class InitializeWordClass(
                 )
             )
             if(noun.isFailure){
-                return@performTransaction noun.mapErrorTo<Unit, Unit>()
+                return@performTransaction noun.mapErrorTo()
             }
 
             val verb = wordClassUpsert.initializeWordClass(
@@ -66,7 +66,7 @@ class InitializeWordClass(
                 mapOf("RU_VERB" to "る", "U_VERB" to "う", "IRREGULAR" to "Irregular")
             )
             if(verb.isFailure){
-                return@performTransaction verb.mapErrorTo<Unit, Unit>()
+                return@performTransaction verb.mapErrorTo()
             }
 
             val adjective = wordClassUpsert.initializeWordClass(
@@ -75,7 +75,7 @@ class InitializeWordClass(
                 mapOf("I_ADJECTIVE" to "い", "NA_ADJECTIVE" to "な", "IRREGULAR" to "Irregular")
             )
             if(adjective.isFailure){
-                return@performTransaction adjective.mapErrorTo<Unit, Unit>()
+                return@performTransaction adjective.mapErrorTo()
             }
             DatabaseResult.Success(Unit)
         }

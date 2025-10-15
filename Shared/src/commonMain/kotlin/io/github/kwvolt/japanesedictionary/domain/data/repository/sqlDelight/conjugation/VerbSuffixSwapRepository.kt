@@ -1,5 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.data.repository.sqlDelight.conjugation
 
+import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
@@ -84,12 +85,23 @@ class VerbSuffixSwapRepository(
         }
     }
 
-    override suspend fun selectVerbSwapSuffixId(
+    override suspend fun selectVerbSwapSuffixIds(
         conjugationId: Long,
         returnNotFoundOnNull: Boolean
-    ): DatabaseResult<Long> {
+    ): DatabaseResult<List<Long>> {
+        return dbHandler.selectAll(returnNotFoundOnNull = returnNotFoundOnNull,
+            queryBlock = {linkQueries.selectVerbSwapSuffixIds(conjugationId).awaitAsList()},
+            mapper = { it }
+        )
+    }
+
+    override suspend fun selectReplacement(
+        conjugationId: Long,
+        original: String,
+        returnNotFoundOnNull: Boolean
+    ): DatabaseResult<String> {
         return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
-            linkQueries.selectVerbSwapSuffixId(conjugationId).awaitAsOneOrNull()?.verb_suffix_swap_id
+            linkQueries.selectReplacement(conjugationId, original).awaitAsOneOrNull()
         }
     }
 }
