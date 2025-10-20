@@ -6,13 +6,14 @@ import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.database.conjugations.ConjugationPreprocessQueries
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationPreprocessContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationPreprocessRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.model.conjugation.StemRule
 
 class ConjugationPreprocessRepository(
     private val dbHandler: DatabaseHandlerBase,
     private val queries: ConjugationPreprocessQueries,
 ): ConjugationPreprocessRepositoryInterface {
     override suspend fun insert(
-        idName: String,
+        idName: StemRule,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
@@ -22,7 +23,7 @@ class ConjugationPreprocessRepository(
 
     override suspend fun update(
         id: Long,
-        idName: String,
+        idName: StemRule,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(returnNotFoundOnNull= returnNotFoundOnNull) {
@@ -40,7 +41,7 @@ class ConjugationPreprocessRepository(
     }
 
     override suspend fun selectId(
-        idName: String,
+        idName: StemRule,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){
@@ -61,7 +62,7 @@ class ConjugationPreprocessRepository(
 
     override suspend fun selectExist(
         id: Long?,
-        idName: String?,
+        idName: StemRule?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Boolean> {
         return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){

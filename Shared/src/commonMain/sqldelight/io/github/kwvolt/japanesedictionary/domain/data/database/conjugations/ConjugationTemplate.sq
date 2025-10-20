@@ -26,6 +26,9 @@ SELECT id FROM conjugation_template WHERE id_name = ?;
 selectRow:
 SELECT id_name, display_text FROM conjugation_template WHERE id = ?;
 
+selectAll:
+SELECT id, id_name, display_text FROM conjugation_template;
+
 selectExistById:
 SELECT COUNT(*)  > 0 FROM conjugation_template WHERE id =?;
 

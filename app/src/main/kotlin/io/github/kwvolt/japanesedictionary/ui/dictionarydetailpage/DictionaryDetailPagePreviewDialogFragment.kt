@@ -11,7 +11,7 @@ import androidx.fragment.app.FragmentManager
 import com.google.android.material.appbar.MaterialToolbar
 import io.github.kwvolt.japanesedictionary.R
 import io.github.kwvolt.japanesedictionary.databinding.DwpPreviewLayoutBinding
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
 import io.github.kwvolt.japanesedictionary.util.viewBinding
 
 class DictionaryDetailPagePreviewDialogFragment: DialogFragment(R.layout.dwp_preview_layout) {

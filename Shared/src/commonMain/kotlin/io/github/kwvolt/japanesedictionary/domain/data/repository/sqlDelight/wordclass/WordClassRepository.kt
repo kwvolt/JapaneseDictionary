@@ -16,8 +16,8 @@ class WordClassRepository(
     override suspend fun insertByMainClassIdAndSubClassId(
         mainClassId: Long,
         subClassId: Long,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){wordClassQueries.insertByMainClassIdAndSubClassId(mainClassId, subClassId).awaitAsOneOrNull()}
     }
@@ -25,8 +25,8 @@ class WordClassRepository(
     override suspend fun insertByMainClassIdNameAndSubClassIdName(
         mainClassIdName: String,
         subClassIdName: String,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){wordClassQueries.insertByMainClassIdNameAndSubClassIdName(mainClassIdName, subClassIdName).awaitAsOneOrNull()}
     }
@@ -34,8 +34,8 @@ class WordClassRepository(
     override suspend fun selectIdByMainClassIdAndSubClassId(
         mainClassId: Long,
         subClassId: Long,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){
             wordClassQueries.selectIdByMainClassIdAndSubClassId(mainClassId, subClassId).awaitAsOneOrNull()
@@ -45,8 +45,8 @@ class WordClassRepository(
     override suspend fun selectIdByMainClassIdNameAndSubClassIdName(
         mainClassIdName: String,
         subClassIdName: String,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){
             wordClassQueries.selectIdByMainClassIdNameAndSubClassIdName(mainClassIdName, subClassIdName).awaitAsOneOrNull()
@@ -55,8 +55,8 @@ class WordClassRepository(
 
     override suspend fun selectRow(
         wordClassId: Long,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<WordClassIdContainer> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){
             wordClassQueries.selectRow(wordClassId).awaitAsOneOrNull()
@@ -66,8 +66,8 @@ class WordClassRepository(
     override suspend fun updateMainClassId(
         wordClassId: Long,
         mainClassId: Long,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){wordClassQueries.updateMainClassId(wordClassId, mainClassId)}.map { Unit }
     }
@@ -75,8 +75,8 @@ class WordClassRepository(
     override suspend fun updateSubClassId(
         wordClassId: Long,
         subClassId: Long,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){wordClassQueries.updateSubClassId(wordClassId, subClassId)}
     }
@@ -85,16 +85,16 @@ class WordClassRepository(
         wordClassId: Long,
         mainClassId: Long,
         subClassId: Long,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){wordClassQueries.updateMainClassIdAndSubClassId(mainClassId, subClassId, wordClassId)}
     }
 
     override suspend fun deleteRowByWordClassId(
         wordClassId: Long,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){wordClassQueries.deleteRowByWordClassId(wordClassId)}
     }
@@ -102,8 +102,8 @@ class WordClassRepository(
     override suspend fun deleteRowByMainClassIdAndSubClassId(
         mainClassId: Long,
         subClassId: Long,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){wordClassQueries.deleteRowByMainClassIdAndSubClassId(mainClassId, subClassId)}
     }

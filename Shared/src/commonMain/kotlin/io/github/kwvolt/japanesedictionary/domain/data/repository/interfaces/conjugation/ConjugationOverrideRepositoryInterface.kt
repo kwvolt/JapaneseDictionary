@@ -40,12 +40,12 @@ interface ConjugationOverrideRepositoryInterface {
 
 
     // property
-    suspend fun insertProperty(idName: String, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
-    suspend fun updateProperty(id: Long, idName: String, returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
+    suspend fun insertProperty(idName: ConjugationOverrideProperty, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
+    suspend fun updateProperty(id: Long, idName: ConjugationOverrideProperty, returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
     suspend fun deleteProperty(id: Long ,returnNotFoundOnNull: Boolean = false): DatabaseResult<Unit>
-    suspend fun selectPropertyId(idName: String, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
+    suspend fun selectPropertyId(idName: ConjugationOverrideProperty, returnNotFoundOnNull: Boolean = false): DatabaseResult<Long>
     suspend fun selectPropertyRow(id: Long ,returnNotFoundOnNull: Boolean = false): DatabaseResult<ConjugationOverridePropertyContainer>
-    suspend fun selectPropertyExist(id: Long?, idName: String?, returnNotFoundOnNull: Boolean = false): DatabaseResult<Boolean>
+    suspend fun selectPropertyExist(id: Long?, idName: ConjugationOverrideProperty?, returnNotFoundOnNull: Boolean = false): DatabaseResult<Boolean>
 }
 
 data class ConjugationOverrideContainer(
@@ -57,4 +57,4 @@ data class ConjugationOverrideContainer(
     val overrideProperty: Map<ConjugationOverrideProperty, String?>
 )
 
-data class ConjugationOverridePropertyContainer(val id: Long, val idName: String)
+data class ConjugationOverridePropertyContainer(val id: Long, val idName: ConjugationOverrideProperty)

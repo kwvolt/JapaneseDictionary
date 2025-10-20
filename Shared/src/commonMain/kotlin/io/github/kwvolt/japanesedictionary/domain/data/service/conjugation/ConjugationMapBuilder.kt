@@ -1,6 +1,5 @@
 package io.github.kwvolt.japanesedictionary.domain.data.service.conjugation
 
-import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult.*
 import io.github.kwvolt.japanesedictionary.domain.data.database.getOrDefaultOrReturn
@@ -14,6 +13,7 @@ import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.con
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationSuffixContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationSuffixRepositoryInterface
+import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationTemplateContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationTemplateRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationVerbSuffixSwapRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionaryEntryConjugationTemplateContainer

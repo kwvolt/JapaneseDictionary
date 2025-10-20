@@ -1,6 +1,8 @@
+import io.github.kwvolt.japanesedictionary.domain.model.conjugation.ConjugationOverrideProperty;
+
 CREATE TABLE conjugation_override_property (
     id INTEGER NOT NULL PRIMARY KEY,
-    id_name TEXT NOT NULL
+    id_name TEXT AS ConjugationOverrideProperty NOT NULL
 );
 
 
@@ -10,7 +12,7 @@ insert {
 }
 
 update:
-UPDATE  conjugation_override_property SET id_name = COALESCE(:id_name, id_name) WHERE id = ?;
+UPDATE  conjugation_override_property SET id_name = ? WHERE id = ?;
 
 delete:
 DELETE FROM  conjugation_override_property WHERE id = ?;

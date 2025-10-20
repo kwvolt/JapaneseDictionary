@@ -1,9 +1,8 @@
 package io.github.kwvolt.japanesedictionary.domain.exceptions
 
-import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteException
-import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.ItemKey
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseError
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseErrorType
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult

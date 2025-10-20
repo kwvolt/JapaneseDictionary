@@ -3,10 +3,10 @@ package io.github.kwvolt.japanesedictionary.presentation.upsert.wordentryadapter
 import androidx.recyclerview.widget.RecyclerView
 import io.github.kwvolt.japanesedictionary.databinding.UpsertRecyclerviewButtonItemBinding
 import io.github.kwvolt.japanesedictionary.ui.upsert.FormKeys
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.BaseItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ButtonAction
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ButtonItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.DisplayItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.BaseItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ButtonAction
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ButtonItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.DisplayItem
 import io.github.kwvolt.japanesedictionary.ui.StringResourceFromFormKey
 
 interface ButtonCallBack{

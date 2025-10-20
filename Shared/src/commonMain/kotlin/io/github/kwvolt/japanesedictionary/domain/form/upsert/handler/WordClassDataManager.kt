@@ -4,8 +4,8 @@ import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassContainer
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordclass.WordClassBuilder
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.WordClassItem
 
 class WordClassDataManager(private val wordClassBuilder: WordClassBuilder, private val includeDefault: Boolean) {
 
@@ -55,7 +55,7 @@ class WordClassDataManager(private val wordClassBuilder: WordClassBuilder, priva
         selectionPosition: Int,
         handler: WordFormHandler
     ): WordClassItem? {
-        val selectedMainClass = _mainClassData.getOrNull(selectionPosition) ?: return null
+        val selectedMainClass: MainClassContainer = _mainClassData.getOrNull(selectionPosition) ?: return null
 
         if (wordClassItem.chosenMainClass == selectedMainClass) return null
 

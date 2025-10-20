@@ -15,7 +15,7 @@ import io.github.kwvolt.japanesedictionary.databinding.DwpDefinitionTabBinding
 import io.github.kwvolt.japanesedictionary.databinding.DwpNotesBinding
 import io.github.kwvolt.japanesedictionary.databinding.DwpNotesTextviewBinding
 import io.github.kwvolt.japanesedictionary.databinding.DwpSectionsBinding
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
 import io.github.kwvolt.japanesedictionary.ui.model.DisplayEntryUIModel
 import io.github.kwvolt.japanesedictionary.ui.model.DisplayNote
 import io.github.kwvolt.japanesedictionary.ui.model.DisplaySection
@@ -116,12 +116,12 @@ class WordDefinitionTabRenderer(
 
     fun updateNotes(sectionId: Int? = null, wordFormEntryDataToFormat: WordEntryFormData){
         if(sectionId != null){
-            val notes = wordFormEntryDataToFormat.wordSectionMap[sectionId]?.getComponentNoteInputMapAsList()?.map { note ->
+            val notes = wordFormEntryDataToFormat.wordSectionMap[sectionId]?.getNoteInputMapAsList()?.map { note ->
                 DisplayNote(note.itemProperties.getId(), note.inputTextValue)
             } ?: emptyList()
             updateSectionNotes(sectionId, notes)
         }else {
-            val notes = wordFormEntryDataToFormat.getEntryNoteMapAsList().map { note ->
+            val notes = wordFormEntryDataToFormat.getNoteInputMapAsList().map { note ->
                 DisplayNote(note.itemProperties.getId(), note.inputTextValue)
             }
             updateGeneralNotes(notes)
@@ -217,7 +217,7 @@ class WordDefinitionTabRenderer(
     fun formatText(wordFormEntryDataToFormat: WordEntryFormData): DisplayEntryUIModel = with(wordFormEntryDataToFormat){
         val (mainText: String?, subText: String?) = DictionaryDisplayUtil.getWordClassDisplayText(wordClassInput)
 
-        val entryNoteTextList: List<DisplayNote> = getEntryNoteMapAsList().map {
+        val entryNoteTextList: List<DisplayNote> = getNoteInputMapAsList().map {
             DisplayNote(it.itemProperties.getId(), it.inputTextValue)
         }
 
@@ -226,7 +226,7 @@ class WordDefinitionTabRenderer(
                 sectionId = sectionId,
                 meaningText = sectionData.meaningInput.inputTextValue,
                 kanaList = sectionData.getKanaInputMapAsList().map { it.inputTextValue },
-                notes = sectionData.getComponentNoteInputMapAsList().map { note ->
+                notes = sectionData.getNoteInputMapAsList().map { note ->
                     DisplayNote(note.itemProperties.getId(), note.inputTextValue)
                 }
             )

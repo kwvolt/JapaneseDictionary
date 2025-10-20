@@ -1,22 +1,22 @@
 package io.github.kwvolt.japanesedictionary.ui.upsert.handler
 
-import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
-import io.github.kwvolt.japanesedictionary.domain.model.FormItemManager
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.ItemKey
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.FormItemManager
 import io.github.kwvolt.japanesedictionary.ui.upsert.FormKeys
-import io.github.kwvolt.japanesedictionary.domain.model.WordSectionFormData
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ButtonAction
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ErrorMessage
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ButtonItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.DisplayItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.GenericItemProperties
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ItemProperties
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ItemSectionProperties
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.LabelHeaderType
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.LabelItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordSectionFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ButtonAction
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ErrorMessage
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ButtonItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.InputTextType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.DisplayItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.GenericItemProperties
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ItemProperties
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ItemSectionProperties
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.LabelHeaderType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.LabelItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.WordClassItem
 
 class WordUiFormHandler() : UiFormHandlerInterface {
     private val uiIdCache = mutableMapOf<String, ItemProperties>()
@@ -48,7 +48,7 @@ class WordUiFormHandler() : UiFormHandlerInterface {
 
         // dictionary Notes
         list.addLabelItem(FormKeys.DictionaryNoteLabel, formItemManager)
-        list.addAll(wordEntryFormData.getEntryNoteMapAsList().map{ it.getDisplayItem(errors)})
+        list.addAll(wordEntryFormData.getNoteInputMapAsList().map{ it.getDisplayItem(errors)})
         list.addButtonItem(FormKeys.DictionaryNoteAddButton, ButtonAction.AddTextItem(InputTextType.DICTIONARY_NOTE_DESCRIPTION), formItemManager)
 
         // Add the sections
@@ -93,7 +93,7 @@ class WordUiFormHandler() : UiFormHandlerInterface {
 
         // Section Note Inputs
         sectionList.addLabelItem(FormKeys.SectionNoteLabel(sectionId), formItemManager, sectionId)
-        sectionList.addAll(section.getComponentNoteInputMapAsList().map{ it.getDisplayItem(errors)})
+        sectionList.addAll(section.getNoteInputMapAsList().map{ it.getDisplayItem(errors)})
         sectionList.addButtonItem(
             FormKeys.SectionNoteAddButton(sectionId), ButtonAction.AddTextChild(
                 InputTextType.SECTION_NOTE_DESCRIPTION, sectionId), formItemManager, sectionId)

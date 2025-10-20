@@ -56,7 +56,7 @@ class SectionNoteRepository(
         itemId: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<List<DictionarySectionNoteContainer>> {
-        return dbHandler.selectAll(itemId,returnNotFoundOnNull,
+        return dbHandler.selectAllToList(itemId,returnNotFoundOnNull,
             queryBlock = { entrySectionNoteQueries.selectAllBySectionId(dictionaryEntrySectionId).awaitAsList() },
             mapper = { item -> DictionarySectionNoteContainer(item.id, item.note_description) }
         )

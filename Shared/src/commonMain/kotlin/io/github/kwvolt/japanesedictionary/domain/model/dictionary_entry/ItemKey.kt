@@ -1,4 +1,4 @@
-package io.github.kwvolt.japanesedictionary.domain.data
+package io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry
 
 sealed class ItemKey {
     data class DataItem(val id: String) : ItemKey()

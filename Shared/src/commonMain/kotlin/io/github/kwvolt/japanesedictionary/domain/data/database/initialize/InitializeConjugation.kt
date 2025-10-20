@@ -76,7 +76,7 @@ class InitializeConjugation (
         // preprocess
         val preprocessResult = databaseHandler.performTransaction<Unit> {
             StemRule.entries.forEach { rule ->
-                conjugationUpsert.upsertPreprocess(idNameValue = ProvidedValue.Value(rule.toString()))
+                conjugationUpsert.upsertPreprocess(idNameValue = ProvidedValue.Value(rule))
                     .returnOnFailure<Unit> { return@performTransaction it }
             }
             DatabaseResult.Success(Unit)
@@ -445,7 +445,7 @@ class InitializeConjugation (
         val propertyResult = databaseHandler.performTransaction {
             ConjugationOverrideProperty.entries.forEach { property: ConjugationOverrideProperty ->
                 conjugationUpsert.upsertProperty(
-                    idNameValue = ProvidedValue.Value(property.toString())
+                    idNameValue = ProvidedValue.Value(property)
                 ).returnOnFailure<Unit> { return@performTransaction it }
             }
             DatabaseResult.Success(Unit)

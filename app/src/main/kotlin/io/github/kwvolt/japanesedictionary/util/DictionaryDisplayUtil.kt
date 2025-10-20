@@ -6,7 +6,7 @@ import android.view.View.VISIBLE
 import android.widget.TextView
 import io.github.kwvolt.japanesedictionary.R
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordclass.WordClassUpsert
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.WordClassItem
 
 object DictionaryDisplayUtil {
     fun getWordClassDisplayText(wordClassItem: WordClassItem): Pair<String?, String?>{

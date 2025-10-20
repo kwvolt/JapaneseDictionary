@@ -1,6 +1,6 @@
 package io.github.kwvolt.japanesedictionary.ui.upsert.handler
 
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.DisplayItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.DisplayItem
 
 class FormSectionManager {
     private var currentSectionCount: Int = 1

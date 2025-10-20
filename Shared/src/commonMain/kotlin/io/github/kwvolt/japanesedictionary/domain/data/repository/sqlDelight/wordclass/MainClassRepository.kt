@@ -16,16 +16,16 @@ class MainClassRepository(
     override suspend fun insert(
         idName: String,
         displayText: String,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){mainClassQueries.insert(idName, displayText).awaitAsOneOrNull()}
     }
 
     override suspend fun selectId(
         idName: String,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull) {
                 mainClassQueries.selectId(idName).awaitAsOneOrNull()
@@ -34,8 +34,8 @@ class MainClassRepository(
 
     override suspend fun selectRowById(
         mainClassId: Long,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<MainClassContainer> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull) {
             mainClassQueries.selectRowById(mainClassId).awaitAsOneOrNull()
@@ -44,8 +44,8 @@ class MainClassRepository(
 
     override suspend fun selectRowByIdName(
         idName: String,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<MainClassContainer> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull) {
             mainClassQueries.selectRowByIdName(idName).awaitAsOneOrNull()
@@ -53,10 +53,10 @@ class MainClassRepository(
     }
 
     override suspend fun selectAll(
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<List<MainClassContainer>> {
-        return dbHandler.selectAll(itemId, returnNotFoundOnNull,
+        return dbHandler.selectAllToList(itemId, returnNotFoundOnNull,
             queryBlock = { mainClassQueries.selectAll().awaitAsList() },
             mapper = { item -> MainClassContainer(item.id, item.id_name, item.display_text) }
         )
@@ -66,16 +66,16 @@ class MainClassRepository(
         mainClassId: Long,
         idName: String?,
         displayText: String?,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){mainClassQueries.update(idName,displayText, mainClassId)}
     }
 
     override suspend fun delete(
         mainClassId: Long,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){mainClassQueries.delete(mainClassId)}
     }

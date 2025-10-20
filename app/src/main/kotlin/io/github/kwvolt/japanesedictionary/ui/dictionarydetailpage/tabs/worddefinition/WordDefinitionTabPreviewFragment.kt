@@ -8,7 +8,7 @@ import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
 import io.github.kwvolt.japanesedictionary.R
 import io.github.kwvolt.japanesedictionary.databinding.DwpDefinitionTabBinding
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
 import io.github.kwvolt.japanesedictionary.ui.dictionarydetailpage.DictionaryDetailPagePreviewDialogFragment
 
 class WordDefinitionTabPreviewFragment: Fragment() {

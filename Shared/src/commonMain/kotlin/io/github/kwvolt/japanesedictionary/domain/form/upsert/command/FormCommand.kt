@@ -1,10 +1,8 @@
 package io.github.kwvolt.japanesedictionary.domain.form.upsert.command
 
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
 
-interface FormCommand <T>  {
-    fun execute(): CommandReturn<T>
+interface FormCommand  {
+    fun execute(): WordEntryFormData
     fun undo(): WordEntryFormData
 }
-
-data class CommandReturn <T> (val wordEntryFormData: WordEntryFormData, val value: T)

@@ -17,8 +17,8 @@ class SubClassRepository(
         mainClassID: Long,
         idName: String,
         displayText: String,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){subClassQueries.insertLinkToMainClass(idName, displayText, mainClassID).awaitAsOneOrNull()}
     }
@@ -26,16 +26,16 @@ class SubClassRepository(
     override suspend fun insert(
         idName: String,
         displayText: String,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){subClassQueries.insert(idName, displayText).awaitAsOneOrNull()}
     }
 
     override suspend fun selectId(
         idName: String,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull) {subClassQueries.selectId(idName).awaitAsOneOrNull()
         }
@@ -43,8 +43,8 @@ class SubClassRepository(
 
     override suspend fun selectRowById(
         subClassId: Long,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<SubClassContainer> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull) {subClassQueries.selectRowById(subClassId).awaitAsOneOrNull()
         }.map { result -> SubClassContainer(subClassId, result.id_name, result.display_text) }
@@ -52,8 +52,8 @@ class SubClassRepository(
 
     override suspend fun selectRowByIdName(
         idName: String,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<SubClassContainer> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull) {
             subClassQueries.selectRowByIdName(idName).awaitAsOneOrNull()
@@ -63,10 +63,10 @@ class SubClassRepository(
 
     override suspend fun selectAllByMainClassId(
         mainClassId: Long,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<List<SubClassContainer>> {
-        return dbHandler.selectAll(itemId, returnNotFoundOnNull,
+        return dbHandler.selectAllToList(itemId, returnNotFoundOnNull,
             queryBlock = { subClassQueries.selectAllByMainClassId(mainClassId).awaitAsList() },
             mapper = {result -> SubClassContainer(result.id, result.id_name, result.display_text) }
         )
@@ -76,8 +76,8 @@ class SubClassRepository(
         subClassId: Long,
         idName: String?,
         displayText: String?,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){subClassQueries.update(idName, displayText, subClassId)}
     }
@@ -85,8 +85,8 @@ class SubClassRepository(
 
     override suspend fun delete(
         subClassId: Long,
-        returnNotFoundOnNull: Boolean,
-        itemId: String?
+        itemId: String?,
+        returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){subClassQueries.delete(subClassId)}
     }

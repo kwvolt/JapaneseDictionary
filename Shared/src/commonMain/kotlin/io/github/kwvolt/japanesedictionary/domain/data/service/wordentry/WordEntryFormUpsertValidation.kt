@@ -1,13 +1,13 @@
 package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
-import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.ItemKey
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.database.formatDatabaseErrorTypeToMessage
 import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationResult
 import io.github.kwvolt.japanesedictionary.domain.data.validation.formatValidationTypeToMessage
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.GenericItemProperties
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.GenericItemProperties
 
 class WordEntryFormUpsertValidation(
     private val wordEntryFormUpsert: WordEntryFormUpsert,

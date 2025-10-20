@@ -1,19 +1,19 @@
 package io.github.kwvolt.japanesedictionary.ui.upsert.handler
 
-import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.ItemKey
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormValidation
 import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationResult
 import io.github.kwvolt.japanesedictionary.domain.data.validation.formatValidationTypeToMessage
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.handler.WordFormHandler
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ErrorMessage
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.DisplayItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ItemSectionProperties
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.SectionLabelItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.StaticLabelItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ErrorMessage
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.DisplayItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.InputTextType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ItemSectionProperties
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.SectionLabelItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.StaticLabelItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.WordClassItem
 import io.github.kwvolt.japanesedictionary.ui.model.FormScreenState
 import io.github.kwvolt.japanesedictionary.ui.model.ScreenStateUnknownError
 
@@ -142,11 +142,11 @@ class FormListValidatorManager(private val _wordEntryFormValidation: WordEntryFo
                 }
             }
             InputTextType.DICTIONARY_NOTE_DESCRIPTION -> {
-                _wordEntryFormValidation.validateNotes(textItem, wordEntryFormData.getEntryNoteMapAsList())
+                _wordEntryFormValidation.validateNotes(textItem, wordEntryFormData.getNoteInputMapAsList())
             }
             InputTextType.SECTION_NOTE_DESCRIPTION -> {
                 val props = textItem.itemProperties as ItemSectionProperties
-                val noteList = wordEntryFormData.wordSectionMap[props.getSectionIndex()]?.getComponentNoteInputMapAsList()
+                val noteList = wordEntryFormData.wordSectionMap[props.getSectionIndex()]?.getNoteInputMapAsList()
                 if (noteList != null) {
                     _wordEntryFormValidation.validateNotes(textItem, noteList)
                 }

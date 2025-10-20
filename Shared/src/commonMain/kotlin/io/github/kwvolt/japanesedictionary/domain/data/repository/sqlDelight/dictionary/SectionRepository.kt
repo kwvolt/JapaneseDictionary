@@ -78,7 +78,7 @@ class SectionRepository(
         itemId: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<List<DictionarySectionContainer>> {
-        return dbHandler.selectAll(itemId, returnNotFoundOnNull,
+        return dbHandler.selectAllToList(itemId, returnNotFoundOnNull,
             queryBlock = { entrySectionQueries.selectAllByEntryId(dictionaryEntryId).awaitAsList() },
             mapper = { item -> DictionarySectionContainer(item.id, item.meaning) }
         )

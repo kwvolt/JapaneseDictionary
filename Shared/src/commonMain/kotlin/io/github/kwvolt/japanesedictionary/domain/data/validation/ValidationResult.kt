@@ -1,6 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.data.validation
 
-import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.ItemKey
 
 /**
  * Represents the result of a validation operation.

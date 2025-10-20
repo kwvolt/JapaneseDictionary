@@ -64,35 +64,35 @@ class DictionaryRepository(
     override suspend fun insertLinkDictionaryEntryToConjugationTemplate(
         dictionaryId: Long,
         conjugationTemplateId: Long,
-        kana: String?,
+        kanaId: Long?,
         itemId: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){
-            linkQueries.insert(dictionaryId, conjugationTemplateId, kana)
+            linkQueries.insert(dictionaryId, conjugationTemplateId, kanaId)
         }
     }
 
     override suspend fun deleteLinkDictionaryEntryToConjugationTemplate(
         dictionaryId: Long,
-        conjugationTemplateId: Long,
         itemId: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){
-            linkQueries.delete(conjugationTemplateId, dictionaryId)
+            linkQueries.delete(dictionaryId)
         }
     }
 
     override suspend fun updateLinkDictionaryEntryToConjugationTemplate(
-        kana: String?,
+        conjugationTemplateId: Long?,
+        kanaIdProvided: Boolean,
+        kanaId: Long?,
         dictionaryId: Long,
-        conjugationTemplateId: Long,
         itemId: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(itemId, returnNotFoundOnNull){
-            linkQueries.update(kana, dictionaryId, conjugationTemplateId)
+            linkQueries.update(conjugationTemplateId, kanaIdProvided, kanaId,dictionaryId)
         }
     }
 
@@ -103,6 +103,6 @@ class DictionaryRepository(
     ): DatabaseResult<DictionaryEntryConjugationTemplateContainer> {
         return dbHandler.wrapQuery(itemId, returnNotFoundOnNull){
             linkQueries.selectRow(dictionaryId).awaitAsOneOrNull()
-        }.map { row -> DictionaryEntryConjugationTemplateContainer(row.conjugation_template_id, row.kana) }
+        }.map { row -> DictionaryEntryConjugationTemplateContainer(row.conjugation_template_id, row.kanaId) }
     }
 }

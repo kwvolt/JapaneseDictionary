@@ -1,6 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.data.database
 
-import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.ItemKey
 import io.github.kwvolt.japanesedictionary.domain.exceptions.mapToDatabaseException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -141,7 +141,7 @@ abstract class DatabaseHandlerBase {
         }
     }
 
-    suspend inline fun <T, R> selectAll(
+    suspend inline fun <T, R> selectAllToList(
         itemId: String? = null,
         returnNotFoundOnNull: Boolean = false,
         crossinline queryBlock: suspend () -> List<T>,
@@ -150,6 +150,18 @@ abstract class DatabaseHandlerBase {
         return wrapQuery(itemId, returnNotFoundOnNull) {
             val results = queryBlock()
             if (results.isNotEmpty()) results.map { mapper(it) } else emptyList()
+        }
+    }
+
+    suspend inline fun <T, R, E> selectAllToMap(
+        itemId: String? = null,
+        returnNotFoundOnNull: Boolean = false,
+        crossinline queryBlock: suspend () -> List<T>,
+        crossinline mapper: (T) -> Pair<R,E>
+    ): DatabaseResult<Map<R, E>> {
+        return wrapQuery(itemId, returnNotFoundOnNull) {
+            val results = queryBlock()
+            if (results.isNotEmpty()) results.associate{ mapper(it) } else emptyMap()
         }
     }
 

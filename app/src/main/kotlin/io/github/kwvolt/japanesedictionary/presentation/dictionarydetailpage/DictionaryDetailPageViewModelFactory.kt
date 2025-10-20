@@ -6,7 +6,7 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import io.github.kwvolt.japanesedictionary.DatabaseProviderInterface
 import io.github.kwvolt.japanesedictionary.domain.data.service.ServiceContainer
-import io.github.kwvolt.japanesedictionary.domain.model.FormItemManager
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.FormItemManager
 
 class DictionaryDetailPageViewModelFactory(private val dbProvider: DatabaseProviderInterface, private val dictionaryId: Long): ViewModelProvider.Factory  {
     @Suppress("UNCHECKED_CAST")

@@ -48,14 +48,7 @@ class TestConjugation {
 
     @Test
     fun testInsertingConjugations () = runTest {
-        val conjugationRepository =  conjugationServiceContainer.conjugationRepository
         val conjugationTemplateRepository =  conjugationServiceContainer.conjugationTemplateRepository
-        val conjugationPatternRepository = conjugationServiceContainer.conjugationPatternRepository
-        val conjugationPreprocessRepository = conjugationServiceContainer.conjugationPreprocessRepository
-        val conjugationSuffixRepository = conjugationServiceContainer.conjugationSuffixRepository
-        val conjugationOverrideRepository = conjugationServiceContainer.conjugationOverrideRepository
-        val conjugationVerbSuffixSwapRepository = conjugationServiceContainer.verbSuffixSwapRepository
-
 
         val initializeConjugation = conjugationServiceContainer.getServices {
             InitializeConjugation(databaseHandler, conjugationUpsert, conjugationTemplateInserter)

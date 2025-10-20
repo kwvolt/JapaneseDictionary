@@ -22,8 +22,8 @@ import androidx.recyclerview.widget.RecyclerView
 import io.github.kwvolt.japanesedictionary.DictionaryDatabaseProvider
 import io.github.kwvolt.japanesedictionary.R
 import io.github.kwvolt.japanesedictionary.databinding.DluLayoutBinding
-import io.github.kwvolt.japanesedictionary.domain.model.SearchFilter
-import io.github.kwvolt.japanesedictionary.domain.model.SearchType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SearchFilter
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SearchType
 import io.github.kwvolt.japanesedictionary.presentation.dictionarylookup.DictionaryLookupRecyclerViewModel
 import io.github.kwvolt.japanesedictionary.presentation.dictionarylookup.DictionaryLookupRecyclerViewModelFactory
 import io.github.kwvolt.japanesedictionary.presentation.dictionarylookup.adapter.DictionaryLookUpRecyclerAdapter

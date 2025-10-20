@@ -5,12 +5,12 @@ import androidx.recyclerview.widget.RecyclerView
 import io.github.kwvolt.japanesedictionary.R
 import io.github.kwvolt.japanesedictionary.databinding.UpsertRecyclerviewLabelItemBinding
 import io.github.kwvolt.japanesedictionary.ui.upsert.FormKeys
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.DisplayItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.SectionLabelItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ErrorMessage
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.LabelItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.LabelHeaderType
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.StaticLabelItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.DisplayItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.SectionLabelItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ErrorMessage
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.LabelItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.LabelHeaderType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.StaticLabelItem
 import io.github.kwvolt.japanesedictionary.ui.StringResourceFromFormKey
 
 

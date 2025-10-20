@@ -1,7 +1,7 @@
-package io.github.kwvolt.japanesedictionary.domain.model.items.item
+package io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item
 
-import io.github.kwvolt.japanesedictionary.domain.model.items.TableId
-import io.github.kwvolt.japanesedictionary.domain.model.items.WordEntryTable
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.TableId
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.WordEntryTable
 
 sealed class BaseItem(open val itemProperties: GenericItemProperties)
 

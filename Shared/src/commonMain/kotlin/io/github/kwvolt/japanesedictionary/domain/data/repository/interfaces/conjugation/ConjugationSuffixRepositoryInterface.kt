@@ -11,11 +11,11 @@ interface ConjugationSuffixRepositoryInterface {
     ): DatabaseResult<Long>
     suspend fun update(
         id: Long,
-        suffixTextProvided: Boolean,
+        suffixTextProvided: Boolean = false,
         suffixText: String? = null,
-        isShortFormProvided: Boolean,
+        isShortFormProvided: Boolean = false,
         isShortForm: Boolean? = null,
-        isPositiveProvided: Boolean,
+        isPositiveProvided: Boolean = false,
         isPositive: Boolean? = null,
         returnNotFoundOnNull: Boolean = false
     ): DatabaseResult<Unit>

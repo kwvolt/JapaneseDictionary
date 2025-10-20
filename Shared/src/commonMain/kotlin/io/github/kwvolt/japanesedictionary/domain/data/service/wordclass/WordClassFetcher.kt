@@ -7,9 +7,9 @@ import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wor
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.WordClassIdContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.WordClassRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.model.items.WordEntryTable
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ItemProperties
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.WordEntryTable
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ItemProperties
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.WordClassItem
 
 class WordClassFetcher(
     private val mainClassRepository: MainClassRepositoryInterface,

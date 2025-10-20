@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import io.github.kwvolt.japanesedictionary.R
 import io.github.kwvolt.japanesedictionary.databinding.DwpNoteEditDialogBinding
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.TextItem
 import io.github.kwvolt.japanesedictionary.presentation.dictionarydetailpage.DictionaryDetailPageViewModel
 import io.github.kwvolt.japanesedictionary.presentation.dictionarydetailpage.NoteUpsertResult
 import io.github.kwvolt.japanesedictionary.presentation.mainactivity.LoadingViewModel

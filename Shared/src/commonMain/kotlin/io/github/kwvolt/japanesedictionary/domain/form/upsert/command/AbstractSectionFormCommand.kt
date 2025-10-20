@@ -1,12 +1,12 @@
 package io.github.kwvolt.japanesedictionary.domain.form.upsert.command
 
-import io.github.kwvolt.japanesedictionary.domain.model.WordSectionFormData
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordSectionFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
 
 abstract class UpdateComponentSectionCommand(
     private val wordEntryFormData: WordEntryFormData,
     private val sectionIndex: Int
-) : FormCommand<Unit> {
+) : FormCommand {
 
     private val originalSection: WordSectionFormData =
         wordEntryFormData.wordSectionMap[sectionIndex]
@@ -18,10 +18,10 @@ abstract class UpdateComponentSectionCommand(
 
     abstract fun transform(section: WordSectionFormData): WordSectionFormData
 
-    override fun execute(): CommandReturn<Unit> {
-        return CommandReturn(wordEntryFormData.copy(
+    override fun execute(): WordEntryFormData {
+        return wordEntryFormData.copy(
             wordSectionMap = wordEntryFormData.wordSectionMap.put(sectionIndex, updatedSection)
-        ), Unit)
+        )
     }
 
     override fun undo(): WordEntryFormData {

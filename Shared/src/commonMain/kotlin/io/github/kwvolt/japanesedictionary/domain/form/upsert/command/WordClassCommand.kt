@@ -1,19 +1,19 @@
 package io.github.kwvolt.japanesedictionary.domain.form.upsert.command
 
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
 
 class UpdateWordClassCommand(
     private val wordEntryFormData: WordEntryFormData,
     private val newWordClassItem: WordClassItem
-) : FormCommand<Unit> {
+) : FormCommand {
 
     private val oldWordClassItem: WordClassItem = wordEntryFormData.wordClassInput
 
-    override fun execute(): CommandReturn<Unit> {
-        return CommandReturn(wordEntryFormData.copy(
+    override fun execute(): WordEntryFormData {
+        return wordEntryFormData.copy(
             wordClassInput = newWordClassItem
-        ), Unit)
+        )
     }
     override fun undo(): WordEntryFormData {
         return wordEntryFormData.copy(

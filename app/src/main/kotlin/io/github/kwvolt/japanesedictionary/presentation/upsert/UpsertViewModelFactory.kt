@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.github.kwvolt.japanesedictionary.DatabaseProviderInterface
 import io.github.kwvolt.japanesedictionary.domain.data.service.ServiceContainer
-import io.github.kwvolt.japanesedictionary.domain.model.FormItemManager
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.FormItemManager
 import io.github.kwvolt.japanesedictionary.ui.upsert.handler.FormListValidatorManager
 import io.github.kwvolt.japanesedictionary.ui.upsert.handler.FormSectionManager
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.handler.WordClassDataManager

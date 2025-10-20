@@ -11,13 +11,13 @@ import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEnt
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormItemFetcher
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormUpsert
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormUpsertValidation
-import io.github.kwvolt.japanesedictionary.domain.model.FormItemManager
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
-import io.github.kwvolt.japanesedictionary.domain.model.WordSectionFormData
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ItemProperties
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ItemSectionProperties
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.FormItemManager
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordSectionFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.InputTextType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ItemProperties
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ItemSectionProperties
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.TextItem
 import io.github.kwvolt.japanesedictionary.ui.dictionarydetailpage.tabs.worddefinition.WordDefinitionTabFragment
 import io.github.kwvolt.japanesedictionary.ui.model.DisplayEntryUIModel
 import io.github.kwvolt.japanesedictionary.ui.model.DisplayScreenState
@@ -149,7 +149,7 @@ class DictionaryDetailPageViewModel(
                 val result = _wordEntryFormItemFetcher.fetchSectionNoteItemList(meaningId, noteContainerID)
                 _uiState.handleResultWithErrorCopy("updateWordEntryFormDataNotes", result) {
                     val updatedSection = section.copy(
-                        sectionNoteInputMap = _wordEntryFormItemFetcher.persistentListToMap(it)
+                        noteInputMap = _wordEntryFormItemFetcher.persistentListToMap(it)
                     )
                     _wordEntryFormData = currentFormData.copy(
                         wordSectionMap = sectionMap.put(noteContainerID, updatedSection)
@@ -160,7 +160,7 @@ class DictionaryDetailPageViewModel(
             val result = _wordEntryFormItemFetcher.fetchEntryNoteItemList(dictionaryId)
             _uiState.handleResultWithErrorCopy("updateWordEntryFormDataNotes", result) {
                 _wordEntryFormData = currentFormData.copy(
-                    entryNoteInputMap = _wordEntryFormItemFetcher.persistentListToMap(it)
+                    noteInputMap = _wordEntryFormItemFetcher.persistentListToMap(it)
                 )
             }
         }
@@ -170,7 +170,7 @@ class DictionaryDetailPageViewModel(
         val entryData: WordEntryFormData = currentFormData
         return if (noteContainerID == WordDefinitionTabFragment.GENERAL_NOTE_CONTAINER_ID) {
             // Entry-level note
-            val existingItem: TextItem? = entryData.getEntryNoteMapAsList().firstOrNull {
+            val existingItem: TextItem? = entryData.getNoteInputMapAsList().firstOrNull {
                 it.itemProperties.getId() == noteId
             }
             existingItem ?: _formItemManager.createNewTextItem(
@@ -180,7 +180,7 @@ class DictionaryDetailPageViewModel(
         } else {
             // Section-level note
             val sectionNotes: List<TextItem> = entryData.wordSectionMap[noteContainerID]
-                ?.getComponentNoteInputMapAsList()
+                ?.getNoteInputMapAsList()
                 ?: emptyList()
 
             val existingItem: TextItem? = sectionNotes.firstOrNull {
@@ -201,7 +201,7 @@ class DictionaryDetailPageViewModel(
         val (parentId, noteList) = when (val props = textItem.itemProperties) {
             is ItemProperties -> {
                 if (dictionaryId != -1L) {
-                    Pair(dictionaryId, entryData.getEntryNoteMapAsList())
+                    Pair(dictionaryId, entryData.getNoteInputMapAsList())
                 } else {
                     sendNoteError("Missing dictionary ID")
                     return
@@ -211,7 +211,7 @@ class DictionaryDetailPageViewModel(
                 val wordSection: WordSectionFormData? = entryData.wordSectionMap[props.getSectionIndex()]
                 if(wordSection != null){
                     val meaningId = wordSection.meaningInput.itemProperties.getId()
-                    Pair(meaningId, wordSection.getComponentNoteInputMapAsList())
+                    Pair(meaningId, wordSection.getNoteInputMapAsList())
                 }else {
                     sendNoteError("Missing dictionary section ID")
                     return

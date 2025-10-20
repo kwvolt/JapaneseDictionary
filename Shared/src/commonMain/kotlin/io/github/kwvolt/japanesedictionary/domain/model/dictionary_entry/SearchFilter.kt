@@ -1,4 +1,4 @@
-package io.github.kwvolt.japanesedictionary.domain.model
+package io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry
 
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.handler.WordClassDataManager
 import io.github.kwvolt.japanesedictionary.util.CommonParcelable

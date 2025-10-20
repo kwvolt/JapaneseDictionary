@@ -10,20 +10,22 @@ import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.RemoveEntr
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.RemoveKanaItemCommand
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.RemoveSectionCommand
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.RemoveSectionNoteItemCommand
+import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.UpdateConjugationTemplateCommand
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.UpdateSectionNoteItemCommand
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.UpdateEntryNoteItemCommand
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.UpdateKanaItemCommand
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.UpdateMeaningItemCommand
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.UpdatePrimaryTextCommand
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.command.UpdateWordClassCommand
-import io.github.kwvolt.japanesedictionary.domain.model.FormItemManager
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.WordEntryTable
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.GenericItemProperties
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ItemSectionProperties
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.FormItemManager
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.InputTextType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.WordEntryTable
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ConjugationTemplateItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.GenericItemProperties
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ItemSectionProperties
 
 class WordFormHandler (
     private val dataHandler: FormCommandManager,
@@ -69,17 +71,31 @@ class WordFormHandler (
     }
 
     fun createNewSection(formItemManager: FormItemManager): Int {
-        val command = AddSectionCommand(dataHandler.wordEntryFormData, formItemManager)
-        val sectionId = dataHandler.executeCommand(command)
+        val sectionId: Int = formItemManager.getThenIncrementEntrySectionId()
+        val command = AddSectionCommand(dataHandler.wordEntryFormData, sectionId, formItemManager)
+        dataHandler.executeCommand(command)
         return sectionId
     }
 
     fun removeSection(
         sectionId: Int,
     ) {
-        val command: FormCommand<Unit> = RemoveSectionCommand(dataHandler.wordEntryFormData, sectionId)
+        val command: FormCommand = RemoveSectionCommand(dataHandler.wordEntryFormData, sectionId)
         dataHandler.executeCommand(command)
     }
+
+    fun updateConjugationTemplateIdItemCommand(conjugationTemplateItem: ConjugationTemplateItem, conjugationTemplateId: Long):ConjugationTemplateItem {
+        val updated: ConjugationTemplateItem = conjugationTemplateItem.copy(chosenConjugationTemplateId = conjugationTemplateId)
+        UpdateConjugationTemplateCommand(dataHandler.wordEntryFormData, updated)
+        return updated
+    }
+
+    fun updateConjugationTemplateKanaItemCommand(conjugationTemplateItem: ConjugationTemplateItem, kanaId: Long):ConjugationTemplateItem {
+        val updated: ConjugationTemplateItem = conjugationTemplateItem.copy(kanaId = kanaId)
+        UpdateConjugationTemplateCommand(dataHandler.wordEntryFormData, updated)
+        return updated
+    }
+
 
     fun updateSubClassWordClassItemCommand(wordClassItem: WordClassItem, subClassContainer: SubClassContainer): WordClassItem {
         val updated: WordClassItem = wordClassItem.copy(chosenSubClass = subClassContainer)
@@ -109,7 +125,7 @@ class WordFormHandler (
     }
 
 
-    private fun createUpdateItemFormCommand(original: TextItem, updated: TextItem): FormCommand<Unit> {
+    private fun createUpdateItemFormCommand(original: TextItem, updated: TextItem): FormCommand {
         val section = (original.itemProperties as? ItemSectionProperties)?.getSectionIndex() ?: -1
         val data = dataHandler.wordEntryFormData
         return when (original.inputTextType) {
@@ -121,7 +137,7 @@ class WordFormHandler (
         }
     }
 
-    private fun createAddItemFormCommand(textItem: TextItem): FormCommand<Unit> {
+    private fun createAddItemFormCommand(textItem: TextItem): FormCommand {
         val section = (textItem.itemProperties as? ItemSectionProperties)?.getSectionIndex() ?: -1
         val data = dataHandler.wordEntryFormData
         return when (textItem.inputTextType) {
@@ -132,7 +148,7 @@ class WordFormHandler (
         }
     }
 
-    private fun createRemoveItemFormCommand(textItem: TextItem): FormCommand<Unit>{
+    private fun createRemoveItemFormCommand(textItem: TextItem): FormCommand{
         val section = (textItem.itemProperties as? ItemSectionProperties)?.getSectionIndex() ?: -1
         val data = dataHandler.wordEntryFormData
         val itemId = textItem.itemProperties.getIdentifier()
@@ -153,7 +169,7 @@ class WordFormHandler (
         }
 
         // Entry Notes
-        entryNoteInputMap.values
+        noteInputMap.values
             .filter { it.itemProperties.getTableId() != WordEntryTable.UI.asString() }
             .mapTo(ids) { it.itemProperties }
 
@@ -163,7 +179,7 @@ class WordFormHandler (
                 .filter { it.itemProperties.getTableId() != WordEntryTable.UI.asString() }
                 .mapTo(ids) { it.itemProperties }
 
-            section.sectionNoteInputMap.values
+            section.noteInputMap.values
                 .filter { it.itemProperties.getTableId() != WordEntryTable.UI.asString() }
                 .mapTo(ids) { it.itemProperties }
 

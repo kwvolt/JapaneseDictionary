@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import io.github.kwvolt.japanesedictionary.databinding.DluRecyclerviewItemBinding
 import io.github.kwvolt.japanesedictionary.databinding.DluRecyclerLoadingItemBinding
-import io.github.kwvolt.japanesedictionary.domain.model.SimplifiedWordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SimplifiedWordEntryFormData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import io.github.kwvolt.japanesedictionary.databinding.DluRecyclerNoItemBinding

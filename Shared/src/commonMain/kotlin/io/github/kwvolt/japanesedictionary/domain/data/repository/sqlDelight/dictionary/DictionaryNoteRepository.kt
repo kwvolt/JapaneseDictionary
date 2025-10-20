@@ -58,7 +58,7 @@ class DictionaryNoteRepository(
         itemId: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<List<DictionaryEntryNoteContainer>> {
-        return dbHandler.selectAll(itemId, returnNotFoundOnNull,
+        return dbHandler.selectAllToList(itemId, returnNotFoundOnNull,
             queryBlock = { dictionaryEntryNoteQueries.selectNotesByEntryId(dictionaryEntryId).awaitAsList() },
             mapper = { item -> DictionaryEntryNoteContainer(item.id, item.note_description) }
         )

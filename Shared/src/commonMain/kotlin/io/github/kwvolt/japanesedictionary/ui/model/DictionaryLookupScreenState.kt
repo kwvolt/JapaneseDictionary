@@ -1,6 +1,6 @@
 package io.github.kwvolt.japanesedictionary.ui.model
 
-import io.github.kwvolt.japanesedictionary.domain.model.SimplifiedWordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SimplifiedWordEntryFormData
 
 data class DictionaryLookupScreenState(
     val items: List<SimplifiedWordEntryFormData> = emptyList(),

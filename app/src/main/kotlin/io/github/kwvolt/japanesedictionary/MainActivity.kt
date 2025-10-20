@@ -1,15 +1,10 @@
 package io.github.kwvolt.japanesedictionary
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.doOnLayout
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -18,8 +13,8 @@ import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import io.github.kwvolt.japanesedictionary.databinding.ActivityMainBinding
-import io.github.kwvolt.japanesedictionary.domain.model.SearchFilter
-import io.github.kwvolt.japanesedictionary.domain.model.SearchType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SearchFilter
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SearchType
 import io.github.kwvolt.japanesedictionary.presentation.mainactivity.LoadingViewModel
 import io.github.kwvolt.japanesedictionary.ui.ErrorDialogFragment
 import io.github.kwvolt.japanesedictionary.ui.dictionarylookup.DictionaryLookupFragmentDirections
@@ -27,8 +22,6 @@ import io.github.kwvolt.japanesedictionary.ui.model.ActivityMainScreenState
 import io.github.kwvolt.japanesedictionary.ui.upsert.UpsertRecyclerViewFragmentDirections
 import io.github.kwvolt.japanesedictionary.util.ParcelableSearchFilterWrapper
 import kotlinx.coroutines.launch
-import androidx.core.view.get
-import androidx.core.view.size
 import io.github.kwvolt.japanesedictionary.ui.dictionarylookup.DictionaryLookupFragmentArgs
 
 

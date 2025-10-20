@@ -1,4 +1,4 @@
-package io.github.kwvolt.japanesedictionary.domain.model.items.item
+package io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item
 
 import io.github.kwvolt.japanesedictionary.ui.upsert.FormKeys
 

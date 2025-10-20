@@ -211,30 +211,18 @@ class ConjugationOverrideRepository(
         conjugationOverrideId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Map<ConjugationOverrideProperty, String?>> {
-        return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
-            detailsQueries.selectAllByOverrideId(
-                conjugationOverrideId
-            ).awaitAsList()
-        }.flatMap { rows ->
-            try {
-                DatabaseResult.Success(
-                    rows.associate { row ->
-                        val propertyName = try {
-                            ConjugationOverrideProperty.valueOf(row.property_name)
-                        } catch (e: IllegalArgumentException) {
-                            throw IllegalArgumentException("Invalid property name: '${row.property_name}'", e)
-                        }
-                        propertyName to row.property_value
-                    }
-                )
-            } catch (e: Exception) {
-                DatabaseResult.UnknownError(e)
-            }
-        }
+        return dbHandler.selectAllToMap(returnNotFoundOnNull = returnNotFoundOnNull,
+            queryBlock = {
+                detailsQueries.selectAllByOverrideId(
+                    conjugationOverrideId
+                ).awaitAsList()
+            },
+            mapper = { it.property_name to it.property_value }
+        )
     }
 
     override suspend fun insertProperty(
-        idName: String,
+        idName: ConjugationOverrideProperty,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
@@ -244,7 +232,7 @@ class ConjugationOverrideRepository(
 
     override suspend fun updateProperty(
         id: Long,
-        idName: String,
+        idName: ConjugationOverrideProperty,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Unit> {
         return dbHandler.wrapRowCountQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
@@ -262,7 +250,7 @@ class ConjugationOverrideRepository(
     }
 
     override suspend fun selectPropertyId(
-        idName: String,
+        idName: ConjugationOverrideProperty,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Long> {
         return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull) {
@@ -281,7 +269,7 @@ class ConjugationOverrideRepository(
 
     override suspend fun selectPropertyExist(
         id: Long?,
-        idName: String?,
+        idName: ConjugationOverrideProperty?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<Boolean> {
         return dbHandler.wrapQuery(returnNotFoundOnNull = returnNotFoundOnNull){

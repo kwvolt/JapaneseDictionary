@@ -7,7 +7,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import io.github.kwvolt.japanesedictionary.DatabaseProviderInterface
 import io.github.kwvolt.japanesedictionary.domain.data.service.ServiceContainer
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.handler.WordClassDataManager
-import io.github.kwvolt.japanesedictionary.domain.model.SearchFilter
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SearchFilter
 import io.github.kwvolt.japanesedictionary.presentation.search.SearchFilterViewModel.Companion.KEY_SEARCH_FILTER
 
 class SearchFilterViewModelFactory(

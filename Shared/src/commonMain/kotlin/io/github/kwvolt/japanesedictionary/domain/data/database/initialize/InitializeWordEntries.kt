@@ -2,14 +2,13 @@ package io.github.kwvolt.japanesedictionary.domain.data.database.initialize
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordclass.WordClassFetcher
-import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.ValidUpsertResult
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormUpsertValidation
-import io.github.kwvolt.japanesedictionary.domain.model.FormItemManager
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
-import io.github.kwvolt.japanesedictionary.domain.model.WordSectionFormData
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.FormItemManager
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordSectionFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.InputTextType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.WordClassItem
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.toPersistentMap
 

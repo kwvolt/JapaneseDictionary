@@ -5,9 +5,9 @@ import androidx.recyclerview.widget.RecyclerView
 import io.github.kwvolt.japanesedictionary.databinding.UpsertRecyclerviewWordClassItemBinding
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassContainer
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.DisplayItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ErrorMessage
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.DisplayItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ErrorMessage
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.WordClassItem
 import io.github.kwvolt.japanesedictionary.util.WordClassBindUtil
 
 

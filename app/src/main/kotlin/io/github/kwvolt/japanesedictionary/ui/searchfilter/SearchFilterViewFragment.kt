@@ -3,9 +3,7 @@ package io.github.kwvolt.japanesedictionary.ui.searchfilter
 import android.os.Bundle
 import android.view.View
 import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.widget.ArrayAdapter
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -15,9 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import io.github.kwvolt.japanesedictionary.R
 import io.github.kwvolt.japanesedictionary.databinding.SearchFilterBinding
-import io.github.kwvolt.japanesedictionary.domain.model.SearchType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SearchType
 import io.github.kwvolt.japanesedictionary.presentation.search.SearchFilterViewModel
-import io.github.kwvolt.japanesedictionary.ui.dictionarylookup.DictionaryLookupFragment
 import io.github.kwvolt.japanesedictionary.util.WordClassBindUtil
 import io.github.kwvolt.japanesedictionary.util.viewBinding
 import kotlinx.coroutines.launch

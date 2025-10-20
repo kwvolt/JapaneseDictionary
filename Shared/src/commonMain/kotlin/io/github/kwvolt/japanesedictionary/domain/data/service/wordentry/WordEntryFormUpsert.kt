@@ -9,12 +9,12 @@ import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dic
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.SectionNoteRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.SectionRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.WordClassRepositoryInterface
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.BaseItem
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
-import io.github.kwvolt.japanesedictionary.domain.model.WordSectionFormData
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.WordEntryTable
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.GenericItemProperties
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.BaseItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordSectionFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.WordEntryTable
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.GenericItemProperties
 import kotlinx.collections.immutable.ImmutableCollection
 import java.lang.IllegalArgumentException
 
@@ -130,7 +130,7 @@ class WordEntryFormUpsert(
                 }
 
                 // Upsert dictionary entry notes
-                val entryNoteItems: ImmutableCollection<TextItem> = wordEntryFormData.entryNoteInputMap.values
+                val entryNoteItems: ImmutableCollection<TextItem> = wordEntryFormData.noteInputMap.values
                 val entryNoteResult: DatabaseResult<Unit> = handleUpsertTableInput(
                     entryNoteItems,
                     insert = { entryNoteRepository.insert(dictionaryEntryId, it.inputTextValue, it.itemProperties.getIdentifier()) },
@@ -185,7 +185,7 @@ class WordEntryFormUpsert(
         }
 
         // section notes
-        val sectionNoteItems = wordSectionFormData.sectionNoteInputMap.values
+        val sectionNoteItems = wordSectionFormData.noteInputMap.values
         val sectionNoteResult = handleUpsertTableInput(
             sectionNoteItems,
             insert = { entrySectionNoteRepository.insert(dictionaryEntrySectionId, it.inputTextValue, it.itemProperties.getIdentifier()) },

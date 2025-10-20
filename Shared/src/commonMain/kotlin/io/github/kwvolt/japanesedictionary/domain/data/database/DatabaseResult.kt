@@ -1,6 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.data.database
 
-import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.ItemKey
 
 sealed class DatabaseResult<out T> {
     data class Success<T>(val value: T) : DatabaseResult<T>()

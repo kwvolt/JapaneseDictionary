@@ -8,7 +8,7 @@ import io.github.kwvolt.japanesedictionary.databinding.UpsertRecyclerviewButtonI
 import io.github.kwvolt.japanesedictionary.databinding.UpsertRecyclerviewEditTextItemBinding
 import io.github.kwvolt.japanesedictionary.databinding.UpsertRecyclerviewLabelItemBinding
 import io.github.kwvolt.japanesedictionary.databinding.UpsertRecyclerviewWordClassItemBinding
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.DisplayItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.DisplayItem
 import io.github.kwvolt.japanesedictionary.presentation.upsert.wordentryadapter.viewholder.ButtonCallBack
 import io.github.kwvolt.japanesedictionary.presentation.upsert.wordentryadapter.viewholder.ButtonViewHolder
 import io.github.kwvolt.japanesedictionary.presentation.upsert.wordentryadapter.viewholder.EditTextCallBack

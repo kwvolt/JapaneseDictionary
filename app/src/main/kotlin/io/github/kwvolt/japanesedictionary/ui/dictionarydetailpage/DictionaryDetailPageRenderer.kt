@@ -9,7 +9,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import io.github.kwvolt.japanesedictionary.R
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
 import io.github.kwvolt.japanesedictionary.ui.dictionarydetailpage.tabs.conjugation.ConjugationTabFragment
 import io.github.kwvolt.japanesedictionary.ui.dictionarydetailpage.tabs.worddefinition.WordDefinitionTabFragment
 import io.github.kwvolt.japanesedictionary.ui.dictionarydetailpage.tabs.worddefinition.WordDefinitionTabPreviewFragment

@@ -4,8 +4,8 @@ import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.dictionary.DictionarySearchRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.WordClassRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.handler.WordClassDataManager
-import io.github.kwvolt.japanesedictionary.domain.model.SearchFilter
-import io.github.kwvolt.japanesedictionary.domain.model.SearchType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SearchFilter
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SearchType
 
 class WordEntryFormSearchFilter(
     private val _wordClassRepository: WordClassRepositoryInterface,

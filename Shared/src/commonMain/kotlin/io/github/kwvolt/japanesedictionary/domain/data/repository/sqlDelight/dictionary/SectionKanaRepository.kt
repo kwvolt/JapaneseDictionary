@@ -70,7 +70,7 @@ class SectionKanaRepository(
         itemId: String?,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<List<DictionarySectionKanaContainer>> {
-        return dbHandler.selectAll(itemId, returnNotFoundOnNull,
+        return dbHandler.selectAllToList(itemId, returnNotFoundOnNull,
             queryBlock = { entrySectionKanaQueries.selectAllBySectionId(sectionId).awaitAsList() },
             mapper = { item -> DictionarySectionKanaContainer(item.id, item.wordText) }
         )

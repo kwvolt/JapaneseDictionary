@@ -1,24 +1,27 @@
 package io.github.kwvolt.japanesedictionary.domain.form.upsert.command
 
-import io.github.kwvolt.japanesedictionary.domain.model.FormItemManager
-import io.github.kwvolt.japanesedictionary.domain.model.WordSectionFormData
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.FormItemManager
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordSectionFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
 import kotlinx.collections.immutable.PersistentMap
 
 
 class AddSectionCommand(
     private val wordEntryFormData: WordEntryFormData,
+    private val sectionId: Int,
     private val formItemManager: FormItemManager
-) : FormCommand<Int> {
+) : FormCommand {
+    constructor(wordEntryFormData: WordEntryFormData, formItemManager: FormItemManager):
+            this(wordEntryFormData, formItemManager.getThenIncrementEntrySectionId(), formItemManager)
 
     private val originalSectionMap: PersistentMap<Int, WordSectionFormData> = wordEntryFormData.wordSectionMap
-    override fun execute(): CommandReturn<Int> {
+    override fun execute(): WordEntryFormData {
 
-        val (sectionIndex: Int, wordSectionFormData: WordSectionFormData) = WordSectionFormData.buildDefault(formItemManager)
+        val wordSectionFormData: WordSectionFormData = WordSectionFormData.buildDefault(sectionId, formItemManager)
 
-        val updatedMap = originalSectionMap.put(sectionIndex, wordSectionFormData)
+        val updatedMap = originalSectionMap.put(sectionId, wordSectionFormData)
 
-        return CommandReturn(wordEntryFormData.copy(wordSectionMap = updatedMap), sectionIndex)
+        return wordEntryFormData.copy(wordSectionMap = updatedMap)
     }
 
     override fun undo(): WordEntryFormData {
@@ -29,13 +32,13 @@ class AddSectionCommand(
 class RemoveSectionCommand(
     private val wordEntryFormData: WordEntryFormData,
     private val sectionIndex: Int,
-) : FormCommand<Unit> {
+) : FormCommand {
 
     private val originalSectionMap: PersistentMap<Int, WordSectionFormData> = wordEntryFormData.wordSectionMap
 
-    override fun execute(): CommandReturn<Unit> {
+    override fun execute(): WordEntryFormData {
         val updatedMap = originalSectionMap.remove(sectionIndex)
-        return CommandReturn(wordEntryFormData.copy(wordSectionMap = updatedMap), Unit)
+        return wordEntryFormData.copy(wordSectionMap = updatedMap)
     }
 
     override fun undo(): WordEntryFormData {

@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassContainer
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.handler.WordClassDataManager
-import io.github.kwvolt.japanesedictionary.domain.model.SearchFilter
-import io.github.kwvolt.japanesedictionary.domain.model.SearchType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SearchFilter
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SearchType
 import io.github.kwvolt.japanesedictionary.ui.model.SearchFilterScreenState
 import io.github.kwvolt.japanesedictionary.util.handleResultWithErrorCopy
 import kotlinx.coroutines.flow.MutableSharedFlow

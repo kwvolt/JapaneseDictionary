@@ -14,8 +14,8 @@ import io.github.kwvolt.japanesedictionary.databinding.DluRecyclerviewItemBindin
 import io.github.kwvolt.japanesedictionary.databinding.DluRecyclerItemGlossBinding
 import io.github.kwvolt.japanesedictionary.databinding.DluRecyclerLoadingItemBinding
 import io.github.kwvolt.japanesedictionary.databinding.DluRecyclerNoItemBinding
-import io.github.kwvolt.japanesedictionary.domain.model.SimplifiedWordEntryFormData
-import io.github.kwvolt.japanesedictionary.domain.model.SimplifiedWordSectionFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SimplifiedWordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SimplifiedWordSectionFormData
 import io.github.kwvolt.japanesedictionary.util.DictionaryDisplayUtil
 import io.github.kwvolt.japanesedictionary.util.ListSpanUtil
 import io.github.kwvolt.japanesedictionary.util.icon.MaterialButtonIcon

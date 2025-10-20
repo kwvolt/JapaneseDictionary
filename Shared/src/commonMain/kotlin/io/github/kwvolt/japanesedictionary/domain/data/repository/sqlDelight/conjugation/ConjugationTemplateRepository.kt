@@ -59,6 +59,13 @@ class ConjugationTemplateRepository(
         }
     }
 
+    override suspend fun selectAll(returnNotFoundOnNull: Boolean): DatabaseResult<List<ConjugationTemplateContainer>> {
+        return dbHandler.selectAllToList(returnNotFoundOnNull= returnNotFoundOnNull,
+            queryBlock = {queries.selectAll().awaitAsList()},
+            mapper = {row -> ConjugationTemplateContainer(row.id, row.id_name, row.display_text)}
+        )
+    }
+
     override suspend fun selectExist(
         id: Long?,
         idName: String?,
@@ -99,7 +106,7 @@ class ConjugationTemplateRepository(
         conjugationTemplateId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<List<Long>> {
-        return dbHandler.selectAll(returnNotFoundOnNull = returnNotFoundOnNull,
+        return dbHandler.selectAllToList(returnNotFoundOnNull = returnNotFoundOnNull,
             queryBlock = { linkQueries.selectConjugationIdByConjugationTemplateId(conjugationTemplateId).awaitAsList() },
             mapper = { it }
         )

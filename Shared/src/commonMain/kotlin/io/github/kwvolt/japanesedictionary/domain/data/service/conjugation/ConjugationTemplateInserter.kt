@@ -106,7 +106,7 @@ class ConjugationTemplateInserter(
                         )
                         dbHandler.processBatchWrite(properties) { (property: ConjugationOverrideProperty, propertyValue: String?) ->
                             val propertyId =
-                                conjugationOverrideRepository.selectPropertyId(property.toString())
+                                conjugationOverrideRepository.selectPropertyId(property)
                                     .getOrReturn { return@processBatchWrite it }
                             conjugationOverrideRepository.insertPropertyValue(
                                 insertedId,
@@ -124,7 +124,7 @@ class ConjugationTemplateInserter(
     }
 
     suspend fun getProcessId(stemRule: StemRule): DatabaseResult<Long>{
-        return conjugationPreprocessRepository.selectId(stemRule.toString())
+        return conjugationPreprocessRepository.selectId(stemRule)
     }
 
     suspend fun getSuffixId(suffixText: String? = null, isShortForm: Boolean? = null, isPositive: Boolean?=null): DatabaseResult<Long> {

@@ -8,10 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputLayout
 import io.github.kwvolt.japanesedictionary.R
 import io.github.kwvolt.japanesedictionary.databinding.UpsertRecyclerviewEditTextItemBinding
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.DisplayItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ErrorMessage
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.DisplayItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ErrorMessage
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.InputTextType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.TextItem
 
 interface EditTextCallBack{
     fun updateInputTextValue(displayItem: DisplayItem.DisplayTextItem, inputText: String, position: Int)

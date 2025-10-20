@@ -11,6 +11,7 @@ import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.con
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationTemplateRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.conjugation.ConjugationVerbSuffixSwapRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.model.conjugation.ConjugationOverrideProperty
+import io.github.kwvolt.japanesedictionary.domain.model.conjugation.StemRule
 
 class ConjugationUpsert(
     private val dbHandler: DatabaseHandlerBase,
@@ -92,14 +93,14 @@ class ConjugationUpsert(
 
     suspend fun  upsertPreprocess(
         conjugationPreprocessId: Long? = null,
-        idNameValue: ProvidedValue<String> = ProvidedValue.ValueNotProvided,
+        idNameValue: ProvidedValue<StemRule> = ProvidedValue.ValueNotProvided,
     ): DatabaseResult<Long>{
         return upsertWithIdAndIdName(
             conjugationPreprocessId,
             idNameValue,
-            doesExistResult = { idName: String? -> conjugationPreprocessRepository.selectExist(conjugationPreprocessId, idName) },
-            insert = { idName: String -> conjugationPreprocessRepository.insert(idName) },
-            update={ id: Long, idName: String? ->
+            doesExistResult = { idName: StemRule? -> conjugationPreprocessRepository.selectExist(conjugationPreprocessId, idName) },
+            insert = { idName: StemRule -> conjugationPreprocessRepository.insert(idName) },
+            update={ id: Long, idName: StemRule? ->
                 val idName = getOrFail(idName) {return it }
                 conjugationPreprocessRepository.update(id, idName)
             }
@@ -227,14 +228,14 @@ class ConjugationUpsert(
 
     suspend fun upsertProperty(
         conjugationPropertyId: Long? = null,
-        idNameValue: ProvidedValue<String> = ProvidedValue.ValueNotProvided,
+        idNameValue: ProvidedValue<ConjugationOverrideProperty> = ProvidedValue.ValueNotProvided,
     ): DatabaseResult<Long>{
         return upsertWithIdAndIdName(
             conjugationPropertyId,
             idNameValue,
-            doesExistResult = { idName: String? -> conjugationOverrideRepository.selectPropertyExist(conjugationPropertyId, idName) },
-            insert = { idName: String -> conjugationOverrideRepository.insertProperty(idName) },
-            update={ id: Long, idName: String? ->
+            doesExistResult = { idName: ConjugationOverrideProperty? -> conjugationOverrideRepository.selectPropertyExist(conjugationPropertyId, idName) },
+            insert = { idName: ConjugationOverrideProperty -> conjugationOverrideRepository.insertProperty(idName) },
+            update={ id: Long, idName: ConjugationOverrideProperty? ->
                 val idName = getOrFail(idName) {return it}
                 conjugationOverrideRepository.updateProperty(id, idName).toUnit()
             }
@@ -269,7 +270,7 @@ class ConjugationUpsert(
     ): DatabaseResult<Unit> {
         if (properties == null) return DatabaseResult.Success(Unit)
         return dbHandler.processBatchWrite(properties) { (property, action) ->
-            val propertyId = conjugationOverrideRepository.selectPropertyId(property.toString())
+            val propertyId = conjugationOverrideRepository.selectPropertyId(property)
                 .getOrReturn { return@processBatchWrite it}
             when (action) {
                 UpsertOrDelete.Delete -> {
@@ -285,17 +286,17 @@ class ConjugationUpsert(
         }
     }
 
-    private suspend inline fun upsertWithIdAndIdName(
+    private suspend inline fun <T> upsertWithIdAndIdName(
         id: Long? = null,
-        idNameValue: ProvidedValue<String>,
-        doesExistResult: suspend (String?)-> DatabaseResult<Boolean>,
-        insert: suspend (String) -> DatabaseResult<Long>,
-        update: suspend (Long, String?)-> DatabaseResult<Unit>,
+        idNameValue: ProvidedValue<T>,
+        doesExistResult: suspend (T?)-> DatabaseResult<Boolean>,
+        insert: suspend (T) -> DatabaseResult<Long>,
+        update: suspend (Long, T?)-> DatabaseResult<Unit>,
     ): DatabaseResult<Long>{
         if(id == null && idNameValue is ProvidedValue.ValueNotProvided) return DatabaseResult.UnknownError(IllegalArgumentException("either id or idname have to be not null"))
         val isExist: Boolean = doesExistResult(idNameValue.getOrNull()).getOrReturn { return it }
         return if(!isExist){
-            val idName: String = idNameValue.requireNotNullOrFail {return it}
+            val idName: T = idNameValue.requireNotNullOrFail {return it}
             insert(idName)
         }
         else {

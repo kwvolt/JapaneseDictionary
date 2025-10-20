@@ -10,8 +10,8 @@ import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEnt
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormDelete
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormUpsert
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormSearchFilter
-import io.github.kwvolt.japanesedictionary.domain.model.SearchFilter
-import io.github.kwvolt.japanesedictionary.domain.model.SimplifiedWordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SearchFilter
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.SimplifiedWordEntryFormData
 import io.github.kwvolt.japanesedictionary.ui.model.DictionaryLookupScreenState
 import io.github.kwvolt.japanesedictionary.util.handleResultWithErrorCopy
 import kotlinx.coroutines.FlowPreview

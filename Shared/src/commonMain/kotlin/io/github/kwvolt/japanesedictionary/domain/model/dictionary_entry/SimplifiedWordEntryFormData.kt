@@ -1,7 +1,7 @@
-package io.github.kwvolt.japanesedictionary.domain.model
+package io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry
 
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.WordClassItem
 import kotlinx.collections.immutable.PersistentList
 
 data class SimplifiedWordEntryFormData(

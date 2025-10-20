@@ -1,6 +1,6 @@
 package io.github.kwvolt.japanesedictionary.domain.data.service.wordentry
 
-import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.ItemKey
 import io.github.kwvolt.japanesedictionary.domain.data.validation.TextPreprocessor
 import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationError
 import io.github.kwvolt.japanesedictionary.domain.data.validation.ValidationResult
@@ -9,10 +9,10 @@ import io.github.kwvolt.japanesedictionary.domain.data.validation.findDuplicateI
 import io.github.kwvolt.japanesedictionary.domain.data.validation.validJapanese
 import io.github.kwvolt.japanesedictionary.domain.data.validation.validKana
 import io.github.kwvolt.japanesedictionary.domain.data.validation.validateNotEmptyString
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
-import io.github.kwvolt.japanesedictionary.domain.model.WordSectionFormData
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordSectionFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.WordClassItem
 import kotlinx.collections.immutable.toPersistentMap
 
 class WordEntryFormValidation() {
@@ -80,7 +80,7 @@ class WordEntryFormValidation() {
         cleanedPrimary = primaryTextValidationBuilder.cleanedItem
 
         // entry notes
-        val entryNoteItemList: List<TextItem> = wordEntryFormData.entryNoteInputMap.values.toList()
+        val entryNoteItemList: List<TextItem> = wordEntryFormData.noteInputMap.values.toList()
         validationErrors.putAll(
             validateListNoDuplicate(
                 entryNoteItemList,
@@ -107,7 +107,7 @@ class WordEntryFormValidation() {
             validationErrors.putAll(validateListNoDuplicate(kanaItemList, { validateKanaBuilder(it) }, { id: String, item: TextItem -> cleanedKana[id] = item}))
 
             // Section Note
-            val sectionNoteItemList: List<TextItem> = entrySection.getComponentNoteInputMapAsList()
+            val sectionNoteItemList: List<TextItem> = entrySection.getNoteInputMapAsList()
             validationErrors.putAll(validateListNoDuplicate(sectionNoteItemList, { validateNotesBuilder(it) }, { id: String, item: TextItem -> cleanedNotes[id] = item}))
 
             cleanedSections[index] = WordSectionFormData(cleanedMeaning, cleanedKana.toPersistentMap(), cleanedNotes.toPersistentMap())

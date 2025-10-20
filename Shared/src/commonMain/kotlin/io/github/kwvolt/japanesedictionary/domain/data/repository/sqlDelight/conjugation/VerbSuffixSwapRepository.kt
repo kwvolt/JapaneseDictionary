@@ -89,7 +89,7 @@ class VerbSuffixSwapRepository(
         conjugationId: Long,
         returnNotFoundOnNull: Boolean
     ): DatabaseResult<List<Long>> {
-        return dbHandler.selectAll(returnNotFoundOnNull = returnNotFoundOnNull,
+        return dbHandler.selectAllToList(returnNotFoundOnNull = returnNotFoundOnNull,
             queryBlock = {linkQueries.selectVerbSwapSuffixIds(conjugationId).awaitAsList()},
             mapper = { it }
         )

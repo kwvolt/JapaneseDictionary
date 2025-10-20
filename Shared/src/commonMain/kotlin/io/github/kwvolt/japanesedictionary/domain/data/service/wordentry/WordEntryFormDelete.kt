@@ -31,6 +31,7 @@ class WordEntryFormDelete (
     suspend fun deleteSectionNote(sectionNoteId: Long, itemId: String? = null): DatabaseResult<Unit>{
         return entrySectionNoteRepository.delete(sectionNoteId, itemId)
     }
+
     suspend fun deleteWordEntryFormData(dictionaryEntryId: Long): DatabaseResult<Unit> {
         val entryNoteIdList: DatabaseResult<List<Long>> = entryNoteRepository.selectAllById(dictionaryEntryId).flatMapList{ item -> item.id}
         val sectionIdList: DatabaseResult<List<Long>> = entrySectionRepository.selectAllByEntryId(dictionaryEntryId).flatMapList{ item -> item.id}

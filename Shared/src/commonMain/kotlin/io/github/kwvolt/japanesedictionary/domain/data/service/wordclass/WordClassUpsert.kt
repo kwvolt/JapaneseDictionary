@@ -2,6 +2,7 @@ package io.github.kwvolt.japanesedictionary.domain.data.service.wordclass
 
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseHandlerBase
 import io.github.kwvolt.japanesedictionary.domain.data.database.DatabaseResult
+import io.github.kwvolt.japanesedictionary.domain.data.database.RequiresTransaction
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassRepositoryInterface
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.WordClassRepositoryInterface
@@ -12,24 +13,36 @@ class WordClassUpsert(
     private val subClassRepository: SubClassRepositoryInterface,
     private val wordClassRepository: WordClassRepositoryInterface
 ) {
+    @RequiresTransaction
     suspend fun initializeWordClass(idName: String, displayText: String): DatabaseResult<Long> {
-        return mainClassRepository.insert(idName, displayText).flatMap { mainId ->
-            subClassRepository.insertLinkToMainClass(mainId, DEFAULT_ID_NAME, DEFAULT_DISPLAY_TEXT)
+        return dbHandler.requireTransaction {
+            mainClassRepository.insert(idName, displayText).flatMap { mainId ->
+                subClassRepository.insertLinkToMainClass(
+                    mainId,
+                    DEFAULT_ID_NAME,
+                    DEFAULT_DISPLAY_TEXT
+                )
+            }
         }
     }
 
+    @RequiresTransaction
     suspend fun initializeWordClass(
         idName: String,
         displayText: String,
         subClassMap: Map<String, String>
     ): DatabaseResult<Long> {
-        return mainClassRepository.insert(idName, displayText).flatMap { mainId ->
-            subClassRepository.insertLinkToMainClass(mainId, DEFAULT_ID_NAME, DEFAULT_DISPLAY_TEXT).flatMap {
-                dbHandler.processBatchWrite(subClassMap) { entry ->
-                    subClassRepository.insertLinkToMainClass(mainId, entry.key, entry.value).map {  }
-                }
-            }.map {
-                mainId
+        return dbHandler.requireTransaction {
+            mainClassRepository.insert(idName, displayText).flatMap { mainId ->
+                subClassRepository.insertLinkToMainClass(
+                    mainId,
+                    DEFAULT_ID_NAME,
+                    DEFAULT_DISPLAY_TEXT
+                ).flatMap {
+                    dbHandler.processBatchWrite(subClassMap) { entry ->
+                        subClassRepository.insertLinkToMainClass(mainId, entry.key, entry.value).map {  }
+                    }
+                }.map { mainId }
             }
         }
     }

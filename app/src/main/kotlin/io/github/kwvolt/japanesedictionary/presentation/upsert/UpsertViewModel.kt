@@ -2,7 +2,7 @@ package io.github.kwvolt.japanesedictionary.presentation.upsert
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.kwvolt.japanesedictionary.domain.data.ItemKey
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.ItemKey
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.MainClassContainer
 import io.github.kwvolt.japanesedictionary.domain.data.repository.interfaces.wordclass.SubClassContainer
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.ValidUpsertResult
@@ -10,21 +10,21 @@ import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEnt
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormItemFetcher
 import io.github.kwvolt.japanesedictionary.domain.data.service.wordentry.WordEntryFormUpsertValidation
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.WordEntryFormCleaner
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.SectionLabelItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.TextItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.WordClassItem
-import io.github.kwvolt.japanesedictionary.domain.model.WordEntryFormData
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.SectionLabelItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.TextItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.WordClassItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.WordEntryFormData
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.handler.FormCommandManager
-import io.github.kwvolt.japanesedictionary.domain.model.FormItemManager
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.FormItemManager
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.handler.WordFormHandler
 import io.github.kwvolt.japanesedictionary.ui.upsert.handler.FormListValidatorManager
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ErrorMessage
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ErrorMessage
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.handler.UndoRedoStateListener
 import io.github.kwvolt.japanesedictionary.domain.form.upsert.handler.WordClassDataManager
 import io.github.kwvolt.japanesedictionary.ui.upsert.handler.WordFormItemListManager
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.DisplayItem
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.InputTextType
-import io.github.kwvolt.japanesedictionary.domain.model.items.item.ItemSectionProperties
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.DisplayItem
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.InputTextType
+import io.github.kwvolt.japanesedictionary.domain.model.dictionary_entry.items.item.ItemSectionProperties
 import io.github.kwvolt.japanesedictionary.ui.model.FormScreenState
 import io.github.kwvolt.japanesedictionary.ui.model.ScreenStateUnknownError
 import io.github.kwvolt.japanesedictionary.util.handleResultWithErrorCopy
@@ -39,7 +39,6 @@ class UpsertViewModel(
     private val _wordClassDataManager: WordClassDataManager,
     private val _formListValidatorManager: FormListValidatorManager,
     private val _wordEntryFormUpsertValidation: WordEntryFormUpsertValidation,
-    private val _wordFormEntryFormFetcher: WordEntryFormItemFetcher,
     private val _wordEntryFormBuilder: WordEntryFormBuilder
 ): ViewModel() {
 
@@ -158,7 +157,7 @@ class UpsertViewModel(
     // section
     fun addSectionClicked(position: Int) {
         withWordFormHandler { handler: WordFormHandler ->
-            val newSectionId = handler.createNewSection(_formItemManager)
+            val newSectionId: Int = handler.createNewSection(_formItemManager)
             val newItems: List<DisplayItem> = _listManager.generateSectionList(newSectionId, handler.getWordEntryFormData(), _formItemManager, uiState.value.errors)
             val updated = _listManager.addItemsAt(uiState.value.items, newItems, position)
             _uiState.update { it.copy(items = updated) }
